@@ -68,4 +68,34 @@ class CategoryServiceTest {
         assertEquals(userId, returnedCategory.getUser().getId());
     }
 
+    @Test
+    public void testGetCategoryById(){
+        UUID uuid = UUID.randomUUID();
+        String userId = uuid.toString();
+        String email = "user@gmail.com";
+        String name = "user";
+        String password = "password";
+        Instant now = Instant.now();
+        Instant newNow = Instant.now();
+        User u = new User(userId,email,name,password, new ArrayList<>(),now,newNow);
+        Long id = 1L;
+        String catName = "category";
+        String description = "New description";
+        Instant createdAt = Instant.now();
+        Instant updatedAt = Instant.now();
+        Category cat = new Category(id,u,catName,description,createdAt,updatedAt);
+
+
+        Mockito.when(authenticationServiceUtil.getCurrentUserUuid()).thenReturn(userId);
+        Mockito.when(categoryService.getCategoryById(id)).thenReturn(cat);
+
+        assertNotNull(categoryService.getCategoryById(id));
+        assertEquals(categoryService.getCategoryById(id), cat);
+        assertEquals(id, cat.getId());
+        assertEquals(catName,  cat.getName());
+        assertEquals(description,  cat.getDescription());
+        assertEquals(createdAt,  cat.getCreatedAt());
+        assertEquals(updatedAt,  cat.getUpdatedAt());
+        assertEquals(userId, cat.getUser().getId());
+        }
 }
