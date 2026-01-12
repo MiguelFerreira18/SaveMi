@@ -1,0 +1,91 @@
+def command(command){
+    if(isUnix()){
+        sh command
+    }else{
+        bat command
+    }
+}
+pipeline{
+  agent any
+
+  environment {
+        branch = 'main'
+        repo = 'https://github.com/MiguelFerreira18/SaveMe'
+        credentials = 'saveme-credentials'
+        dockerhub_id = ''
+        docker_saveme_backend = 'SaveMe-be'
+        docker_saveme_frontend = 'SaveMe-fe'
+        tag = 'latest'
+        DOCKERHUB_CREDENTIALS = credentials('saveme-docker')
+        PROFILE=prod
+    }
+ stages {
+        stage('Checkout') {
+            steps{
+                checkout scm
+                }
+        }
+        stage('Build Spring Boot jar'){
+            steps{
+                dir('./'){
+                    command('mvn clean package -DskipTests')
+                }
+            }
+        }
+        stage('Build Spring Boot dockerfile'){
+            steps{
+                dir('./'){
+                    command("docker build -t ${dockerhub_id}/${docker_saveme_backend}:${tag} .")
+                }
+            }
+        }
+        stage('Install node dependencies'){
+          steps {
+            command('npm install -g @angular/cli')
+            command('npm install')
+          }
+        }
+        stage('Build Angular'){
+          steps{
+            dir('publicA'){
+              command('ng build --configuration ${PROFILE}')
+            }
+          }
+        }
+        stage('Build Angular dockerfile'){
+          steps{
+            dir('publicA'){
+              command('docker build --build-arg PROFILE=${PROFILE} -t ${dockerhub_id}/${docker_saveme_frontend}:${TAG} .')
+            }
+          }
+        }
+        stage('Login to Dockerhub'){
+            steps{
+                withCredentials([usernamePassword(credentialsId: 'saveme-docker', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_NAME')]) {
+                    command("docker login -u ${DOCKERHUB_NAME} -p ${DOCKERHUB_PASSWORD}")
+                }
+            }
+        }
+        stage('Push Backend to Dockerhub'){
+            steps{
+                dir('./'){
+                    command("docker push ${dockerhub_id}/${docker_saveme_backend}:${tag}")
+                }
+            }
+        }
+        stage('Push Frontend to Dockerhub'){
+            steps{
+                dir('publicA'){
+                    command("docker push ${dockerhub_id}/${docker_saveme_frontend}:${tag}")
+                }
+            }
+        }
+    }
+    post {
+        always {
+            command('docker logout')
+            cleanWs()
+
+        }
+    }
+}
