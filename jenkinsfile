@@ -52,7 +52,7 @@ pipeline{
         stage('Build Angular'){
           steps{
             dir('publicA'){
-              execCommand('ng build --configuration ${PROFILE}')
+              execCommand('npx ng build --configuration ${PROFILE}')
             }
           }
         }
