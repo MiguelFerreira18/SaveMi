@@ -10,13 +10,12 @@ pipeline{
 
   environment {
         branch = 'main'
-        repo = 'https://github.com/MiguelFerreira18/SaveMe'
-        credentials = 'saveme-credentials'
-        dockerhub_id = ''
-        docker_saveme_backend = 'SaveMe-be'
-        docker_saveme_frontend = 'SaveMe-fe'
+        repo = 'https://github.com/MiguelFerreira18/SaveMi'
+        DOCKERHUB_ID = 'miguelferreiraa'
+        DOCKER_SAVEMI_BACKEND = 'savemi-be'
+        DOCKER_SAVEMI_FRONTEND = 'savemi-fe'
         tag = 'latest'
-        DOCKERHUB_CREDENTIALS = credentials('saveme-docker')
+        DOCKERHUB_CREDENTIALS = credentials('savemi-docker')
         PROFILE=prod
     }
  stages {
@@ -35,7 +34,7 @@ pipeline{
         stage('Build Spring Boot dockerfile'){
             steps{
                 dir('./'){
-                    command("docker build -t ${dockerhub_id}/${docker_saveme_backend}:${tag} .")
+                    command("docker build -t ${DOCKERHUB_ID}/${DOCKER_SAVEMI_BACKEND}:${tag} .")
                 }
             }
         }
@@ -55,7 +54,7 @@ pipeline{
         stage('Build Angular dockerfile'){
           steps{
             dir('publicA'){
-              command('docker build --build-arg PROFILE=${PROFILE} -t ${dockerhub_id}/${docker_saveme_frontend}:${TAG} .')
+              command('docker build --build-arg PROFILE=${PROFILE} -t ${DOCKERHUB_ID}/${DOCKER_SAVEMI_FRONTEND}:${TAG} .')
             }
           }
         }
@@ -69,14 +68,14 @@ pipeline{
         stage('Push Backend to Dockerhub'){
             steps{
                 dir('./'){
-                    command("docker push ${dockerhub_id}/${docker_saveme_backend}:${tag}")
+                    command("docker push ${DOCKERHUB_ID}/${DOCKER_SAVEMI_BACKEND}:${tag}")
                 }
             }
         }
         stage('Push Frontend to Dockerhub'){
             steps{
                 dir('publicA'){
-                    command("docker push ${dockerhub_id}/${docker_saveme_frontend}:${tag}")
+                    command("docker push ${DOCKERHUB_ID}/${DOCKER_SAVEMI_FRONTEND}:${tag}")
                 }
             }
         }
