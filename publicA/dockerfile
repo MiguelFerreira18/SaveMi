@@ -3,7 +3,7 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-ARG PROFILE=prod
+ARG PROFILE=production
 ENV PROFILE=${PROFILE}
 
 COPY package*.json ./
@@ -15,11 +15,12 @@ RUN npm run build -- --configuration=${PROFILE}
 
 FROM nginx:alpine
 
+RUN rm -rf /usr/share/nginx/html/*
 RUN rm /etc/nginx/conf.d/default.conf
 
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /app/dist/save-me /usr/share/nginx/html
+COPY --from=builder /app/dist/save-me/browser /usr/share/nginx/html
 
 EXPOSE 80
 

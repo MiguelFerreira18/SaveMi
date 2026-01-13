@@ -49,6 +49,16 @@
                 }
               ]
             },
+            "localP": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.localP.ts"
+                }
+              ],
+              "sourceMap":true,
+              "optimization":true
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -65,10 +75,13 @@
             },
             "development": {
               "buildTarget": "SaveMe:build:development"
-            }
-          },
+            },
+            "local-prod":{
+              "buildTarget": "SaveMe:build:localP"
+            },
           "defaultConfiguration": "development"
-        },
+        }
+      },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
         },
