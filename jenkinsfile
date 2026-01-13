@@ -43,8 +43,10 @@ pipeline{
         }
         stage('Install node dependencies'){
           steps {
-            execCommand('npm install -g @angular/cli')
-            execCommand('npm install')
+            dir('publicA'){
+                execCommand('npm install -g @angular/cli')
+                execCommand('npm install')
+            }
           }
         }
         stage('Build Angular'){
