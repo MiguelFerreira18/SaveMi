@@ -1,4 +1,4 @@
-def command(command){
+def execCommand(command){
     if(isUnix()){
         sh command
     }else{
@@ -16,7 +16,7 @@ pipeline{
         DOCKER_SAVEMI_FRONTEND = 'savemi-fe'
         tag = 'latest'
         DOCKERHUB_CREDENTIALS = credentials('savemi-docker')
-        PROFILE=prod
+        PROFILE='prod'
     }
  stages {
         stage('Checkout') {
@@ -27,62 +27,62 @@ pipeline{
         stage('Build Spring Boot jar'){
             steps{
                 dir('./'){
-                    command('mvn clean package -DskipTests')
+                    execCommand('mvn clean package -DskipTests')
                 }
             }
         }
         stage('Build Spring Boot dockerfile'){
             steps{
                 dir('./'){
-                    command("docker build -t ${DOCKERHUB_ID}/${DOCKER_SAVEMI_BACKEND}:${tag} .")
+                    execCommand("docker build -t ${DOCKERHUB_ID}/${DOCKER_SAVEMI_BACKEND}:${tag} .")
                 }
             }
         }
         stage('Install node dependencies'){
           steps {
-            command('npm install -g @angular/cli')
-            command('npm install')
+            execCommand('npm install -g @angular/cli')
+            execCommand('npm install')
           }
         }
         stage('Build Angular'){
           steps{
             dir('publicA'){
-              command('ng build --configuration ${PROFILE}')
+              execCommand('ng build --configuration ${PROFILE}')
             }
           }
         }
         stage('Build Angular dockerfile'){
           steps{
             dir('publicA'){
-              command('docker build --build-arg PROFILE=${PROFILE} -t ${DOCKERHUB_ID}/${DOCKER_SAVEMI_FRONTEND}:${TAG} .')
+              execCommand('docker build --build-arg PROFILE=${localP} -t ${DOCKERHUB_ID}/${DOCKER_SAVEMI_FRONTEND}:${TAG} .')
             }
           }
         }
         stage('Login to Dockerhub'){
             steps{
                 withCredentials([usernamePassword(credentialsId: 'saveme-docker', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_NAME')]) {
-                    command("docker login -u ${DOCKERHUB_NAME} -p ${DOCKERHUB_PASSWORD}")
+                    execCommand("docker login -u ${DOCKERHUB_NAME} -p ${DOCKERHUB_PASSWORD}")
                 }
             }
         }
         stage('Push Backend to Dockerhub'){
             steps{
                 dir('./'){
-                    command("docker push ${DOCKERHUB_ID}/${DOCKER_SAVEMI_BACKEND}:${tag}")
+                    execCommand("docker push ${DOCKERHUB_ID}/${DOCKER_SAVEMI_BACKEND}:${tag}")
                 }
             }
         }
         stage('Push Frontend to Dockerhub'){
             steps{
                 dir('publicA'){
-                    command("docker push ${DOCKERHUB_ID}/${DOCKER_SAVEMI_FRONTEND}:${tag}")
+                    execCommand("docker push ${DOCKERHUB_ID}/${DOCKER_SAVEMI_FRONTEND}:${tag}")
                 }
             }
         }
     }
     post {
         always {
-            command('docker logout')
+            execCommand('docker logout')
             cleanWs()
 
         }
