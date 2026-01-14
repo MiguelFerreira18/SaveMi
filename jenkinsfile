@@ -36,7 +36,7 @@ pipeline {
         DOCKERHUB_ID = 'miguelferreiraa'
         DOCKER_SAVEMI_BACKEND = 'savemi-be'
         DOCKER_SAVEMI_FRONTEND = 'savemi-fe'
-        TAG = params.TAG
+        TAG = "${params.TAG}"
         DOCKERHUB_CREDENTIALS = credentials('savemi-docker')
         BACKEND_PROFILE = "${params.BACKEND_PROFILE ?: 'prod'}"
         FRONTEND_PROFILE = "${params.FRONTEND_PROFILE ?: 'localP'}"
