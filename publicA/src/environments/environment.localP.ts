@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://api',
+  apiUrl: 'http://savemi-api',
 };

@@ -1,15 +1,13 @@
-version: "3.9"
-
 services:
   db:
     image: mysql:8.1
-    container_name: saveme-db
+    container_name: savemi-db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-saveme}
-      MYSQL_USER: ${MYSQL_USER:-saveme_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-saveme_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-savemi}
+      MYSQL_USER: ${MYSQL_USER:-savemi_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-savemi_pass}
     ports:
       - "3306:3306"
     volumes:
@@ -19,14 +17,15 @@ services:
     entrypoint: ["/backup.sh"]
 
   api:
-    image: miguelFerr/saveme:${API_PROFILE:-prod}
-    container_name: saveme-api
+    image: miguelferreiraa/savemi-be:${TAG:-latest}
+    container_name: savemi-api
     restart: unless-stopped
     environment:
+      DATABASE_NAME: ${DATABASE_NAME:-db}
       SPRING_PROFILES_ACTIVE: ${API_PROFILE:-prod}
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE:-saveme}?useSSL=false&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-saveme_user}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-saveme_pass}
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE:-savemi}?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-savemi_user}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-savemi_pass}
       APP_COOKIE_DOMAIN: ${APP_DOMAIN:-localhost}
       JWT_PRIVATE_KEY: /keys/rsa.private.key
       JWT_PUBLIC_KEY: /keys/rsa.public.key
@@ -39,20 +38,20 @@ services:
       - db
 
   frontend:
-    image: miguelFerr/publicSaveme:${FRONTEND_PROFILE:-prod}
-    container_name: saveme-frontend
+    image: miguelferreiraa/savemi-fe:${TAG:-latest}
+    container_name: savemi-frontend
     restart: unless-stopped
     environment:
-      FRONTEND_PROFILE: ${FRONTEND_PROFILE:-prod}
+      FRONTEND_PROFILE: ${FRONTEND_PROFILE:-localP}
       API_BASE_URL: http://localhost:8080
-    ports:
-      - "80:80"
+    networks:
+      - savemi-network
     depends_on:
       - api
 
   nginx:
     image: nginx:alpine
-    container_name: saveme-nginx
+    container_name: savemi-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -61,6 +60,11 @@ services:
     depends_on:
       - api
       - frontend
+    networks:
+      - savemi-network
 
 volumes:
   db_data:
+networks:
+  savemi-network:
+    driver: bridge
