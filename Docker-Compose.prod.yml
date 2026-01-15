@@ -13,8 +13,17 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./db_backups:/backups
-      - ./backup.sh:/backup.sh:ro
-    entrypoint: ["/backup.sh"]
+    entrypoint: |
+      sh -c '
+      while true; do
+        TIMESTAMP=$$(date +"%Y%m%d%H%M%S")
+        echo "Backing up database..."
+        mysqldump -h localhost -u "$$MYSQL_USER" -p"$$MYSQL_PASSWORD" "$$MYSQL_DATABASE" | gzip >/backups/savemi-$$TIMESTAMP.sql.gz
+        echo "Backup done: /backups/savemi-$$TIMESTAMP.sql.gz"
+        sleep 1000
+      done &
+      exec docker-entrypoint.sh mysqld
+      '
 
   api:
     image: miguelferreiraa/savemi-be:${TAG:-latest}

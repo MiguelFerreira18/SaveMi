@@ -28,13 +28,13 @@ public class CurrencyService {
     public Currency getCurrencyById(Long id) {
         String userUUID = authenticationServiceUtil.getCurrentUserUuid();
         return currencyRepo.findCurrencyByIdAndUserId(id, userUUID)
-                .orElseThrow(() -> new RuntimeException(STR."Currency not found with id: \{id} for user: \{userUUID}"));
+                .orElseThrow(() -> new RuntimeException("Currency not found with id: " + id + " for user: " + userUUID));
     }
 
     public Currency saveCurrency(SaveCurrencyDto currency) {
         String userUUID = authenticationServiceUtil.getCurrentUserUuid();
         User user = userRepo.findById(userUUID)
-                .orElseThrow(() -> new IllegalArgumentException(STR."User not found with UUID: \{userUUID}"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + userUUID));
         Currency newCurrency = new Currency(user, currency.name(), currency.symbol());
         return currencyRepo.save(newCurrency);
     }
