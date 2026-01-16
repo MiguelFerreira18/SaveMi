@@ -13,6 +13,8 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./db_backups:/backups
+    networks:
+      - savemi-network
     entrypoint: |
       sh -c '
       while true; do
@@ -29,6 +31,9 @@ services:
     image: miguelferreiraa/savemi-be:${TAG:-latest}
     container_name: savemi-api
     restart: unless-stopped
+    secrets:
+      - jwt_private_key
+      - jwt_public_key
     environment:
       DATABASE_NAME: ${DATABASE_NAME:-db}
       SPRING_PROFILES_ACTIVE: ${API_PROFILE:-prod}
@@ -36,13 +41,14 @@ services:
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-savemi_user}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-savemi_pass}
       APP_COOKIE_DOMAIN: ${APP_DOMAIN:-localhost}
-      JWT_PRIVATE_KEY: /keys/rsa.private.key
-      JWT_PUBLIC_KEY: /keys/rsa.public.key
+      JWT_PRIVATE_KEY: file:/run/secrets/jwt_private_key
+      JWT_PUBLIC_KEY: file:/run/secrets/jwt_public_key
     volumes:
-      - ./keys:/keys:ro
       - ./logs:/app/logs
     ports:
       - "8080:8080"
+    networks:
+      - savemi-network
     depends_on:
       - db
 
@@ -51,7 +57,7 @@ services:
     container_name: savemi-frontend
     restart: unless-stopped
     environment:
-      FRONTEND_PROFILE: ${FRONTEND_PROFILE:-localP}
+      FRONTEND_PROFILE: ${FRONTEND_PROFILE:-production}
       API_BASE_URL: http://localhost:8080
     networks:
       - savemi-network
@@ -71,6 +77,12 @@ services:
       - frontend
     networks:
       - savemi-network
+
+secrets:
+  jwt_private_key:
+    file: ./secrets/rsa.private.key
+  jwt_public_key:
+    file: ./secrets/rsa.public.key
 
 volumes:
   db_data:

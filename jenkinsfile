@@ -11,7 +11,7 @@ pipeline {
     parameters {
         choice(
             name: 'FRONTEND_PROFILE',
-            choices: ['production', 'development', 'localP'],
+            choices: ['production', 'development'],
             description: 'Frontend build profile'
         )
         choice(
@@ -39,7 +39,7 @@ pipeline {
         TAG = "${params.TAG}"
         DOCKERHUB_CREDENTIALS = credentials('savemi-docker')
         BACKEND_PROFILE = "${params.BACKEND_PROFILE ?: 'prod'}"
-        FRONTEND_PROFILE = "${params.FRONTEND_PROFILE ?: 'localP'}"
+        FRONTEND_PROFILE = "${params.FRONTEND_PROFILE ?: 'production'}"
     }
     stages {
         stage('Checkout') {
