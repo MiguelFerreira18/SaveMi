@@ -23,7 +23,7 @@ public class ExpenseController {
     public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses() {
         Iterable<Expense> expenses = expenseService.getAllExpenses();
 
-        if (expenses == null || !expenses.iterator().hasNext()) {
+        if (expenses == null) {
             return ResponseEntity.notFound().build();
         }
 

@@ -24,6 +24,10 @@ public class CurrencyController {
     public ResponseEntity<List<CurrencyDtoOut>> getAllCurrencies() {
         Iterable<Currency> currencies = currencyService.getAllCurrenciesFromUser();
 
+        if(currencies == null){
+            return ResponseEntity.notFound().build();
+        }
+
         List<CurrencyDtoOut> currencyDtos = StreamSupport.stream(currencies.spliterator(),false).map(
                 currency -> new CurrencyDtoOut(
                         currency.getId(),
