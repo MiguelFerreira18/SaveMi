@@ -23,7 +23,7 @@ public class StrategyTypeController {
     public ResponseEntity<Iterable<StrategyTypeOutputDto>> GetAllStrategyTypes() {
         Iterable<StrategyType> strategyTypes = strategyTypeService.getAllStrategyTypes();
 
-        if (strategyTypes == null || !strategyTypes.iterator().hasNext()) {
+        if (strategyTypes == null) {
             return ResponseEntity.notFound().build();
         }
 

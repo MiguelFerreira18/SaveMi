@@ -28,7 +28,7 @@ public class WishController {
     public ResponseEntity<Iterable<WishOutputDto>> getAllWishes(){
         Iterable<Wish> wishes = wishService.getAllWishes();
 
-        if (wishes == null || !wishes.iterator().hasNext()) {
+        if (wishes == null) {
             return ResponseEntity.notFound().build();
         }
 

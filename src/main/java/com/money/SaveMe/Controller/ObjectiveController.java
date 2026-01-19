@@ -34,7 +34,7 @@ public class ObjectiveController {
     public ResponseEntity<Iterable<ObjectiveOutputDto>> getAllObjectiveByUserIdFromCurrency() {
         Iterable<Objective> objectives = objectiveService.getAllObjectives();
 
-        if (objectives == null || !objectives.iterator().hasNext()) {
+        if (objectives == null) {
             return ResponseEntity.notFound().build();
         }
 
