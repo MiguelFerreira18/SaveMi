@@ -98,8 +98,13 @@ public class SecurityConfig {
                                 .requestMatchers("/auth/public/signup").permitAll()
                                 .requestMatchers("/auth/public/login").permitAll()
                                 .requestMatchers("/auth/public/status").permitAll()
+                                .requestMatchers("/api-docs").permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
+                                .requestMatchers("/swagger-ui.html").permitAll()
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .anyRequest().permitAll()
+
                 )
-                .httpBasic(Customizer.withDefaults())
                 .oauth2ResourceServer((oauth) -> oauth.bearerTokenResolver(cookieBearerTokenResolver)
                         .jwt(Customizer.withDefaults()))
                 .authenticationProvider(authenticationProvider());

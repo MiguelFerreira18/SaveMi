@@ -15,10 +15,11 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.Random;
 
 @Component
-@Order(BootstrapOrder.INCOMES)
+@Order(BootstrapOrder.OBJECTIVES)
 @Profile("dev")
 public class ObjectiveBootstrap implements CommandLineRunner {
     private final UserService userService;
@@ -64,6 +65,7 @@ public class ObjectiveBootstrap implements CommandLineRunner {
 
     private int randomYear(){
         Random random = new Random();
-        return random.nextInt(2030 - 2025 + 1) + 2025;
+        int year = Year.now().getValue();
+        return random.nextInt(2030 - year + 1) + year;
     }
 }
