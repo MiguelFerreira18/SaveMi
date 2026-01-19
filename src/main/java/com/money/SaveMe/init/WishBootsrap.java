@@ -45,7 +45,7 @@ public class WishBootsrap implements CommandLineRunner {
     private void createWishes(User user, Currency currency, int numberOfWishes) {
         for (int i = 1; i <= numberOfWishes; i++) {
             BigDecimal value = new BigDecimal(i * 100.23).setScale(2, BigDecimal.ROUND_HALF_UP);
-            String description = STR."WISH\{i}";
+            String description = String.format("WISH%d", i);
             if (wishRepo.findByWishByUserIdCurrencyIdAndAmount(user.getId(), currency.getId(), value).isEmpty()) {
                  Wish wish = new Wish(user, currency, value, description, LocalDate.now().minusDays(i));
                  wishRepo.save(wish);

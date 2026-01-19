@@ -36,16 +36,16 @@ public class IncomeService {
     public Income getIncomeById(Long id) {
         String userId = authenticationServiceUtil.getCurrentUserUuid();
         return incomeRepo.findByIncomeIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException(STR."Income not found with id: \{id} for user: \{userId}"));
+                .orElseThrow(() -> new RuntimeException("Income not found with id: " + id + " for user: " + userId));
     }
 
     public Income saveIncome(SaveIncomeDto income) {
         String userId = authenticationServiceUtil.getCurrentUserUuid();
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(STR."User not found with UUID: \{userId}"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + userId));
 
         Currency currency = currencyRepo.findCurrencyByIdAndUserId(income.currencyId(), userId)
-                .orElseThrow(() -> new IllegalArgumentException(STR."Currency not found with id: \{income.currencyId()} for user: \{userId}"));
+                .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + income.currencyId() + " for user: " + userId));
 
         Income newIncome = new Income(user, currency, income.amount(), income.description(), income.date());
 
@@ -56,10 +56,10 @@ public class IncomeService {
         String userId = authenticationServiceUtil.getCurrentUserUuid();
 
         Currency currency = currencyRepo.findCurrencyByIdAndUserId(updatedIncomeDto.currencyId(), userId)
-                .orElseThrow(() -> new IllegalArgumentException(STR."Currency not found with id: \{updatedIncomeDto.currencyId()} for user: \{userId}"));
+                .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + updatedIncomeDto.currencyId() + " for user: " + userId));
 
         Income oldIncome = incomeRepo.findByIncomeIdAndUserId(updatedIncomeDto.id(), userId)
-                .orElseThrow(() -> new RuntimeException(STR."Income not found with id: \{updatedIncomeDto.id()} for user: \{userId}"));
+                .orElseThrow(() -> new RuntimeException("Income not found with id: " + updatedIncomeDto.id() + " for user: " + userId));
 
         oldIncome.setAmount(updatedIncomeDto.amount());
         oldIncome.setDescription(updatedIncomeDto.description());
@@ -73,7 +73,7 @@ public class IncomeService {
         String userId = authenticationServiceUtil.getCurrentUserUuid();
 
         if (!incomeRepo.findByIncomeIdAndUserId(id, userId).isPresent()) {
-            throw new RuntimeException(STR."Income not found with id: \{id} for user: \{userId}");
+            throw new RuntimeException("Income not found with id: " + id + " for user: " + userId);
         }
 
         incomeRepo.deleteIncomeByIdAndUserId(id, userId);

@@ -1,9 +1,0 @@
-package com.money.SaveMe.DTO.Category;
-
-import jakarta.validation.constraints.NotNull;
-
-public record SaveCategoryDto(
-        @NotNull String name,
-        @NotNull String description) {
-
-}
