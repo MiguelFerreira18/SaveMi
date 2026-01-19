@@ -31,7 +31,7 @@ public class InvestmentController {
     public ResponseEntity<Iterable<InvestmentOutDto>> getAllInvestments() {
         Iterable<Investment> investments = investmentService.getAllInvestments();
 
-        if (investments == null || !investments.iterator().hasNext()) {
+        if (investments == null) {
             return ResponseEntity.notFound().build();
         }
 

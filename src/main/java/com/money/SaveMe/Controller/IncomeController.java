@@ -28,7 +28,7 @@ public class IncomeController {
     public ResponseEntity<Iterable<IncomeOutputDto>> getAllIncomeByUserIdFromCurrency() {
         Iterable<Income> incomes = incomeService.getAllIncomeByUserId();
 
-        if (incomes == null || !incomes.iterator().hasNext()) {
+        if (incomes == null) {
             return ResponseEntity.notFound().build();
         }
 
