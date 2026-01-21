@@ -1,19 +1,9 @@
-import {
-  Component,
-  computed,
-  effect,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  signal,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, computed, effect, OnDestroy, OnInit, signal } from '@angular/core';
 import { DashboardService } from './dashboard.service';
-import { forkJoin, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Income } from '../shared/models/income.model';
 import { Wish } from '../shared/models/wish.model';
 import { Expense } from '../shared/models/expense.model';
-import { DataTableComponent } from '../shared/data-table/data-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ErrorDisplayComponent } from '../shared/error-display/error-display.component';
@@ -31,7 +21,6 @@ import { Investment } from '../shared/models/investment.model';
 @Component({
   selector: 'app-dashboard',
   imports: [
-    DataTableComponent,
     MatIcon,
     MatButtonModule,
     MatProgressSpinner,
