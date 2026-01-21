@@ -1,4 +1,4 @@
-# SaveMe
+# SaveMi (Save My Income)
 
 A self financial management tool, allows the user to manage their financial life, from managing their income, payments, wishes, loans to also incorporate investments calulated through an stock exchange api.
 
@@ -45,7 +45,7 @@ Syncronize data with banks
 5. Run ```bash ng serve``` inside publicA directory where the frontend is located
 6. Happy coding
 
-**Note:** The login credentials can be found at the bootsrap java files in ```src/main/java/com/money/SaveMe/init/UserBootstrap.java```
+**Note:** The login credentials can be found at the bootsrap java files in ```src/main/java/com/money/SaveMi/init/UserBootstrap.java```
 
 ## How to run for production
 

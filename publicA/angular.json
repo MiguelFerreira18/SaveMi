@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "SaveMe": {
+    "SaveMi": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -61,13 +61,13 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "SaveMe:build:production"
+              "buildTarget": "SaveMi:build:production"
             },
             "development": {
-              "buildTarget": "SaveMe:build:development"
+              "buildTarget": "SaveMi:build:development"
             }
           },
-            "defaultConfiguration": "development"
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
