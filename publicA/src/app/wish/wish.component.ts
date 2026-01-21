@@ -28,7 +28,6 @@ import { AddWishDialogComponent } from './add-wish-dialog/add-wish-dialog.compon
 export class WishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   columns: TableColumn<Wish>[] = [
-    { header: 'ID', field: 'id' },
     { header: 'Symbol', field: 'symbol' },
     { header: 'Description', field: 'description' },
     { header: 'Amount', field: 'amount' },

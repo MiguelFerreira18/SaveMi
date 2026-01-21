@@ -35,3 +35,20 @@ build/
 ### Environment files ###
 .env.prod*
 .env
+
+# If for some reason you start the docker compose in this place
+db_backups/
+*.gz
+
+# Secrets
+secrets/
+
+# Environment
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+
+

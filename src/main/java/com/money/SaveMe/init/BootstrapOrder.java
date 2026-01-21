@@ -10,4 +10,5 @@ public class BootstrapOrder {
     public static final int WISHES = 70;
     public static final int EXPENSES = 80;
     public static final int INVESTMENTS = 100;
+    public static final int OBJECTIVES = 120;
     }

@@ -10,7 +10,9 @@ import { WishComponent } from './wish/wish.component';
 import { StrategyTypeComponent } from './strategy-type/strategy-type.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { InvestmentComponent } from './investments/investment.component';
+import { ObjectiveComponent } from './objective/objective.component';
 
+//INFO: PATHS ARE BY LISTED AS ORDER OF IMPLMENTATION BUT IN MAIN.ts THEY ARE LISTED BY FEATURE
 export const routes: Routes = [
   {
     path: 'login',
@@ -68,6 +70,12 @@ export const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
         title: 'dashboard Page',
+        canActivate: [AuthGuardService],
+      },
+      {
+        path: 'objective',
+        component: ObjectiveComponent,
+        title: 'Objective Page',
         canActivate: [AuthGuardService],
       },
     ],

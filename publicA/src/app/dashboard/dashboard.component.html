@@ -9,10 +9,10 @@
 ></app-generic-dropdown-filter>
 <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 py-3">
   <app-budget-table
-    [totalExpense]="totalExpenses"
-    [totalIncome]="totalIncome"
-    [totalWish]="totalWishes"
     [totalInvestment]="totalInvestments"
+    [totalIncome]="totalIncome"
+    [totalExpense]="totalExpenses"
+    [totalWish]="totalWishes"
     class="col-span-3 bg-white shadow-sm rounded-lg p-5"
   ></app-budget-table>
   <app-pie-chart
@@ -21,12 +21,13 @@
   ></app-pie-chart>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4">
-  <app-dashboard-dynamic-table
-    [data]="expenses()"
-    [total]="totalExpenses"
-    [columns]="expenseColumns"
+    <app-dashboard-dynamic-table
+    [data]="investments()"
+    [total]="totalInvestments"
+    [columns]="investmentColumns"
     [minRows]="12"
     [pageSize]="12"
+    title="Investments"
   >
   </app-dashboard-dynamic-table>
   <app-dashboard-dynamic-table
@@ -35,14 +36,16 @@
     [columns]="incomeColumns"
     [minRows]="12"
     [pageSize]="12"
+    title="Incomes"
   >
   </app-dashboard-dynamic-table>
   <app-dashboard-dynamic-table
-    [data]="investments()"
-    [total]="totalInvestments"
-    [columns]="investmentColumns"
+    [data]="expenses()"
+    [total]="totalExpenses"
+    [columns]="expenseColumns"
     [minRows]="12"
     [pageSize]="12"
+    title="Expenses"
   >
   </app-dashboard-dynamic-table>
   <app-dashboard-dynamic-table
@@ -51,6 +54,7 @@
     [columns]="wishColumns"
     [minRows]="12"
     [pageSize]="12"
+    title="Wishes"
   >
   </app-dashboard-dynamic-table>
 </div>

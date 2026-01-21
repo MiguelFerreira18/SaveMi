@@ -28,7 +28,6 @@ import { AddExpenseDialogComponent } from './add-expense-dialog/add-expense-dial
 export class ExpensesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   columns: TableColumn<Expense>[] = [
-    { header: 'ID', field: 'id' },
     { header: 'Category', field: 'category' },
     { header: 'Symbol', field: 'symbol' },
     { header: 'Description', field: 'description' },

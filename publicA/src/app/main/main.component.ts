@@ -43,6 +43,10 @@ export class MainComponent {
       link: 'wish',
     },
     {
+      name: 'Objectives',
+      link: 'objective',
+    },
+    {
       name: 'Currency',
       link: 'currency',
     },

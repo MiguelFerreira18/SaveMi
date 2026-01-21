@@ -23,7 +23,7 @@ public class CategoryController {
     public ResponseEntity<Iterable<CategoryDtoOut>> getAllCategories() {
         Iterable<Category> categories = categoryService.getAllCategories();
 
-        if (categories == null || !categories.iterator().hasNext()) {
+        if (categories == null) {
             return ResponseEntity.notFound().build();
         }
 

@@ -30,7 +30,6 @@ import { IncomeService } from './income.service';
 export class IncomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   columns: TableColumn<Income>[] = [
-    { header: 'ID', field: 'id' },
     { header: 'Symbol', field: 'symbol' },
     { header: 'Description', field: 'description' },
     { header: 'Amount', field: 'amount' },

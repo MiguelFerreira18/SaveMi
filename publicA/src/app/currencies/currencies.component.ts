@@ -29,7 +29,6 @@ export class CurrenciesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   columns: TableColumn<Currency>[] = [
-    { header: 'ID', field: 'id' },
     { header: 'Name', field: 'name' },
     { header: 'Symbol', field: 'symbol' },
   ];

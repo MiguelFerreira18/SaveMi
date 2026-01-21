@@ -30,7 +30,6 @@ export class StrategyTypeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   columns: TableColumn<StrategyType>[] = [
-    { header: 'ID', field: 'id' },
     { header: 'Name', field: 'name' },
     { header: 'description', field: 'description' },
   ];

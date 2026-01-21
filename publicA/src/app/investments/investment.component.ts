@@ -28,7 +28,6 @@ import { InvestmentService } from './investment.service';
 export class InvestmentComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   columns: TableColumn<Investment>[] = [
-    { header: 'ID', field: 'id' },
     { header: 'Strategy Type', field: 'strategyType' },
     { header: 'Symbol', field: 'symbol' },
     { header: 'Description', field: 'description' },

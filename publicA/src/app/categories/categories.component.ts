@@ -29,7 +29,6 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   columns: TableColumn<Category>[] = [
-    { header: 'ID', field: 'id' },
     { header: 'Name', field: 'name' },
     { header: 'description', field: 'description' },
   ];

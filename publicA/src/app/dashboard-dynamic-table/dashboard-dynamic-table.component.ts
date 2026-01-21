@@ -23,6 +23,7 @@ export class DashboardDynamicTableComponent {
   @Input() columns: TableColumn[] = [];
   @Input() minRows: number = 10;
   @Input() pageSize: number = 10;
+  @Input({ required: true }) title!: string;
 
   displayedData: any[] = [];
   displayedColumns: string[] = [];

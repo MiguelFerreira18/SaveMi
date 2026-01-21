@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Add Objective</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="objective" class="p-2">
+    <mat-form-field class="w-full">
+      <mat-label>Description</mat-label>
+      <input type="text" matInput formControlName="description" />
+    </mat-form-field>
+    <mat-form-field class="w-full">
+      <mat-label>Amount</mat-label>
+      <input type="number" matInput formControlName="amount" />
+    </mat-form-field>
+
+    <mat-form-field class="w-full">
+      <mat-label>Currency</mat-label>
+      <mat-select formControlName="currencyId">
+        @for (currency of currencies(); track currency.id) {
+          <mat-option [value]="currency.id">{{ currency.symbol }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="w-full">
+      <mat-label>Target</mat-label>
+      <input type="number" matInput formControlName="target" />
+    </mat-form-field>
+
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button type="submit" mat-raised-button (click)="submit()" [disabled]="objective.invalid">
+        Save
+      </button>
+    </mat-dialog-actions>
+  </form>
+  <
+</mat-dialog-content>
