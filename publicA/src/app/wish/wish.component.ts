@@ -52,6 +52,7 @@ export class WishComponent implements OnInit, OnDestroy {
 
   readonly allWishes = signal<Wish[]>([]);
   wishes = signal<Wish[]>([]);
+  selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -73,6 +74,24 @@ export class WishComponent implements OnInit, OnDestroy {
         this.createWish(result);
       }
     });
+  }
+
+  deleteWishes() {
+    if (this.selectedIds().size == 0) return;
+    const idsToDelete = this.selectedIds();
+    this.wishService.deleteWishes(idsToDelete).subscribe({
+      next: (_) => {
+        this.selectedIds.set(new Set<number>());
+        this.loadWishes();
+      },
+      error: (_) => {
+        this.toast.show('Error deleting wishes', 'error', 5000);
+      },
+    });
+  }
+
+  updateSelectedIds(updater: (s: Set<number>) => Set<number>) {
+    this.selectedIds.update(updater);
   }
 
   private loadWishes(retryCount: number = 0, maxRetries: number = 3) {
@@ -98,11 +117,10 @@ export class WishComponent implements OnInit, OnDestroy {
       },
     });
   }
+
   private createWish(wish: CreateWishDto) {
     this.wishService.postWishes(wish).subscribe({
       next: (data) => {
-        console.log(data);
-
         this.toast.show(`Income ${data.description} created successfully`, 'success', 3000);
         this.loadWishes();
       },

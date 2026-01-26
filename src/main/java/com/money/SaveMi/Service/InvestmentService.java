@@ -2,6 +2,7 @@ package com.money.SaveMi.Service;
 
 import com.money.SaveMi.DTO.Investment.SaveInvestmentDto;
 import com.money.SaveMi.DTO.Investment.UpdateInvestmentDto;
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.*;
 import com.money.SaveMi.Repo.*;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
@@ -72,8 +73,25 @@ public class InvestmentService {
         return investmentRepo.save(oldInvestment);
     }
 
+    public void bulkDelete(BulkDeleteDto bulkdeleteDto){
+        String userId = authUtil.getCurrentUserUuid();
+
+        bulkdeleteDto.ids().forEach(id -> {
+            if(investmentRepo.findByInvestmentIdAndUserId(id,userId).isEmpty()){
+                throw new RuntimeException("Investment not found with id: " + id + " for user: " + userId + " in bulk");
+            }
+        });
+
+        investmentRepo.bulkDelete(bulkdeleteDto.ids(),userId);
+    }
+
     public void deleteInvestment(Long id) {
         String userId = authUtil.getCurrentUserUuid();
+
+        if(investmentRepo.findByInvestmentIdAndUserId(id,userId).isEmpty()){
+            throw new RuntimeException("Investment not found with id: " + id + " for user: " + userId);
+        }
+
         investmentRepo.deleteInvestmentByIdAndUserId(id, userId);
     }
 }

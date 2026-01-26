@@ -2,6 +2,7 @@ package com.money.SaveMi.Controller;
 
 import com.money.SaveMi.DTO.Currency.SaveCurrencyDto;
 import com.money.SaveMi.DTO.Currency.CurrencyDtoOut;
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Currency;
 import com.money.SaveMi.Service.CurrencyService;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +67,12 @@ public class CurrencyController {
         );
 
         return ResponseEntity.status(201).body(currencyDtoOut);
+    }
+
+    @PostMapping("/bulk-delete")
+    public ResponseEntity<Void> deleteCurrencies(@RequestBody BulkDeleteDto bulkDeleteDto){
+        currencyService.bulkDelete(bulkDeleteDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

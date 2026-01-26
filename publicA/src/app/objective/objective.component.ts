@@ -50,6 +50,7 @@ export class ObjectiveComponent implements OnInit, OnDestroy {
   }
   readonly allObjectives = signal<Objective[]>([]);
   objectives = signal<Objective[]>([]);
+  selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -72,6 +73,25 @@ export class ObjectiveComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  deleteObjectives() {
+    if (this.selectedIds().size == 0) return;
+    const idsToDelete = this.selectedIds();
+    this.objectiveService.deleteObjectives(idsToDelete).subscribe({
+      next: (_) => {
+        this.selectedIds.set(new Set<number>());
+        this.loadObjectives();
+      },
+      error: (_) => {
+        this.toast.show('Error deleting objectives', 'error', 5000);
+      },
+    });
+  }
+
+  updateSelectedIds(updater: (s: Set<number>) => Set<number>) {
+    this.selectedIds.update(updater);
+  }
+
   private loadObjectives(retryCount: number = 0, maxRetries: number = 3) {
     this.objectiveService.getObjective().subscribe({
       next: (data) => {

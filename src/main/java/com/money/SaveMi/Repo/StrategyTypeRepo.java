@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,7 +20,12 @@ public interface StrategyTypeRepo extends CrudRepository<StrategyType, Long> {
     Optional<StrategyType> findStrategyTypeByIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT s FROM StrategyType s WHERE s.name = ?1 AND s.description = ?2 AND s.user.id = ?3")
-    Optional<StrategyType> findByNameDescriptionAndUserId(String name, String description, String userId);
+    Optional<StrategyType> findByNameDescriptionAndUserId(String name, String description, String userUUID);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM StrategyType s WHERE s.id in ?1 AND s.user.id = ?2")
+    void bulkDelete(List<Long> ids, String userUUID);
 
     @Transactional
     @Modifying

@@ -20,4 +20,23 @@ export class StrategyTypeService {
   postStrategyType(strategyType: CreateStrategyTypeDto): Observable<StrategyType> {
     return this.http.post<StrategyType>(this.apiUrl, strategyType, { withCredentials: true });
   }
+
+  deleteStrategies(ids: Set<number>): Observable<void> {
+    if (ids.size > 1) {
+      return this.http.post<void>(
+        `${this.apiUrl}/bulk-delete`,
+        {
+          ids: Array.from(ids),
+        },
+        {
+          withCredentials: true,
+        }
+      );
+    } else {
+      const [id] = ids;
+      return this.http.delete<void>(`${this.apiUrl}/${id}`, {
+        withCredentials: true,
+      });
+    }
+  }
 }

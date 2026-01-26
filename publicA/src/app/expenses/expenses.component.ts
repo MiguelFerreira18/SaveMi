@@ -52,6 +52,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
 
   readonly allExpenses = signal<Expense[]>([]);
   expenses = signal<Expense[]>([]);
+  selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -75,6 +76,23 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     });
   }
 
+  deleteExpenses() {
+    if (this.selectedIds().size == 0) return;
+    const idsToDelete = this.selectedIds();
+    this.expenseService.deleteExpenses(idsToDelete).subscribe({
+      next: (_) => {
+        this.selectedIds.set(new Set<number>());
+        this.loadExpenses();
+      },
+      error: (_) => {
+        this.toast.show('Error deleting expenses', 'error', 5000);
+      },
+    });
+  }
+
+  updateSelectedIds(updater: (s: Set<number>) => Set<number>) {
+    this.selectedIds.update(updater);
+  }
   private loadExpenses(retryCount: number = 0, maxRetries: number = 3) {
     this.expenseService.getExpenses().subscribe({
       next: (data) => {

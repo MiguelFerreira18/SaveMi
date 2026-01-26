@@ -3,6 +3,7 @@ package com.money.SaveMi.Controller;
 import com.money.SaveMi.DTO.Income.IncomeOutputDto;
 import com.money.SaveMi.DTO.Income.SaveIncomeDto;
 import com.money.SaveMi.DTO.Income.UpdateIncomeDto;
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Income;
 import com.money.SaveMi.Service.IncomeService;
 import org.springframework.http.ResponseEntity;
@@ -105,6 +106,12 @@ public class IncomeController {
         );
 
         return ResponseEntity.ok(incomeOutputDto);
+    }
+
+    @PostMapping("/bulk-delete")
+    public ResponseEntity<Void> deleteIncomes(@RequestBody BulkDeleteDto bulkDeleteDto){
+        incomeService.bulkDelete(bulkDeleteDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

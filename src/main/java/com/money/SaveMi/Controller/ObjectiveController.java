@@ -3,6 +3,7 @@ package com.money.SaveMi.Controller;
 import com.money.SaveMi.DTO.Objective.ObjectiveOutputDto;
 import com.money.SaveMi.DTO.Objective.SaveObjectiveDto;
 import com.money.SaveMi.DTO.Objective.UpdateObjectiveDto;
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Objective;
 import com.money.SaveMi.Service.ObjectiveService;
 import org.springframework.http.ResponseEntity;
@@ -102,6 +103,12 @@ public class ObjectiveController {
         );
 
         return ResponseEntity.ok(incomeOutputDto);
+    }
+
+    @PostMapping("/bulk-delete")
+    public ResponseEntity<Void> deleteObjectives(@RequestBody BulkDeleteDto bulkDeleteDto){
+        objectiveService.bulkDelete(bulkDeleteDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

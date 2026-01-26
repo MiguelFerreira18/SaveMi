@@ -139,8 +139,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadIncome() {
     this.dasboardService.getIncomes().subscribe({
       next: (incomes) => {
-        console.log(incomes);
-
         const roundedIncomes = incomes.map((i) => {
           i['amount'] = Number(i.amount.toFixed(2));
           return i;

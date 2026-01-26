@@ -50,6 +50,7 @@ export class CurrenciesComponent implements OnInit, OnDestroy {
 
   readonly allCurrencies = signal<Currency[]>([]);
   currencies = signal<Currency[]>([]);
+  selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -71,6 +72,24 @@ export class CurrenciesComponent implements OnInit, OnDestroy {
         this.createCurrency(result);
       }
     });
+  }
+
+  deleteCurrencies() {
+    if (this.selectedIds().size == 0) return;
+    const idsToDelete = this.selectedIds();
+    this.currencyService.deleteCurrencies(idsToDelete).subscribe({
+      next: (_) => {
+        this.selectedIds.set(new Set<number>());
+        this.loadCurrencies();
+      },
+      error: (_) => {
+        this.toast.show('Error deleting currencies', 'error', 5000);
+      },
+    });
+  }
+
+  updateSelectedIds(updater: (s: Set<number>) => Set<number>) {
+    this.selectedIds.update(updater);
   }
 
   private loadCurrencies(retryCount: number = 0, maxRetries: number = 3) {
