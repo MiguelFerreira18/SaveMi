@@ -8,9 +8,8 @@ describe('GenericDropdownFilterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GenericDropdownFilterComponent]
-    })
-    .compileComponents();
+      imports: [GenericDropdownFilterComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(GenericDropdownFilterComponent);
     component = fixture.componentInstance;

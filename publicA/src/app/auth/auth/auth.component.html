@@ -1,14 +1,18 @@
 <div class="h-screen flex justify-center items-center">
   @if (isLogin) {
-    <form [formGroup]="signInUser" (submit)="signIn()" class="flex flex-col items-center p-10 m-5 w-100 rounded-2xl shadow-2xl">
-      <mat-form-field  class="w-full ">
+    <form
+      [formGroup]="signInUser"
+      (submit)="signIn()"
+      class="flex flex-col items-center p-10 m-5 w-100 rounded-2xl shadow-2xl"
+    >
+      <mat-form-field class="w-full">
         <mat-label>Email</mat-label>
-        <input matInput type="email" formControlName='email' />
+        <input matInput type="email" formControlName="email" />
       </mat-form-field>
 
       <mat-form-field class="w-full">
         <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName='password' />
+        <input matInput type="password" formControlName="password" />
       </mat-form-field>
 
       <button class="w-25" mat-flat-button="filled" type="submit">Sign In</button>
@@ -21,7 +25,11 @@
       </p>
     </form>
   } @else {
-    <form [formGroup]="signUpUser" (submit)="signUp()" class="flex flex-col items-center p-10 m-5 w-100 rounded-2xl shadow-2xl">
+    <form
+      [formGroup]="signUpUser"
+      (submit)="signUp()"
+      class="flex flex-col items-center p-10 m-5 w-100 rounded-2xl shadow-2xl"
+    >
       <mat-form-field class="w-full">
         <mat-label>Name</mat-label>
         <input matInput formControlName="name" />
@@ -39,7 +47,7 @@
 
       <mat-form-field class="w-full">
         <mat-label>Repeat Password</mat-label>
-        <input matInput type="password" formControlName="repeatPassword"/>
+        <input matInput type="password" formControlName="repeatPassword" />
       </mat-form-field>
 
       <button class="w-25" mat-flat-button="filled" type="submit">Sign up</button>

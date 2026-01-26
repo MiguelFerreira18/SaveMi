@@ -12,6 +12,8 @@ export const appConfig: ApplicationConfig = {
     provideCharts(withDefaultRegisterables()),
     provideRouter(routes),
     provideHttpClient(),
-    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } }, provideCharts(withDefaultRegisterables()), provideCharts(withDefaultRegisterables()),
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
+    provideCharts(withDefaultRegisterables()),
+    provideCharts(withDefaultRegisterables()),
   ],
 };

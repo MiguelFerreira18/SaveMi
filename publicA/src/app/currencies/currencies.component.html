@@ -23,9 +23,12 @@
       <button mat-fab (click)="openAddCurrencyDialog()">
         <mat-icon>add</mat-icon>
       </button>
-      <button mat-fab class="ml-5"
+      <button
+        mat-fab
+        class="ml-5"
         (click)="deleteCurrencies()"
-        [disabled]="selectedIds().size == 0">
+        [disabled]="selectedIds().size == 0"
+      >
         <mat-icon>delete</mat-icon>
       </button>
     </div>
@@ -35,6 +38,7 @@
     [columns]="columns"
     [data]="currencies()"
     [selectedIds]="selectedIds()"
-    [updateSelectedIds]="updateSelectedIds.bind(this)">
+    [updateSelectedIds]="updateSelectedIds.bind(this)"
+  >
   </app-data-table>
 }

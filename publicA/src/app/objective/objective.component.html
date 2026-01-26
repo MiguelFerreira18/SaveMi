@@ -20,12 +20,15 @@
       <button type="button" mat-stroked-button (click)="clearFilter()">reset</button>
     }
     <div class="ml-auto">
-      <button  mat-fab (click)="openAddObjectiveDialog()">
+      <button mat-fab (click)="openAddObjectiveDialog()">
         <mat-icon>add</mat-icon>
       </button>
-      <button mat-fab class="ml-5"
+      <button
+        mat-fab
+        class="ml-5"
         (click)="deleteObjectives()"
-        [disabled]="selectedIds().size == 0">
+        [disabled]="selectedIds().size == 0"
+      >
         <mat-icon>delete</mat-icon>
       </button>
     </div>
@@ -35,6 +38,7 @@
     [columns]="columns"
     [data]="objectives()"
     [selectedIds]="selectedIds()"
-    [updateSelectedIds]="updateSelectedIds.bind(this)">
+    [updateSelectedIds]="updateSelectedIds.bind(this)"
+  >
   </app-data-table>
 }

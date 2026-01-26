@@ -8,9 +8,8 @@ describe('AddWishDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddWishDialogComponent]
-    })
-    .compileComponents();
+      imports: [AddWishDialogComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddWishDialogComponent);
     component = fixture.componentInstance;

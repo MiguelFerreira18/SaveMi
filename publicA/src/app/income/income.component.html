@@ -23,18 +23,17 @@
       <button mat-fab (click)="openAddIncomeDialog()">
         <mat-icon>add</mat-icon>
       </button>
-      <button mat-fab class="ml-5"
-        (click)="deleteIncomes()"
-        [disabled]="selectedIds().size == 0">
+      <button mat-fab class="ml-5" (click)="deleteIncomes()" [disabled]="selectedIds().size == 0">
         <mat-icon>delete</mat-icon>
       </button>
     </div>
-
   </div>
 
   <app-data-table
     [columns]="columns"
     [data]="incomes()"
     [selectedIds]="selectedIds()"
-    [updateSelectedIds]="updateSelectedIds.bind(this)"> </app-data-table>
+    [updateSelectedIds]="updateSelectedIds.bind(this)"
+  >
+  </app-data-table>
 }

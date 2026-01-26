@@ -8,9 +8,8 @@ describe('ErrorDisplayComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ErrorDisplayComponent]
-    })
-    .compileComponents();
+      imports: [ErrorDisplayComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ErrorDisplayComponent);
     component = fixture.componentInstance;

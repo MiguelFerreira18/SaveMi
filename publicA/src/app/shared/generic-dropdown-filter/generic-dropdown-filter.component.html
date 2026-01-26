@@ -1,6 +1,6 @@
-<mat-form-field >
+<mat-form-field>
   <mat-label> something </mat-label>
-  <mat-select [(value)]="selected" >
+  <mat-select [(value)]="selected">
     @for (a of data; track a) {
       <mat-option [value]="a">
         {{ displayFn(a) }}

@@ -23,9 +23,12 @@
       <button mat-fab (click)="openAddStrategyTypeDialog()">
         <mat-icon>add</mat-icon>
       </button>
-      <button mat-fab class="ml-5"
+      <button
+        mat-fab
+        class="ml-5"
         (click)="deleteStrategies()"
-      [disabled]="selectedIds().size == 0">
+        [disabled]="selectedIds().size == 0"
+      >
         <mat-icon>delete</mat-icon>
       </button>
     </div>
@@ -35,6 +38,7 @@
     [columns]="columns"
     [data]="strategyTypes()"
     [selectedIds]="selectedIds()"
-    [updateSelectedIds]="updateSelectedIds.bind(this)">
+    [updateSelectedIds]="updateSelectedIds.bind(this)"
+  >
   </app-data-table>
 }

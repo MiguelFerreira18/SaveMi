@@ -8,9 +8,8 @@ describe('StrategyTypeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StrategyTypeComponent]
-    })
-    .compileComponents();
+      imports: [StrategyTypeComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(StrategyTypeComponent);
     component = fixture.componentInstance;

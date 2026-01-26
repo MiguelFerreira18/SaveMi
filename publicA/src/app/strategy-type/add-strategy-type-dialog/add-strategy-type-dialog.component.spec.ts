@@ -8,9 +8,8 @@ describe('AddStrategyTypeDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddStrategyTypeDialogComponent]
-    })
-    .compileComponents();
+      imports: [AddStrategyTypeDialogComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddStrategyTypeDialogComponent);
     component = fixture.componentInstance;
