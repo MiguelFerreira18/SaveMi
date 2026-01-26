@@ -1,8 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { Currency } from '../shared/models/currency.model';
-import { Category } from '../shared/models/category.model';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { AddIncomeDialogComponent } from './add-income-dialog/add-income-dialog.component';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { DataTableComponent, TableColumn } from '../shared/data-table/data-table.component';

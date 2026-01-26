@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { DataTableComponent, TableColumn } from '../shared/data-table/data-table.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ErrorDisplayComponent } from '../shared/error-display/error-display.component';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { CreateWishDto, Wish } from '../shared/models/wish.model';

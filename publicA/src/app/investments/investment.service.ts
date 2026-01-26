@@ -3,7 +3,6 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CreateInvestmentDto, Investment } from '../shared/models/investment.model';
-import { Income } from '../shared/models/income.model';
 
 @Injectable({
   providedIn: 'root',
