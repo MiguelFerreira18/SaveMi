@@ -1,6 +1,6 @@
 package com.money.SaveMi.Mapper;
 
-import com.money.SaveMi.Authentication.SignUpRequest;
+import com.money.SaveMi.DTO.Authentication.SignUpRequest;
 import com.money.SaveMi.Model.User;
 import com.money.SaveMi.Model.UserView;
 import org.springframework.security.core.GrantedAuthority;

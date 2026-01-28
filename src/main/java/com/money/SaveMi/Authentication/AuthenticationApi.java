@@ -1,5 +1,8 @@
 package com.money.SaveMi.Authentication;
 
+import com.money.SaveMi.DTO.Authentication.SignInRequest;
+import com.money.SaveMi.DTO.Authentication.SignUpRequest;
+import com.money.SaveMi.DTO.Authentication.StatusRequest;
 import com.money.SaveMi.Mapper.UserMapper;
 import com.money.SaveMi.Model.User;
 import com.money.SaveMi.Model.UserView;
@@ -150,13 +153,11 @@ public class AuthenticationApi {
     }
 
     @GetMapping("status")
-    public ResponseEntity<?> chekAuthStatus(HttpServletRequest request){
+    public ResponseEntity<StatusRequest> chekAuthStatus(HttpServletRequest request){
         boolean authenticated = isUserAuthenticated(request);
+        StatusRequest status = new StatusRequest(authenticated);
 
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("authenticated", authenticated);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(status);
     }
 
     private boolean isUserAuthenticated(HttpServletRequest request) {
