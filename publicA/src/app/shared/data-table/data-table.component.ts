@@ -3,12 +3,14 @@ import {
   Component,
   Input,
   OnChanges,
+  Signal,
   SimpleChanges,
   ViewChild,
+  WritableSignal,
 } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 export interface TableColumn<T> {
   header: string;
   field: keyof T & string;
@@ -16,15 +18,17 @@ export interface TableColumn<T> {
 
 @Component({
   selector: 'app-data-table',
-  imports: [MatTableModule, MatPaginatorModule],
+  imports: [MatTableModule, MatPaginatorModule, MatCheckboxModule],
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.css',
 })
-export class DataTableComponent<T> implements AfterViewInit, OnChanges {
+export class DataTableComponent<T extends { id: number }> implements AfterViewInit, OnChanges {
   @Input() columns!: TableColumn<T>[];
   @Input() data!: T[];
   @Input() minRows: number = 10;
   @Input() pageSizeOption?: number[];
+  @Input() selectedIds!: Set<number>;
+  @Input() updateSelectedIds!: (fn: (s: Set<number>) => Set<number>) => void;
   datasource = new MatTableDataSource<T>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -33,39 +37,60 @@ export class DataTableComponent<T> implements AfterViewInit, OnChanges {
 
   ngAfterViewInit(): void {
     this.datasource.paginator = this.paginator;
+    this.datasource.data = this.data;
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && this.data) {
-      this.datasource.data = this.getDataWithEmptyRows();
-    }
-
-    if (changes['minRows']) {
-      this.datasource.data = this.getDataWithEmptyRows();
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['data']) {
+      this.datasource.data = this.data;
     }
   }
 
-  private getDataWithEmptyRows(): T[] {
-    if (!this.data) return [];
-
-    const dataLength = this.data.length;
-    const emptyRowsNeeded = Math.max(0, this.minRows - dataLength);
-
-    const emptyRows: T[] = Array(emptyRowsNeeded)
-      .fill(null)
-      .map(() => {
-        const emptyObj: any = {};
-        this.columns.forEach((col) => {
-          emptyObj[col.field] = ''; // Empty string for display
+  toggleAll(event: MatCheckboxChange): void {
+    if (event.checked) {
+      this.updateSelectedIds((prev) => {
+        const next = new Set(prev);
+        this.datasource.filteredData.map((element) => {
+          next.add(element.id);
         });
-        return emptyObj as T;
-      });
+        console.log(next);
 
-    return [...this.data, ...emptyRows];
+        return next;
+      });
+    } else {
+      this.updateSelectedIds((_) => {
+        return new Set();
+      });
+    }
+  }
+  toggleSelection(id: number, event: MatCheckboxChange): void {
+    if (event.checked) {
+      this.updateSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.add(id);
+        return next;
+      });
+    } else {
+      this.updateSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  }
+
+  areAllSelected(): boolean {
+    const numRows = this.datasource?.filteredData?.length || 0;
+    const numSelected = this.selectedIds.size;
+    return numRows > 0 && numSelected == numRows;
+  }
+
+  isSelected(id: number): boolean {
+    return this.selectedIds.has(id);
   }
 
   get displayedColumns(): string[] {
-    return this.columns.map((c) => c.field as string);
+    return ['actions', ...this.columns.map((c) => c.field as string)];
   }
   get paginatorPageSizeOption(): number[] {
     return this.pageSizeOption || this.defaultPageSizeOption;

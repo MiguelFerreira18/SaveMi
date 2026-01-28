@@ -2,6 +2,7 @@ package com.money.SaveMi.Service;
 
 import com.money.SaveMi.DTO.Expense.SaveExpenseDto;
 import com.money.SaveMi.DTO.Expense.UpdateExpenseDto;
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Category;
 import com.money.SaveMi.Model.Currency;
 import com.money.SaveMi.Model.Expense;
@@ -77,8 +78,25 @@ public class ExpenseService {
         return expenseRepo.save(oldExpense);
     }
 
+    public void bulkDelete(BulkDeleteDto bulkdeleteDto){
+        String userId = authUtil.getCurrentUserUuid();
+
+        bulkdeleteDto.ids().forEach(id -> {
+            if(expenseRepo.findByExpenseIdAndUserId(id,userId).isEmpty()){
+                throw new RuntimeException("Expense not found with id: " + id + " for user: " + userId + " in bulk");
+            }
+        });
+
+        expenseRepo.bulkDelete(bulkdeleteDto.ids(),userId);
+    }
+
     public void deleteExpense(Long id) {
         String userId = authUtil.getCurrentUserUuid();
+
+        if (expenseRepo.findByExpenseIdAndUserId(id,userId).isEmpty()){
+            throw new RuntimeException("Expense not found with id: " + id + " for user: " + userId);
+        }
+
         expenseRepo.deleteExpenseByIdAndUserId(id, userId);
     }
 

@@ -1,5 +1,6 @@
 package com.money.SaveMi.Controller;
 
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.DTO.StrategyType.SaveStrategyTypeDto;
 import com.money.SaveMi.DTO.StrategyType.StrategyTypeOutputDto;
 import com.money.SaveMi.Model.StrategyType;
@@ -69,6 +70,12 @@ public class StrategyTypeController {
         );
 
         return ResponseEntity.ok(strategyTypeOutputDto);
+    }
+
+    @PostMapping("/bulk-delete")
+    public ResponseEntity<Void> deleteStrategyTypes(@RequestBody BulkDeleteDto bulkDeleteDto){
+        strategyTypeService.bulkDelete(bulkDeleteDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

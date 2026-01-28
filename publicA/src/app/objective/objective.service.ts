@@ -20,4 +20,17 @@ export class ObjectiveService {
   postObjective(objective: CreateObjectiveDto): Observable<Objective> {
     return this.http.post<Objective>(this.apiUrl, objective, { withCredentials: true });
   }
+
+  deleteObjectives(ids: Set<number>): Observable<void> {
+    if (ids.size > 1) {
+      return this.http.post<void>(
+        `${this.apiUrl}/bulk-delete`,
+        { ids: Array.from(ids) },
+        { withCredentials: true }
+      );
+    } else {
+      const [id] = ids;
+      return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true });
+    }
+  }
 }

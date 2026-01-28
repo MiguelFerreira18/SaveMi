@@ -1,5 +1,6 @@
 package com.money.SaveMi.Controller;
 
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.DTO.Wish.SaveWishDto;
 import com.money.SaveMi.DTO.Wish.UpdateWishDto;
 import com.money.SaveMi.DTO.Wish.WishOutputDto;
@@ -94,6 +95,12 @@ public class WishController {
                 wish.getDate());
 
         return ResponseEntity.ok(wishDto);
+    }
+
+    @PostMapping("/bulk-delete")
+    public ResponseEntity<Void> deleteWishes(@RequestBody BulkDeleteDto bulkDeleteDto){
+        wishService.bulkDelete(bulkDeleteDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

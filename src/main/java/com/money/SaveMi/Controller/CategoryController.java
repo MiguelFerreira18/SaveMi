@@ -2,6 +2,7 @@ package com.money.SaveMi.Controller;
 
 import com.money.SaveMi.DTO.Category.CategoryDtoOut;
 import com.money.SaveMi.DTO.Category.SaveCategoryDto;
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Category;
 import com.money.SaveMi.Service.CategoryService;
 import org.springframework.http.ResponseEntity;
@@ -71,6 +72,12 @@ public class CategoryController {
         );
 
         return ResponseEntity.ok(categoryDtoOut);
+    }
+
+    @PostMapping("/bulk-delete")
+    public ResponseEntity<Void> deleteCategories(@RequestBody BulkDeleteDto bulkDeleteDto){
+        categoryService.bulkDelete(bulkDeleteDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface UserRepo extends CrudRepository<User,String> {
 
     @Query("SELECT u FROM User u where u.email = ?1")
-    public Optional<User> findByEmail(String email);
+     Optional<User> findByEmail(String email);
 }

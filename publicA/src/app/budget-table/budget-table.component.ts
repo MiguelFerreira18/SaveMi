@@ -29,9 +29,9 @@ export class BudgetTableComponent implements OnInit {
   @Input({ required: true }) totalExpense!: Signal<number>;
   @Input({ required: true }) totalInvestment!: Signal<number>;
 
-  public goalFundamentals: number = 50;
-  public goalFutureYou: number = 20;
-  public goalFun: number = 30;
+  private goalFundamentals: number = 50;
+  private goalFutureYou: number = 20;
+  private goalFun: number = 30;
 
   totalSpent = computed(() => {
     return this.totalExpense() + this.totalWish() + this.totalInvestment();
@@ -52,7 +52,7 @@ export class BudgetTableComponent implements OnInit {
     this.updateTableData();
   }
 
-  public updateTableData() {
+  private updateTableData() {
     this.data = [
       {
         category: 'FUNDAMENTALS',

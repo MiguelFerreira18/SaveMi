@@ -11,30 +11,31 @@
       <input type="number" matInput formControlName="amount" />
     </mat-form-field>
 
-      <mat-form-field  class="w-full">
+    <mat-form-field class="w-full">
       <mat-label>Currency</mat-label>
       <mat-select formControlName="currencyId">
         @for (currency of currencies(); track currency.id) {
           <mat-option [value]="currency.id">{{ currency.symbol }}</mat-option>
         }
       </mat-select>
-      </mat-form-field>
-      <mat-form-field  class="w-full">
-        <mat-label>Category</mat-label>
-        <mat-select formControlName="categoryId">
+    </mat-form-field>
+    <mat-form-field class="w-full">
+      <mat-label>Category</mat-label>
+      <mat-select formControlName="categoryId">
         @for (category of categories(); track category.id) {
           <mat-option [value]="category.id">{{ category.name }}</mat-option>
         }
-        </mat-select>
-      </mat-form-field>
+      </mat-select>
+    </mat-form-field>
 
-    <mat-form-field class="w-full" >
+    <mat-form-field class="w-full">
       <mat-label>Choose a date</mat-label>
       <input
         matInput
         formControlName="date"
         [matDatepickerFilter]="todayOrFuture"
-        [matDatepicker]="picker" >
+        [matDatepicker]="picker"
+      />
       <mat-hint>MM/DD/YYYY</mat-hint>
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>

@@ -8,25 +8,31 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ExpenseRepo extends CrudRepository<Expense,Long> {
+public interface ExpenseRepo extends CrudRepository<Expense, Long> {
 
     @Query("SELECT e FROM Expense e WHERE e.user.id = ?1")
-    public Iterable<Expense> findAllExpensesByUserId(String userUUID);
+    Iterable<Expense> findAllExpensesByUserId(String userUUID);
 
     @Query("SELECT e FROM Expense e WHERE e.user.id = ?1 AND e.currency.id = ?2")
-    public Iterable<Expense> findAllIncomeByUserIdFromCurrency(String userUUID, Long currencyId);
+    Iterable<Expense> findAllIncomeByUserIdFromCurrency(String userUUID, Long currencyId);
 
     @Query("SELECT e FROM Expense e WHERE e.id = ?1 AND e.user.id = ?2")
-    public Optional<Expense> findByExpenseIdAndUserId(Long id, String userUUID);
+    Optional<Expense> findByExpenseIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT e FROM Expense e WHERE e.user.id = ?1 AND e.currency.id = ?2 AND e.category.id = ?3 AND e.description = ?4 AND e.amount = ?5")
-    public Optional<Expense> findExpenseByUserIdCurrencyCategoryAndAmount(String userId, Long currencyId, Long categoryId, String description, BigDecimal amount);
+    Optional<Expense> findExpenseByUserIdCurrencyCategoryAndAmount(String userUUID, Long currencyId, Long categoryId, String description, BigDecimal amount);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Expense e WHERE e.id in ?1 AND e.user.id = ?2")
+    void bulkDelete(List<Long> ids, String userUUID);
 
     @Transactional
     @Modifying
     @Query("DELETE FROM Expense e WHERE e.id = ?1 AND e.user.id = ?2")
-    public void deleteExpenseByIdAndUserId(Long id, String userUUID);
+    void deleteExpenseByIdAndUserId(Long id, String userUUID);
 }

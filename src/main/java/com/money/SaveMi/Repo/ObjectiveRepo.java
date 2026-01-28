@@ -9,28 +9,31 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ObjectiveRepo extends CrudRepository<Objective, Long> {
 
     @Query("SELECT o FROM Objective o WHERE o.user.id = ?1")
-    public Iterable<Objective> findAllObjectiveByUserId(String userUUID);
+    Iterable<Objective> findAllObjectiveByUserId(String userUUID);
 
     @Query("SELECT o FROM Objective o WHERE o.user.id = ?1 AND o.currency.id = ?2")
-    public Iterable<Objective> findAllObjectiveByUserIdFromCurrency(String userUUID, Long currencyId);
+    Iterable<Objective> findAllObjectiveByUserIdFromCurrency(String userUUID, Long currencyId);
 
     @Query("SELECT o FROM Objective o WHERE o.id = ?1 AND o.user.id = ?2")
-    public Optional<Objective> findByObjectiveIdAndUserId(Long id, String userUUID);
+    Optional<Objective> findByObjectiveIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT o FROM Objective o WHERE o.user.id = ?1 AND o.currency.id = ?2 AND o.amount = ?3 AND o.target = ?4")
-    public Optional<Objective> findObjectiveByAllFields(String userId, Long currencyId, BigDecimal amount, int year);
+    Optional<Objective> findObjectiveByAllFields(String userUUID, Long currencyId, BigDecimal amount, int year);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Objective o WHERE o.id IN ?1 AND o.user.id = ?2")
+    void bulkDelete(List<Long> ids, String userUUID);
 
     @Transactional
     @Modifying
     @Query("DELETE FROM Objective o WHERE o.id = ?1 AND o.user.id = ?2")
-    public void deleteObjectiveByIdAndUserId(Long id, String userUUID);
-
-
-    String user(User user);
+    void deleteObjectiveByIdAndUserId(Long id, String userUUID);
 }

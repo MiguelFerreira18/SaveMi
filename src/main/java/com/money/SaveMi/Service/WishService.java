@@ -1,6 +1,7 @@
 package com.money.SaveMi.Service;
 
 
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.DTO.Wish.SaveWishDto;
 import com.money.SaveMi.DTO.Wish.UpdateWishDto;
 import com.money.SaveMi.Model.Currency;
@@ -11,6 +12,8 @@ import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Repo.WishRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.StreamSupport;
 
 @Service
 public class WishService {
@@ -64,8 +67,24 @@ public class WishService {
         return wishRepo.save(existingWish);
     }
 
+    public void bulkDelete(BulkDeleteDto bulkdeleteDto){
+        String userId = authUtil.getCurrentUserUuid();
+
+        bulkdeleteDto.ids().forEach(id -> {
+            if(wishRepo.findByIdAndUserId(id,userId).isEmpty()){
+                throw new RuntimeException("Wish not found with id: " + id + " for user: " + userId + " in bulk");
+            }
+        });
+
+        wishRepo.bulkDelete(bulkdeleteDto.ids(),userId);
+    }
     public void deleteWishById(Long id){
         String userId = authUtil.getCurrentUserUuid();
+
+        if (wishRepo.findByIdAndUserId(id,userId).isEmpty()){
+            throw new RuntimeException("Wish not found with id: " + id + " for user: " +userId);
+        }
+
         wishRepo.deleteByIdAndUserId(id,userId);
     }
 

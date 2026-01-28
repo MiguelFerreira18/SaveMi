@@ -4,57 +4,67 @@
   </h3>
 </div>
 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-      <div class="overflow-x-auto">
-        <table mat-table [dataSource]="displayedData" class="w-full">
-          <!-- Dynamic Columns -->
-          <ng-container *ngFor="let column of columns" [matColumnDef]="column.key">
-            <th mat-header-cell *matHeaderCellDef
-                class="!px-4 !py-3 !text-sm !font-semibold !text-gray-700 !bg-gray-50 !border-b !border-gray-200"
-                [class.!text-left]="column.align === 'left' || !column.align"
-                [class.!text-right]="column.align === 'right'"
-                [class.!text-center]="column.align === 'center'">
-              {{ column.header }}
-            </th>
-            <td mat-cell *matCellDef="let element"
-                class="!px-4 !py-3 !text-sm !text-gray-900 !border-b !border-gray-200"
-                [class.!text-left]="column.align === 'left' || !column.align"
-                [class.!text-right]="column.align === 'right'"
-                [class.!text-center]="column.align === 'center'">
-              {{ element[column.key] || '' }}
-            </td>
+  <div class="overflow-x-auto">
+    <table mat-table [dataSource]="displayedData" class="w-full">
+      <!-- Dynamic Columns -->
+      <ng-container *ngFor="let column of columns" [matColumnDef]="column.key">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          class="!px-4 !py-3 !text-sm !font-semibold !text-gray-700 !bg-gray-50 !border-b !border-gray-200"
+          [class.!text-left]="column.align === 'left' || !column.align"
+          [class.!text-right]="column.align === 'right'"
+          [class.!text-center]="column.align === 'center'"
+        >
+          {{ column.header }}
+        </th>
+        <td
+          mat-cell
+          *matCellDef="let element"
+          class="!px-4 !py-3 !text-sm !text-gray-900 !border-b !border-gray-200"
+          [class.!text-left]="column.align === 'left' || !column.align"
+          [class.!text-right]="column.align === 'right'"
+          [class.!text-center]="column.align === 'center'"
+        >
+          {{ element[column.key] || '' }}
+        </td>
 
-              <td mat-footer-cell *matFooterCellDef
-              class="!px-4 !py-3 !text-sm !font-semibold !bg-gray-50 !border-t !border-gray-200"
-              [class.!text-left]="column.align === 'left' || !column.align"
-              [class.!text-right]="column.align === 'right'"
-              [class.!text-center]="column.align === 'center'">
-
-                <ng-container *ngIf="column.key === columns[0].key; else valueCell">
-                  Total:
-                </ng-container>
-                <ng-template #valueCell>
-                  {{total() | number: '1.2-2'}}
-                </ng-template>
-
-              </td>
+        <td
+          mat-footer-cell
+          *matFooterCellDef
+          class="!px-4 !py-3 !text-sm !font-semibold !bg-gray-50 !border-t !border-gray-200"
+          [class.!text-left]="column.align === 'left' || !column.align"
+          [class.!text-right]="column.align === 'right'"
+          [class.!text-center]="column.align === 'center'"
+        >
+          <ng-container *ngIf="column.key === columns[0].key; else valueCell">
+            Total:
           </ng-container>
+          <ng-template #valueCell>
+            {{ total() | number: '1.2-2' }}
+          </ng-template>
+        </td>
+      </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-              class="hover:bg-gray-50 transition-colors"></tr>
-            <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
-        </table>
-      </div>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="hover:bg-gray-50 transition-colors"
+      ></tr>
+      <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+    </table>
+  </div>
 
-
-      <!-- Material Paginator -->
-      <mat-paginator
-        #paginator
-        [length]="data.length"
-        [pageSize]="pageSize"
-        [pageSizeOptions]="[]"
-        [showFirstLastButtons]="true"
-        (page)="onPageChange($event)"
-        class="!border-t !border-gray-200 !bg-gray-50">
-      </mat-paginator>
-    </div>
+  <!-- Material Paginator -->
+  <mat-paginator
+    #paginator
+    [length]="data.length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[]"
+    [showFirstLastButtons]="true"
+    (page)="onPageChange($event)"
+    class="!border-t !border-gray-200 !bg-gray-50"
+  >
+  </mat-paginator>
+</div>

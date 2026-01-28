@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,7 +20,12 @@ public interface CategoryRepo extends CrudRepository<Category, Long> {
     Optional<Category> findCategoryByIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT c FROM Category c WHERE c.name = ?1 AND c.description = ?2 AND c.user.id = ?3")
-    Optional<Category> findByNameDescriptionAndUserId(String name, String description, String userId);
+    Optional<Category> findByNameDescriptionAndUserId(String name, String description, String userUUID);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Category c WHERE c.id in ?1 AND c.user.id = ?2")
+    void bulkDelete(List<Long> ids, String userUUID);
 
     @Transactional
     @Modifying

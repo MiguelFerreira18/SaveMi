@@ -3,6 +3,7 @@ package com.money.SaveMi.Controller;
 import com.money.SaveMi.DTO.Expense.ExpenseOutDto;
 import com.money.SaveMi.DTO.Expense.SaveExpenseDto;
 import com.money.SaveMi.DTO.Expense.UpdateExpenseDto;
+import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Expense;
 import com.money.SaveMi.Service.ExpenseService;
 import org.springframework.http.ResponseEntity;
@@ -106,6 +107,12 @@ public class ExpenseController {
         );
 
         return ResponseEntity.ok(expenseOutDto);
+    }
+
+    @PostMapping("/bulk-delete")
+    public ResponseEntity<Void> deleteExpenses(@RequestBody BulkDeleteDto bulkDeleteDto){
+        expenseService.bulkDelete(bulkDeleteDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

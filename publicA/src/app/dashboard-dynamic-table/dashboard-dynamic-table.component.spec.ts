@@ -8,9 +8,8 @@ describe('DashboardDynamicTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardDynamicTableComponent]
-    })
-    .compileComponents();
+      imports: [DashboardDynamicTableComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardDynamicTableComponent);
     component = fixture.componentInstance;

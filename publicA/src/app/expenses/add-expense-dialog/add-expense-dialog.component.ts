@@ -11,7 +11,6 @@ import { CategoriesService } from '../../categories/categories.service';
 import { CurrenciesService } from '../../currencies/currencies.service';
 import { Currency } from '../../shared/models/currency.model';
 import { Category } from '../../shared/models/category.model';
-import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-add-expense-dialog',
