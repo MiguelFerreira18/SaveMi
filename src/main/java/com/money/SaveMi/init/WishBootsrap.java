@@ -47,7 +47,7 @@ public class WishBootsrap implements CommandLineRunner {
             BigDecimal value = new BigDecimal(i * 100.23).setScale(2, BigDecimal.ROUND_HALF_UP);
             String description = String.format("WISH%d", i);
             if (wishRepo.findByWishByUserIdCurrencyIdAndAmount(user.getId(), currency.getId(), value).isEmpty()) {
-                 Wish wish = new Wish(user, currency, value, description, LocalDate.now().minusDays(i));
+                 Wish wish = new Wish(user, currency, value, description, LocalDate.now().plusDays(i));
                  wishRepo.save(wish);
             }
         }

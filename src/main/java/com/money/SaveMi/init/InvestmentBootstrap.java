@@ -52,7 +52,7 @@ public class InvestmentBootstrap implements CommandLineRunner {
             BigDecimal value = new BigDecimal( i * 100.23).setScale(2, RoundingMode.HALF_UP);
             final String description = String.format("INVESTMENT%d", i);
             if (investmentRepo.findInvestmentByParameters(u.getId(),strategyType.getId(),c.getId(),value).isEmpty()) {
-                Investment expense = new Investment(u, c, value,  strategyType,description, LocalDate.now().minusDays(i));
+                Investment expense = new Investment(u, c, value,  strategyType,description, LocalDate.now().plusDays(i));
                 investmentRepo.save(expense);
             }
         }

@@ -157,6 +157,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
         this.allWishes.set(roundedWishes);
         this.wishes.set(roundedWishes);
+        console.log(this.allWishes());
+        console.log(this.wishes());
+
         this.checkAllLoads();
       },
       error: (err) => {

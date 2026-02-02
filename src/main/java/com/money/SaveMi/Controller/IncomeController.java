@@ -44,6 +44,8 @@ public class IncomeController {
                 )
         ).toList();
 
+        System.out.println(incomeOutputDtos);
+
         return ResponseEntity.ok(incomeOutputDtos);
     }
 
