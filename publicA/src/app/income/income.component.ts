@@ -1,8 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { Currency } from '../shared/models/currency.model';
-import { Category } from '../shared/models/category.model';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { AddIncomeDialogComponent } from './add-income-dialog/add-income-dialog.component';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import { DataTableComponent, TableColumn } from '../shared/data-table/data-table.component';
@@ -53,6 +51,7 @@ export class IncomeComponent implements OnInit, OnDestroy {
 
   readonly allIncomes = signal<Income[]>([]);
   incomes = signal<Income[]>([]);
+  selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -75,6 +74,25 @@ export class IncomeComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  deleteIncomes() {
+    if (this.selectedIds().size == 0) return;
+    const idsToDelete = this.selectedIds();
+    this.incomeService.deleteIncome(idsToDelete).subscribe({
+      next: (_) => {
+        this.selectedIds.set(new Set<number>());
+        this.loadIncomes();
+      },
+      error: (_) => {
+        this.toast.show('Error deleting incomes', 'error', 5000);
+      },
+    });
+  }
+
+  updateSelectedIds(updater: (s: Set<number>) => Set<number>) {
+    this.selectedIds.update(updater);
+  }
+
   private loadIncomes(retryCount: number = 0, maxRetries: number = 3) {
     this.incomeService.getIncome().subscribe({
       next: (data) => {

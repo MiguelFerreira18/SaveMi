@@ -1,23 +1,10 @@
-import {
-  Component,
-  computed,
-  effect,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  signal,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, computed, effect, OnDestroy, OnInit, signal } from '@angular/core';
 import { DashboardService } from './dashboard.service';
-import { forkJoin, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Income } from '../shared/models/income.model';
 import { Wish } from '../shared/models/wish.model';
 import { Expense } from '../shared/models/expense.model';
-import { DataTableComponent } from '../shared/data-table/data-table.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { ErrorDisplayComponent } from '../shared/error-display/error-display.component';
-import { MatIcon } from '@angular/material/icon';
 import {
   DashboardDynamicTableComponent,
   TableColumn,
@@ -31,11 +18,7 @@ import { Investment } from '../shared/models/investment.model';
 @Component({
   selector: 'app-dashboard',
   imports: [
-    DataTableComponent,
-    MatIcon,
     MatButtonModule,
-    MatProgressSpinner,
-    ErrorDisplayComponent,
     DashboardDynamicTableComponent,
     GenericDropdownFilterComponent,
     PieChartComponent,
@@ -150,8 +133,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadIncome() {
     this.dasboardService.getIncomes().subscribe({
       next: (incomes) => {
-        console.log(incomes);
-
         const roundedIncomes = incomes.map((i) => {
           i['amount'] = Number(i.amount.toFixed(2));
           return i;
@@ -176,6 +157,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
         this.allWishes.set(roundedWishes);
         this.wishes.set(roundedWishes);
+        console.log(this.allWishes());
+        console.log(this.wishes());
+
         this.checkAllLoads();
       },
       error: (err) => {

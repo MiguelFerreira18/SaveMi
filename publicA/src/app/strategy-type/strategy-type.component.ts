@@ -1,5 +1,4 @@
-import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
-import { Category, CreateCategoryDto } from '../shared/models/category.model';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { DataTableComponent, TableColumn } from '../shared/data-table/data-table.component';
 import { MatIcon } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -36,6 +35,7 @@ export class StrategyTypeComponent implements OnInit, OnDestroy {
 
   readonly allStrategyTypes = signal<StrategyType[]>([]);
   strategyTypes = signal<StrategyType[]>([]);
+  selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -71,6 +71,24 @@ export class StrategyTypeComponent implements OnInit, OnDestroy {
         this.createStrategyType(result);
       }
     });
+  }
+
+  deleteStrategies() {
+    if (this.selectedIds().size == 0) return;
+    const idsToDelete = this.selectedIds();
+    this.strategyService.deleteStrategies(idsToDelete).subscribe({
+      next: (_) => {
+        this.selectedIds.set(new Set<number>());
+        this.loadStrategyTypes();
+      },
+      error: (_) => {
+        this.toast.show('Error deleting strategy type', 'error', 5000);
+      },
+    });
+  }
+
+  updateSelectedIds(updater: (s: Set<number>) => Set<number>) {
+    this.selectedIds.update(updater);
   }
 
   private loadStrategyTypes(retryCount: number = 0, maxRetries: number = 3) {

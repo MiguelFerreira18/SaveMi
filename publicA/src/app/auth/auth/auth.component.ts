@@ -58,7 +58,6 @@ export class AuthComponent {
 
       this.authService.authenticate(signIn).subscribe({
         next: (user) => {
-          console.log(`Login successful ${user.name}`);
           localStorage.setItem('user', JSON.stringify(user));
           this.resetForms();
           this.router.navigate(['/']);
@@ -78,8 +77,7 @@ export class AuthComponent {
       };
 
       this.authService.signUp(signUp).subscribe({
-        next: (user) => {
-          console.log(`SignUp successful ${user.name}`);
+        next: (_) => {
           this.resetForms();
           this.isLogin = true;
         },

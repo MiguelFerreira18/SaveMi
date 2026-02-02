@@ -8,9 +8,8 @@ describe('BudgetTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BudgetTableComponent]
-    })
-    .compileComponents();
+      imports: [BudgetTableComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(BudgetTableComponent);
     component = fixture.componentInstance;

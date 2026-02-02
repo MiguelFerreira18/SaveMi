@@ -8,9 +8,8 @@ describe('AddCurrencyDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddCurrencyDialogComponent]
-    })
-    .compileComponents();
+      imports: [AddCurrencyDialogComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddCurrencyDialogComponent);
     component = fixture.componentInstance;

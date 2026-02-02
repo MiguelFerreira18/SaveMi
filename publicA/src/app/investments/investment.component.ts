@@ -50,6 +50,7 @@ export class InvestmentComponent implements OnInit, OnDestroy {
   }
   readonly allInvestments = signal<Investment[]>([]);
   investments = signal<Investment[]>([]);
+  selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -72,6 +73,25 @@ export class InvestmentComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  deleteInvestments() {
+    if (this.selectedIds().size == 0) return;
+    const idsToDelete = this.selectedIds();
+    this.investmentService.deleteInvestments(idsToDelete).subscribe({
+      next: (_) => {
+        this.selectedIds.set(new Set<number>());
+        this.loadInvestment();
+      },
+      error: (_) => {
+        this.toast.show('Error deleting investments', 'error', 5000);
+      },
+    });
+  }
+
+  updateSelectedIds(updater: (s: Set<number>) => Set<number>) {
+    this.selectedIds.update(updater);
+  }
+
   private loadInvestment(retryCount: number = 0, maxRetries: number = 3) {
     this.investmentService.getInvestments().subscribe({
       next: (data) => {

@@ -8,9 +8,8 @@ describe('AddIncomeDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddIncomeDialogComponent]
-    })
-    .compileComponents();
+      imports: [AddIncomeDialogComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddIncomeDialogComponent);
     component = fixture.componentInstance;

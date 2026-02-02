@@ -1,4 +1,4 @@
-import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Category, CreateCategoryDto } from '../shared/models/category.model';
 import { DataTableComponent, TableColumn } from '../shared/data-table/data-table.component';
 import { MatIcon } from '@angular/material/icon';
@@ -35,6 +35,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
   readonly allCategories = signal<Category[]>([]);
   categories = signal<Category[]>([]);
+  selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -71,6 +72,24 @@ export class CategoriesComponent implements OnInit, OnDestroy {
         this.createCategory(result);
       }
     });
+  }
+
+  deleteCategories() {
+    if (this.selectedIds().size == 0) return;
+    const idsToDelete = this.selectedIds();
+    this.categoryService.deleteCategories(idsToDelete).subscribe({
+      next: (_) => {
+        this.selectedIds.set(new Set<number>());
+        this.loadCategories();
+      },
+      error: (_) => {
+        this.toast.show('Error deleting categories', 'error', 5000);
+      },
+    });
+  }
+
+  updateSelectedIds(updater: (s: Set<number>) => Set<number>) {
+    this.selectedIds.update(updater);
   }
 
   private loadCategories(retryCount: number = 0, maxRetries: number = 3) {

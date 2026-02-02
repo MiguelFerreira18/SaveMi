@@ -19,10 +19,26 @@
     @if (searchControl.value) {
       <button type="button" mat-stroked-button (click)="clearFilter()">reset</button>
     }
-    <button class="ml-auto" mat-fab (click)="openAddCurrencyDialog()">
-      <mat-icon>add</mat-icon>
-    </button>
+    <div class="ml-auto">
+      <button mat-fab (click)="openAddCurrencyDialog()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button
+        mat-fab
+        class="ml-5"
+        (click)="deleteCurrencies()"
+        [disabled]="selectedIds().size == 0"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
   </div>
 
-  <app-data-table [columns]="columns" [data]="currencies()"> </app-data-table>
+  <app-data-table
+    [columns]="columns"
+    [data]="currencies()"
+    [selectedIds]="selectedIds()"
+    [updateSelectedIds]="updateSelectedIds.bind(this)"
+  >
+  </app-data-table>
 }
