@@ -72,7 +72,7 @@ public class AuthenticationApi {
 
     @PostMapping("login")
     public ResponseEntity<UserView> login(@RequestBody @Valid final SignInRequest request, HttpServletResponse response) {
-
+        System.out.println("Arrived HEre");
         try {
             Authentication authentication = authenticate(request);
             final User principal = (User) authentication.getPrincipal();
@@ -104,6 +104,7 @@ public class AuthenticationApi {
 
         Cookie jwtCookie = createJwtCookie(token, COOKIE_MAX_AGE);
         response.addCookie(jwtCookie);
+        System.out.println("Set-Cookie header: " + response.getHeader("Set-Cookie"));
 
         return ResponseEntity.ok()
                 .body(userMapper.toUserView(principal));
