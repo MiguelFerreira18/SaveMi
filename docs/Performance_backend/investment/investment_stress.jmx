@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Currencies_spike">
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="investment_stress">
+      <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
     </TestPlan>
     <hashTree>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group">
@@ -119,54 +121,12 @@ props.put(&quot;GLOBAL_JWT_TOKEN&quot;, sessionToken)</stringProp>
       </hashTree>
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="jp@gc - Ultimate Thread Group">
         <collectionProp name="ultimatethreadgroupdata">
-          <collectionProp name="1480380310">
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="48">0</stringProp>
-            <stringProp name="1567">10</stringProp>
+          <collectionProp name="-337849954">
+            <stringProp name="1745751">9000</stringProp>
+            <stringProp name="49">1</stringProp>
             <stringProp name="53430">600</stringProp>
-            <stringProp name="1567">10</stringProp>
-          </collectionProp>
-          <collectionProp name="1556081528">
-            <stringProp name="1598">20</stringProp>
-            <stringProp name="1629">30</stringProp>
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="52593">540</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="1587455295">
-            <stringProp name="1629">30</stringProp>
-            <stringProp name="1722">60</stringProp>
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="51756">480</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="1571463449">
-            <stringProp name="100">100</stringProp>
-            <stringProp name="48687">120</stringProp>
-            <stringProp name="48">0</stringProp>
-            <stringProp name="53">5</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="1601939642">
-            <stringProp name="100">100</stringProp>
-            <stringProp name="49710">240</stringProp>
-            <stringProp name="48">0</stringProp>
-            <stringProp name="53">5</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="1632415835">
-            <stringProp name="100">100</stringProp>
-            <stringProp name="50733">360</stringProp>
-            <stringProp name="48">0</stringProp>
-            <stringProp name="53">5</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="1662892028">
-            <stringProp name="100">100</stringProp>
-            <stringProp name="51756">480</stringProp>
-            <stringProp name="48">0</stringProp>
-            <stringProp name="53">5</stringProp>
-            <stringProp name="10">10</stringProp>
+            <stringProp name="1572771">3600</stringProp>
+            <stringProp name="53430">600</stringProp>
           </collectionProp>
         </collectionProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
@@ -176,10 +136,10 @@ props.put(&quot;GLOBAL_JWT_TOKEN&quot;, sessionToken)</stringProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
       </kg.apc.jmeter.threads.UltimateThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Currencies">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Investment">
           <stringProp name="HTTPSampler.domain">127.0.0.1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.path">/api/currency/all</stringProp>
+          <stringProp name="HTTPSampler.path">/api/investment/all</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -189,7 +149,7 @@ props.put(&quot;GLOBAL_JWT_TOKEN&quot;, sessionToken)</stringProp>
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Accept</stringProp>
@@ -206,7 +166,7 @@ props.put(&quot;GLOBAL_JWT_TOKEN&quot;, sessionToken)</stringProp>
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+          <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
             <boolProp name="ResultCollector.error_logging">false</boolProp>
             <objProp>
               <name>saveConfig</name>
