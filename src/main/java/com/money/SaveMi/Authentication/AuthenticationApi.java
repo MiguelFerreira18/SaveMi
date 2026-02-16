@@ -72,7 +72,6 @@ public class AuthenticationApi {
 
     @PostMapping("login")
     public ResponseEntity<UserView> login(@RequestBody @Valid final SignInRequest request, HttpServletResponse response) {
-
         try {
             Authentication authentication = authenticate(request);
             final User principal = (User) authentication.getPrincipal();
