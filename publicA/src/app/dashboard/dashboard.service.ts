@@ -1,12 +1,20 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, of, catchError } from 'rxjs';
+import { map, Observable, of, catchError, forkJoin } from 'rxjs';
 import { Expense } from '../shared/models/expense.model';
 import { Income } from '../shared/models/income.model';
 import { Wish } from '../shared/models/wish.model';
 import { Currency } from '../shared/models/currency.model';
 import { Investment } from '../shared/models/investment.model';
+
+interface DashboardData {
+  expenses: Expense[];
+  investments: Investment[];
+  incomes: Income[];
+  wishes: Wish[];
+  currencies: Currency[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +30,15 @@ export class DashboardService {
 
   constructor() {}
 
-  //TODO: GET EXPENSES AND REDUCE BY CATEGORIES, GET INCOME, GET WISHES
+  loadAllData(): Observable<DashboardData> {
+    return forkJoin({
+      expenses: this.reducedExpenses(),
+      investments: this.reducedInvestments(),
+      incomes: this.getIncomes(),
+      wishes: this.getWishes(),
+      currencies: this.getCurrencies(),
+    }).pipe(map((data) => this.roundAllAmounts(data)));
+  }
 
   reducedExpenses(month: Date = new Date()): Observable<Expense[]> {
     return this.getExpenses().pipe(
@@ -153,5 +169,22 @@ export class DashboardService {
     return this.http.get<Investment[]>(`${this.apiUrl}/${this.investmentUri}/all`, {
       withCredentials: true,
     });
+  }
+
+  private roundAllAmounts(data: DashboardData): DashboardData {
+    return {
+      expenses: this.roundAmounts(data.expenses),
+      investments: this.roundAmounts(data.investments),
+      incomes: this.roundAmounts(data.incomes),
+      wishes: this.roundAmounts(data.wishes),
+      currencies: data.currencies,
+    };
+  }
+
+  private roundAmounts<T extends { amount: number }>(items: T[]): T[] {
+    return items.map((item) => ({
+      ...item,
+      amount: Number(item.amount.toFixed(2)),
+    }));
   }
 }

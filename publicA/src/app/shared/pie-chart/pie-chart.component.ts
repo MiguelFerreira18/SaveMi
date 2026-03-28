@@ -1,6 +1,5 @@
-import { Component, Input, ViewChild } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
 export interface PieChartData {
@@ -14,21 +13,28 @@ export interface PieChartData {
   templateUrl: './pie-chart.component.html',
   styleUrl: './pie-chart.component.css',
 })
-export class PieChartComponent {
+export class PieChartComponent implements OnChanges {
   @Input({ required: true }) pieChartData!: PieChartData;
 
   public pieChartType: ChartType = 'pie';
 
-  get pieChartDataConfig(): ChartData<'pie'> {
-    return {
-      labels: this.pieChartData.labels,
-      datasets: [
-        {
-          data: this.pieChartData.data,
-        },
-      ],
-    };
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['pieChartData']) {
+      this.pieChartDataConfig = {
+        labels: this.pieChartData.labels,
+        datasets: [{ data: this.pieChartData.data }],
+      };
+    }
   }
+
+  public pieChartDataConfig: ChartData<'pie'> = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+      },
+    ],
+  };
 
   public pieChartOptions: ChartConfiguration['options'] = {
     responsive: true,

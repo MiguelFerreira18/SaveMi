@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { Income } from '../shared/models/income.model';
 import { Wish } from '../shared/models/wish.model';
 import { Expense } from '../shared/models/expense.model';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import {
   DashboardDynamicTableComponent,
@@ -12,6 +13,10 @@ import {
 import { GenericDropdownFilterComponent } from '../shared/generic-dropdown-filter/generic-dropdown-filter.component';
 import { createEmptyCurrency, Currency } from '../shared/models/currency.model';
 import { PieChartComponent, PieChartData } from '../shared/pie-chart/pie-chart.component';
+import {
+  MonthlyLineGraphComponent,
+  LineChartData,
+} from '../shared/monthly-line-graph/monthly-line-graph.component';
 import { BudgetTableComponent } from '../budget-table/budget-table.component';
 import { Investment } from '../shared/models/investment.model';
 
@@ -19,9 +24,11 @@ import { Investment } from '../shared/models/investment.model';
   selector: 'app-dashboard',
   imports: [
     MatButtonModule,
+    MatTabsModule,
     DashboardDynamicTableComponent,
     GenericDropdownFilterComponent,
     PieChartComponent,
+    MonthlyLineGraphComponent,
     BudgetTableComponent,
   ],
   templateUrl: './dashboard.component.html',
@@ -54,20 +61,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadCurrencies();
-    this.loadExpenses();
-    this.loadIncome();
-    this.loadWishes();
-    this.loadInvestments();
+    this.dasboardService.loadAllData().subscribe((data) => {
+      this.expenses.set(data.expenses);
+      this.allExpenses.set(data.expenses);
+      this.investments.set(data.investments);
+      this.allInvestments.set(data.investments);
+      this.incomes.set(data.incomes);
+      this.allIncomes.set(data.incomes);
+      this.wishes.set(data.wishes);
+      this.allWishes.set(data.wishes);
+
+      if (data.currencies.length !== 0) {
+        this.selectedSymbol.set(data.currencies[0]);
+        this.applyFilters(data.currencies[0].symbol);
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  private loadedCount = 0;
-  private readonly TOTAL_LOADS = 5; //INFO: AT LEAST FOR NOW THERE ARE 5
 
   selectedSymbol = signal<Currency>(createEmptyCurrency());
   symbolsFilter = signal<Currency[]>([]);
@@ -91,103 +105,63 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return currency.symbol;
   }
 
-  pieChartData(): PieChartData {
+  pieChartData = computed<PieChartData>(() => {
+    const labels = ['Expense', 'Income', 'Wish', 'Investment'];
+    if (
+      !this.totalExpenses() ||
+      !this.totalIncome() ||
+      !this.totalWishes() ||
+      !this.totalInvestments()
+    ) {
+      return {
+        labels: labels,
+        data: [],
+      };
+    }
     return {
-      labels: ['Expense', 'Income', 'Wish', 'Investment'],
+      labels: labels,
       data: [this.totalExpenses(), this.totalIncome(), this.totalWishes(), this.totalInvestments()],
     };
-  }
+  });
 
-  private loadExpenses() {
-    this.dasboardService.reducedExpenses().subscribe({
-      next: (expenses) => {
-        const roundedExpenses = expenses.map((e) => {
-          e['amount'] = Number(e.amount.toFixed(2));
-          return e;
-        });
-        this.allExpenses.set(roundedExpenses);
-        this.expenses.set(roundedExpenses);
-        this.checkAllLoads();
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-  private loadInvestments() {
-    this.dasboardService.reducedInvestments().subscribe({
-      next: (investments) => {
-        const roundedInvestments = investments.map((e) => {
-          e['amount'] = Number(e.amount.toFixed(2));
-          return e;
-        });
-        this.allInvestments.set(roundedInvestments);
-        this.investments.set(roundedInvestments);
-        this.checkAllLoads();
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-  private loadIncome() {
-    this.dasboardService.getIncomes().subscribe({
-      next: (incomes) => {
-        const roundedIncomes = incomes.map((i) => {
-          i['amount'] = Number(i.amount.toFixed(2));
-          return i;
-        });
+  monthlyLineChart(): LineChartData {
+    const now = new Date();
+    const totalDaysOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const labels = Array.from({ length: totalDaysOfMonth }, (_, i) => i + 1);
 
-        this.allIncomes.set(roundedIncomes);
-        this.incomes.set(roundedIncomes);
-        this.checkAllLoads();
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-
-  private loadWishes() {
-    this.dasboardService.getWishes().subscribe({
-      next: (wishes) => {
-        const roundedWishes = wishes.map((w) => {
-          w['amount'] = Number(w.amount.toFixed(2));
-          return w;
-        });
-        this.allWishes.set(roundedWishes);
-        this.wishes.set(roundedWishes);
-        console.log(this.allWishes());
-        console.log(this.wishes());
-
-        this.checkAllLoads();
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-
-  private loadCurrencies() {
-    this.dasboardService.getCurrencies().subscribe({
-      next: (currencies) => {
-        this.symbolsFilter.set(currencies);
-        if (currencies.length !== 0) {
-          this.checkAllLoads();
-          this.selectedSymbol.set(currencies[0]);
-        }
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-
-  private checkAllLoads() {
-    this.loadedCount++;
-    if (this.loadedCount >= this.TOTAL_LOADS) {
-      this.applyFilters(this.selectedSymbol().symbol);
-    }
+    return {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Expense',
+          data: this.allExpenses()
+            .filter((e) => e.symbol == this.selectedSymbol().symbol)
+            .map((e) => e.amount),
+          borderColor: 'rgb(255, 99, 132)',
+        },
+        {
+          label: 'Income',
+          data: this.allIncomes()
+            .filter((i) => i.symbol == this.selectedSymbol().symbol)
+            .map((i) => i.amount),
+          borderColor: 'rgb(75, 192, 192)',
+        },
+        {
+          label: 'Wish',
+          data: this.allWishes()
+            .filter((w) => w.symbol == this.selectedSymbol().symbol)
+            .map((w) => w.amount),
+          borderColor: 'rgb(153, 102, 255)',
+        },
+        {
+          label: 'Investment',
+          data: this.allInvestments()
+            .filter((i) => i.symbol == this.selectedSymbol().symbol)
+            .map((i) => i.amount),
+          borderColor: 'rgb(255, 205, 86)',
+        },
+      ],
+    };
   }
 
   private applyFilters(symbol: string) {
