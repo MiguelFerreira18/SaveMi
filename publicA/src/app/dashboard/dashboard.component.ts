@@ -62,14 +62,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.dasboardService.loadAllData().subscribe((data) => {
-      this.expenses.set(data.expenses);
-      this.allExpenses.set(data.expenses);
-      this.investments.set(data.investments);
-      this.allInvestments.set(data.investments);
-      this.incomes.set(data.incomes);
+      this.allReducedExpenses.set(data.expenses);
+      this.allRawExpenses.set(data.rawExpenses);
+      this.allReducedInvestments.set(data.investments);
+      this.allRawInvestments.set(data.rawInvestments);
       this.allIncomes.set(data.incomes);
-      this.wishes.set(data.wishes);
       this.allWishes.set(data.wishes);
+      this.symbolsFilter.set(data.currencies);
 
       if (data.currencies.length !== 0) {
         this.selectedSymbol.set(data.currencies[0]);
@@ -88,8 +87,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private readonly allIncomes = signal<Income[]>([]);
   private readonly allWishes = signal<Wish[]>([]);
-  private readonly allExpenses = signal<Expense[]>([]);
-  private readonly allInvestments = signal<Investment[]>([]);
+  private readonly allRawExpenses = signal<Expense[]>([]);
+  private readonly allRawInvestments = signal<Investment[]>([]);
+  private readonly allReducedExpenses = signal<Expense[]>([]);
+  private readonly allReducedInvestments = signal<Investment[]>([]);
 
   incomes = signal<Income[]>([]);
   wishes = signal<Wish[]>([]);
@@ -108,9 +109,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   pieChartData = computed<PieChartData>(() => {
     const labels = ['Expense', 'Income', 'Wish', 'Investment'];
     if (
-      !this.totalExpenses() ||
-      !this.totalIncome() ||
-      !this.totalWishes() ||
+      !this.totalExpenses() &&
+      !this.totalIncome() &&
+      !this.totalWishes() &&
       !this.totalInvestments()
     ) {
       return {
@@ -124,49 +125,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
   });
 
-  monthlyLineChart(): LineChartData {
-    const now = new Date();
-    const totalDaysOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const labels = Array.from({ length: totalDaysOfMonth }, (_, i) => i + 1);
-
-    return {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Expense',
-          data: this.allExpenses()
-            .filter((e) => e.symbol == this.selectedSymbol().symbol)
-            .map((e) => e.amount),
-          borderColor: 'rgb(255, 99, 132)',
-        },
-        {
-          label: 'Income',
-          data: this.allIncomes()
-            .filter((i) => i.symbol == this.selectedSymbol().symbol)
-            .map((i) => i.amount),
-          borderColor: 'rgb(75, 192, 192)',
-        },
-        {
-          label: 'Wish',
-          data: this.allWishes()
-            .filter((w) => w.symbol == this.selectedSymbol().symbol)
-            .map((w) => w.amount),
-          borderColor: 'rgb(153, 102, 255)',
-        },
-        {
-          label: 'Investment',
-          data: this.allInvestments()
-            .filter((i) => i.symbol == this.selectedSymbol().symbol)
-            .map((i) => i.amount),
-          borderColor: 'rgb(255, 205, 86)',
-        },
-      ],
-    };
-  }
+  monthlyLineChart = computed<LineChartData>(() => {
+    return this.dasboardService.monthlyLineChartData(
+      this.allRawExpenses(),
+      this.incomes(),
+      this.wishes(),
+      this.allRawInvestments(),
+      this.selectedSymbol().symbol
+    );
+  });
 
   private applyFilters(symbol: string) {
-    this.expenses.set(this.allExpenses().filter((e) => e.symbol == symbol));
-    this.investments.set(this.allInvestments().filter((inv) => inv.symbol == symbol));
+    this.expenses.set(this.allReducedExpenses().filter((e) => e.symbol == symbol));
+    this.investments.set(this.allReducedInvestments().filter((inv) => inv.symbol == symbol));
     this.incomes.set(this.allIncomes().filter((i) => i.symbol == symbol));
     this.wishes.set(this.allWishes().filter((w) => w.symbol == symbol));
   }
