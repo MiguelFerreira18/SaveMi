@@ -1,12 +1,23 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, of, catchError } from 'rxjs';
+import { map, Observable, of, catchError, forkJoin } from 'rxjs';
 import { Expense } from '../shared/models/expense.model';
 import { Income } from '../shared/models/income.model';
 import { Wish } from '../shared/models/wish.model';
 import { Currency } from '../shared/models/currency.model';
 import { Investment } from '../shared/models/investment.model';
+import { LineChartData } from '../shared/monthly-line-graph/monthly-line-graph.component';
+
+interface DashboardData {
+  expenses: Expense[];
+  rawExpenses: Expense[];
+  investments: Investment[];
+  rawInvestments: Investment[];
+  incomes: Income[];
+  wishes: Wish[];
+  currencies: Currency[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -22,75 +33,157 @@ export class DashboardService {
 
   constructor() {}
 
-  //TODO: GET EXPENSES AND REDUCE BY CATEGORIES, GET INCOME, GET WISHES
-
-  reducedExpenses(month: Date = new Date()): Observable<Expense[]> {
-    return this.getExpenses().pipe(
-      map((data: Expense[]) => {
-        const filteredData = data.filter((expense) => {
-          const expenseDate = new Date(expense.date);
-          return (
-            expenseDate.getMonth() === month.getMonth() &&
-            expenseDate.getFullYear() === month.getFullYear()
-          );
+  loadAllData(month: Date = new Date()): Observable<DashboardData> {
+    return forkJoin({
+      rawExpenses: this.getFiltered(month, this.getExpenses()),
+      rawInvestments: this.getFiltered(month, this.getInvestments()),
+      incomes: this.getIncomes(month),
+      wishes: this.getWishes(month),
+      currencies: this.getCurrencies(),
+    }).pipe(
+      map((data) => {
+        const expenses = this.reduceExpenses(data.rawExpenses);
+        const investments = this.reduceInvestments(data.rawInvestments);
+        return this.roundAllAmounts({
+          ...data,
+          expenses,
+          investments,
         });
+      })
+    );
+  }
 
-        return filteredData.reduce<Expense[]>((acc, expense) => {
-          const existingExpenseLocation = acc.findIndex(
-            (e) => e.category === expense.category && e.symbol === expense.symbol
-          );
+  monthlyLineChartData(
+    expenses: Expense[],
+    incomes: Income[],
+    wishes: Wish[],
+    investments: Investment[],
+    symbol: string,
+    date: Date = new Date()
+  ): LineChartData {
+    const totalDaysOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    const labels = Array.from({ length: totalDaysOfMonth }, (_, i) => i + 1);
+    console.log(expenses);
+    console.log(this.filterByDateAndSymbol(incomes, symbol, date.getMonth(), date.getFullYear()));
 
-          if (existingExpenseLocation !== -1) {
-            acc[existingExpenseLocation].amount += expense.amount;
-          } else {
-            acc.push({
-              ...expense,
-              description: '',
-            });
-          }
+    return {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Expense',
+          data: this.mapDataPerDay(
+            this.filterByDateAndSymbol(expenses, symbol, date.getMonth(), date.getFullYear()),
+            labels
+          ),
+          borderColor: 'rgb(255, 99, 132)',
+        },
+        {
+          label: 'Income',
+          data: this.mapDataPerDay(
+            this.filterByDateAndSymbol(incomes, symbol, date.getMonth(), date.getFullYear()),
+            labels
+          ),
+          borderColor: 'rgb(75, 192, 192)',
+        },
+        {
+          label: 'Wish',
+          data: this.mapDataPerDay(
+            this.filterByDateAndSymbol(wishes, symbol, date.getMonth(), date.getFullYear()),
+            labels
+          ),
+          borderColor: 'rgb(153, 102, 255)',
+        },
+        {
+          label: 'Investment',
+          data: this.mapDataPerDay(
+            this.filterByDateAndSymbol(investments, symbol, date.getMonth(), date.getFullYear()),
+            labels
+          ),
+          borderColor: 'rgb(255, 205, 86)',
+        },
+      ],
+    };
+  }
 
-          return acc;
-        }, []);
-      }),
+  private mapDataPerDay<T extends { date: Date; amount: number }>(
+    a: T[],
+    labels: number[]
+  ): number[] {
+    const dayMap = new Map<number, number>();
+    console.log(a);
+
+    a.map((item) => {
+      const date = new Date(item.date);
+      const day = date.getDate();
+      dayMap.set(day, (dayMap.get(day) || 0) + item.amount);
+    });
+    console.log(dayMap);
+
+    return labels.map((day) => dayMap.get(day) || 0);
+  }
+  private filterByDateAndSymbol<T extends { date: Date; symbol: string }>(
+    a: T[],
+    symbol: string,
+    month: number,
+    year: number
+  ): T[] {
+    return a.filter((data) => {
+      const date = new Date(data.date);
+      return data.symbol === symbol && date.getMonth() === month && date.getFullYear() === year;
+    });
+  }
+
+  private getFiltered<T extends { date: Date }>(month: Date, o: Observable<T[]>): Observable<T[]> {
+    return o.pipe(
+      map((data: T[]) =>
+        data.filter((t) => {
+          const date = new Date(t.date);
+          return date.getMonth() === month.getMonth() && date.getFullYear() === month.getFullYear();
+        })
+      ),
       catchError((err) => {
         console.error(err);
         return of([]);
       })
     );
   }
-  reducedInvestments(month: Date = new Date()): Observable<Investment[]> {
-    return this.getInvestments().pipe(
-      map((data: Investment[]) => {
-        const filteredData = data.filter((investment) => {
-          const investmentDate = new Date(investment.date);
-          return (
-            investmentDate.getMonth() === month.getMonth() &&
-            investmentDate.getFullYear() === month.getFullYear()
-          );
+
+  private reduceExpenses(filteredData: Expense[]): Expense[] {
+    return filteredData.reduce<Expense[]>((acc, expense) => {
+      const existingExpenseLocation = acc.findIndex(
+        (e) => e.category === expense.category && e.symbol === expense.symbol
+      );
+
+      if (existingExpenseLocation !== -1) {
+        acc[existingExpenseLocation].amount += expense.amount;
+      } else {
+        acc.push({
+          ...expense,
+          description: '',
         });
+      }
 
-        return filteredData.reduce<Investment[]>((acc, investment) => {
-          const existingInvestmentLocation = acc.findIndex(
-            (i) => i.strategyType === investment.strategyType && i.symbol === investment.symbol
-          );
+      return acc;
+    }, []);
+  }
 
-          if (existingInvestmentLocation !== -1) {
-            acc[existingInvestmentLocation].amount += investment.amount;
-          } else {
-            acc.push({
-              ...investment,
-              description: '',
-            });
-          }
+  private reduceInvestments(filteredData: Investment[]): Investment[] {
+    return filteredData.reduce<Investment[]>((acc, investment) => {
+      const existingInvestmentLocation = acc.findIndex(
+        (i) => i.strategyType === investment.strategyType && i.symbol === investment.symbol
+      );
 
-          return acc;
-        }, []);
-      }),
-      catchError((err) => {
-        console.error(err);
-        return of([]);
-      })
-    );
+      if (existingInvestmentLocation !== -1) {
+        acc[existingInvestmentLocation].amount += investment.amount;
+      } else {
+        acc.push({
+          ...investment,
+          description: '',
+        });
+      }
+
+      return acc;
+    }, []);
   }
 
   getIncomes(month: Date = new Date()): Observable<Income[]> {
@@ -138,7 +231,7 @@ export class DashboardService {
       );
   }
 
-  getCurrencies(): Observable<Currency[]> {
+  private getCurrencies(): Observable<Currency[]> {
     return this.http.get<Currency[]>(`${this.apiUrl}/${this.currenciesUri}/all`, {
       withCredentials: true,
     });
@@ -153,5 +246,24 @@ export class DashboardService {
     return this.http.get<Investment[]>(`${this.apiUrl}/${this.investmentUri}/all`, {
       withCredentials: true,
     });
+  }
+
+  private roundAllAmounts(data: DashboardData): DashboardData {
+    return {
+      expenses: this.roundAmounts(data.expenses),
+      rawExpenses: this.roundAmounts(data.rawExpenses),
+      investments: this.roundAmounts(data.investments),
+      rawInvestments: this.roundAmounts(data.rawInvestments),
+      incomes: this.roundAmounts(data.incomes),
+      wishes: this.roundAmounts(data.wishes),
+      currencies: data.currencies,
+    };
+  }
+
+  private roundAmounts<T extends { amount: number }>(items: T[]): T[] {
+    return items.map((item) => ({
+      ...item,
+      amount: Number(item.amount.toFixed(2)),
+    }));
   }
 }

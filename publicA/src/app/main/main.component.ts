@@ -24,7 +24,7 @@ export class MainComponent {
   routerLinks = [
     {
       name: 'Dashboard',
-      link: 'dashboard',
+      link: '',
     },
     {
       name: 'Investments',

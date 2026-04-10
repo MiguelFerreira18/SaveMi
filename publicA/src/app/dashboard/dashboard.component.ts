@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { Income } from '../shared/models/income.model';
 import { Wish } from '../shared/models/wish.model';
 import { Expense } from '../shared/models/expense.model';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import {
   DashboardDynamicTableComponent,
@@ -12,6 +13,10 @@ import {
 import { GenericDropdownFilterComponent } from '../shared/generic-dropdown-filter/generic-dropdown-filter.component';
 import { createEmptyCurrency, Currency } from '../shared/models/currency.model';
 import { PieChartComponent, PieChartData } from '../shared/pie-chart/pie-chart.component';
+import {
+  MonthlyLineGraphComponent,
+  LineChartData,
+} from '../shared/monthly-line-graph/monthly-line-graph.component';
 import { BudgetTableComponent } from '../budget-table/budget-table.component';
 import { Investment } from '../shared/models/investment.model';
 
@@ -19,9 +24,11 @@ import { Investment } from '../shared/models/investment.model';
   selector: 'app-dashboard',
   imports: [
     MatButtonModule,
+    MatTabsModule,
     DashboardDynamicTableComponent,
     GenericDropdownFilterComponent,
     PieChartComponent,
+    MonthlyLineGraphComponent,
     BudgetTableComponent,
   ],
   templateUrl: './dashboard.component.html',
@@ -54,11 +61,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadCurrencies();
-    this.loadExpenses();
-    this.loadIncome();
-    this.loadWishes();
-    this.loadInvestments();
+    this.dasboardService.loadAllData().subscribe((data) => {
+      this.allReducedExpenses.set(data.expenses);
+      this.allRawExpenses.set(data.rawExpenses);
+      this.allReducedInvestments.set(data.investments);
+      this.allRawInvestments.set(data.rawInvestments);
+      this.allIncomes.set(data.incomes);
+      this.allWishes.set(data.wishes);
+      this.symbolsFilter.set(data.currencies);
+
+      if (data.currencies.length !== 0) {
+        this.selectedSymbol.set(data.currencies[0]);
+        this.applyFilters(data.currencies[0].symbol);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -66,16 +82,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadedCount = 0;
-  private readonly TOTAL_LOADS = 5; //INFO: AT LEAST FOR NOW THERE ARE 5
-
   selectedSymbol = signal<Currency>(createEmptyCurrency());
   symbolsFilter = signal<Currency[]>([]);
 
   private readonly allIncomes = signal<Income[]>([]);
   private readonly allWishes = signal<Wish[]>([]);
-  private readonly allExpenses = signal<Expense[]>([]);
-  private readonly allInvestments = signal<Investment[]>([]);
+  private readonly allRawExpenses = signal<Expense[]>([]);
+  private readonly allRawInvestments = signal<Investment[]>([]);
+  private readonly allReducedExpenses = signal<Expense[]>([]);
+  private readonly allReducedInvestments = signal<Investment[]>([]);
 
   incomes = signal<Income[]>([]);
   wishes = signal<Wish[]>([]);
@@ -91,108 +106,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return currency.symbol;
   }
 
-  pieChartData(): PieChartData {
+  pieChartData = computed<PieChartData>(() => {
+    const labels = ['Expense', 'Income', 'Wish', 'Investment'];
+    if (
+      !this.totalExpenses() &&
+      !this.totalIncome() &&
+      !this.totalWishes() &&
+      !this.totalInvestments()
+    ) {
+      return {
+        labels: labels,
+        data: [],
+      };
+    }
     return {
-      labels: ['Expense', 'Income', 'Wish', 'Investment'],
+      labels: labels,
       data: [this.totalExpenses(), this.totalIncome(), this.totalWishes(), this.totalInvestments()],
     };
-  }
+  });
 
-  private loadExpenses() {
-    this.dasboardService.reducedExpenses().subscribe({
-      next: (expenses) => {
-        const roundedExpenses = expenses.map((e) => {
-          e['amount'] = Number(e.amount.toFixed(2));
-          return e;
-        });
-        this.allExpenses.set(roundedExpenses);
-        this.expenses.set(roundedExpenses);
-        this.checkAllLoads();
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-  private loadInvestments() {
-    this.dasboardService.reducedInvestments().subscribe({
-      next: (investments) => {
-        const roundedInvestments = investments.map((e) => {
-          e['amount'] = Number(e.amount.toFixed(2));
-          return e;
-        });
-        this.allInvestments.set(roundedInvestments);
-        this.investments.set(roundedInvestments);
-        this.checkAllLoads();
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-  private loadIncome() {
-    this.dasboardService.getIncomes().subscribe({
-      next: (incomes) => {
-        const roundedIncomes = incomes.map((i) => {
-          i['amount'] = Number(i.amount.toFixed(2));
-          return i;
-        });
-
-        this.allIncomes.set(roundedIncomes);
-        this.incomes.set(roundedIncomes);
-        this.checkAllLoads();
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-
-  private loadWishes() {
-    this.dasboardService.getWishes().subscribe({
-      next: (wishes) => {
-        const roundedWishes = wishes.map((w) => {
-          w['amount'] = Number(w.amount.toFixed(2));
-          return w;
-        });
-        this.allWishes.set(roundedWishes);
-        this.wishes.set(roundedWishes);
-        console.log(this.allWishes());
-        console.log(this.wishes());
-
-        this.checkAllLoads();
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-
-  private loadCurrencies() {
-    this.dasboardService.getCurrencies().subscribe({
-      next: (currencies) => {
-        this.symbolsFilter.set(currencies);
-        if (currencies.length !== 0) {
-          this.checkAllLoads();
-          this.selectedSymbol.set(currencies[0]);
-        }
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-
-  private checkAllLoads() {
-    this.loadedCount++;
-    if (this.loadedCount >= this.TOTAL_LOADS) {
-      this.applyFilters(this.selectedSymbol().symbol);
-    }
-  }
+  monthlyLineChart = computed<LineChartData>(() => {
+    return this.dasboardService.monthlyLineChartData(
+      this.allRawExpenses(),
+      this.incomes(),
+      this.wishes(),
+      this.allRawInvestments(),
+      this.selectedSymbol().symbol
+    );
+  });
 
   private applyFilters(symbol: string) {
-    this.expenses.set(this.allExpenses().filter((e) => e.symbol == symbol));
-    this.investments.set(this.allInvestments().filter((inv) => inv.symbol == symbol));
+    this.expenses.set(this.allReducedExpenses().filter((e) => e.symbol == symbol));
+    this.investments.set(this.allReducedInvestments().filter((inv) => inv.symbol == symbol));
     this.incomes.set(this.allIncomes().filter((i) => i.symbol == symbol));
     this.wishes.set(this.allWishes().filter((w) => w.symbol == symbol));
   }
