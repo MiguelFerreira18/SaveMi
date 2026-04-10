@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-error-display',
-  imports: [CommonModule, MatIconModule],
+  imports: [MatIconModule],
   template: `
     <div class="h-150 flex flex-col justify-center items-center text-center p-8">
       <mat-icon class="text-red-500 text-6xl mb-4">error_outline</mat-icon>
