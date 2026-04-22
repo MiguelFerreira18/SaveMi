@@ -124,23 +124,23 @@ describe('DashboardService', () => {
         expect(data.currencies).toEqual(mockCurrencies);
       });
 
-      const reqExp = httpMock.expectOne(`${apiUrl}/expense/all`);
+      const reqExp = httpMock.expectOne(`${apiUrl}/expenses`);
       expect(reqExp.request.method).toBe('GET');
       reqExp.flush(mockExpenses);
 
-      const reqInv = httpMock.expectOne(`${apiUrl}/investment/all`);
+      const reqInv = httpMock.expectOne(`${apiUrl}/investments`);
       expect(reqInv.request.method).toBe('GET');
       reqInv.flush(mockInvestments);
 
-      const reqInc = httpMock.expectOne(`${apiUrl}/income/all`);
+      const reqInc = httpMock.expectOne(`${apiUrl}/incomes`);
       expect(reqInc.request.method).toBe('GET');
       reqInc.flush(mockIncomes);
 
-      const reqWish = httpMock.expectOne(`${apiUrl}/wish/all`);
+      const reqWish = httpMock.expectOne(`${apiUrl}/wishes`);
       expect(reqWish.request.method).toBe('GET');
       reqWish.flush(mockWishes);
 
-      const reqCur = httpMock.expectOne(`${apiUrl}/currency/all`);
+      const reqCur = httpMock.expectOne(`${apiUrl}/currencies`);
       expect(reqCur.request.method).toBe('GET');
       reqCur.flush(mockCurrencies);
     });
@@ -153,11 +153,11 @@ describe('DashboardService', () => {
         expect(data.wishes).toEqual([]);
       });
 
-      httpMock.expectOne(`${apiUrl}/expense/all`).error(new ErrorEvent('error'));
-      httpMock.expectOne(`${apiUrl}/investment/all`).error(new ErrorEvent('error'));
-      httpMock.expectOne(`${apiUrl}/income/all`).error(new ErrorEvent('error'));
-      httpMock.expectOne(`${apiUrl}/wish/all`).error(new ErrorEvent('error'));
-      httpMock.expectOne(`${apiUrl}/currency/all`).flush([]);
+      httpMock.expectOne(`${apiUrl}/expenses`).error(new ErrorEvent('error'));
+      httpMock.expectOne(`${apiUrl}/investments`).error(new ErrorEvent('error'));
+      httpMock.expectOne(`${apiUrl}/incomes`).error(new ErrorEvent('error'));
+      httpMock.expectOne(`${apiUrl}/wishes`).error(new ErrorEvent('error'));
+      httpMock.expectOne(`${apiUrl}/currencies`).flush([]);
     });
   });
 
@@ -306,7 +306,7 @@ describe('DashboardService', () => {
         expect(data[0].description).toBe('Jan');
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/income/all`);
+      const req = httpMock.expectOne(`${apiUrl}/incomes`);
       req.flush(mockIncomes);
     });
   });
@@ -338,7 +338,7 @@ describe('DashboardService', () => {
         expect(data[0].description).toBe('June');
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/wish/all`);
+      const req = httpMock.expectOne(`${apiUrl}/wishes`);
       req.flush(mockWishes);
     });
   });

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/wish")
+@RequestMapping("/api/wishes")
 public class WishController {
 
     private final WishService wishService;
@@ -23,7 +23,7 @@ public class WishController {
     }
 
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<Iterable<WishOutputDto>> getAllWishes(){
         Iterable<Wish> wishes = wishService.getAllWishes();
 
@@ -97,7 +97,7 @@ public class WishController {
         return ResponseEntity.ok(wishDto);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteWishes(@RequestBody BulkDeleteDto bulkDeleteDto){
         wishService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();

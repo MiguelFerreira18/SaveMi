@@ -8,13 +8,13 @@ import { CreateObjectiveDto, Objective } from '../shared/models/objective.model'
   providedIn: 'root',
 })
 export class ObjectiveService {
-  private readonly apiUrl = ` ${environment.apiUrl}/api/objective`;
+  private readonly apiUrl = ` ${environment.apiUrl}/api/objectives`;
   private http: HttpClient = inject(HttpClient);
 
   constructor() {}
 
   getObjective(): Observable<Objective[]> {
-    return this.http.get<Objective[]>(`${this.apiUrl}/all`, { withCredentials: true });
+    return this.http.get<Objective[]>(`${this.apiUrl}`, { withCredentials: true });
   }
 
   postObjective(objective: CreateObjectiveDto): Observable<Objective> {
@@ -23,11 +23,10 @@ export class ObjectiveService {
 
   deleteObjectives(ids: Set<number>): Observable<void> {
     if (ids.size > 1) {
-      return this.http.post<void>(
-        `${this.apiUrl}/bulk-delete`,
-        { ids: Array.from(ids) },
-        { withCredentials: true }
-      );
+      return this.http.delete<void>(`${this.apiUrl}`, {
+        body: { ids: Array.from(ids) },
+        withCredentials: true,
+      });
     } else {
       const [id] = ids;
       return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true });

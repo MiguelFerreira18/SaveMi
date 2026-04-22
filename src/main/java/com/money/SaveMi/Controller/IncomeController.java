@@ -16,7 +16,7 @@ import java.time.ZoneId;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/income")
+@RequestMapping("/api/incomes")
 public class IncomeController {
     private IncomeService incomeService;
 
@@ -24,7 +24,7 @@ public class IncomeController {
         this.incomeService = incomeService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     @Transactional
     public ResponseEntity<Iterable<IncomeOutputDto>> getAllIncomeByUserIdFromCurrency() {
         Iterable<Income> incomes = incomeService.getAllIncomeByUserId();
@@ -110,7 +110,7 @@ public class IncomeController {
         return ResponseEntity.ok(incomeOutputDto);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteIncomes(@RequestBody BulkDeleteDto bulkDeleteDto){
         incomeService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();

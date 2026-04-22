@@ -8,13 +8,13 @@ import { CreateExpenseDto, Expense } from '../shared/models/expense.model';
   providedIn: 'root',
 })
 export class ExpensesService {
-  private readonly apiUrl = `${environment.apiUrl}/api/expense`;
+  private readonly apiUrl = `${environment.apiUrl}/api/expenses`;
   private http: HttpClient = inject(HttpClient);
 
   constructor() {}
 
   getExpenses(): Observable<Expense[]> {
-    return this.http.get<Expense[]>(`${this.apiUrl}/all`, { withCredentials: true });
+    return this.http.get<Expense[]>(`${this.apiUrl}`, { withCredentials: true });
   }
 
   postExpense(expense: CreateExpenseDto): Observable<Expense> {
@@ -23,15 +23,11 @@ export class ExpensesService {
 
   deleteExpenses(ids: Set<number>): Observable<void> {
     if (ids.size > 1) {
-      return this.http.post<void>(
-        `${this.apiUrl}/bulk-delete`,
-        {
-          ids: Array.from(ids),
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      return this.http.delete<void>(`${this.apiUrl}`, {
+        body: { ids: Array.from(ids) },
+
+        withCredentials: true,
+      });
     } else {
       const [id] = ids;
       return this.http.delete<void>(`${this.apiUrl}/${id}`, {

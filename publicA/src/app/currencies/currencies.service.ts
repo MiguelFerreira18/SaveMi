@@ -8,11 +8,11 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class CurrenciesService {
-  private readonly apiUrl = `${environment.apiUrl}/api/currency`;
+  private readonly apiUrl = `${environment.apiUrl}/api/currencies`;
   constructor(private http: HttpClient) {}
 
   getCurrencies(): Observable<Currency[]> {
-    return this.http.get<Currency[]>(`${this.apiUrl}/all`, { withCredentials: true });
+    return this.http.get<Currency[]>(`${this.apiUrl}`, { withCredentials: true });
   }
 
   postCurrencies(currency: CreateCurrencyDto): Observable<Currency> {
@@ -21,15 +21,10 @@ export class CurrenciesService {
 
   deleteCurrencies(ids: Set<number>): Observable<void> {
     if (ids.size > 1) {
-      return this.http.post<void>(
-        `${this.apiUrl}/bulk-delete`,
-        {
-          ids: Array.from(ids),
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      return this.http.delete<void>(`${this.apiUrl}`, {
+        body: { ids: Array.from(ids) },
+        withCredentials: true,
+      });
     } else {
       const [id] = ids;
       return this.http.delete<void>(`${this.apiUrl}/${id}`, {

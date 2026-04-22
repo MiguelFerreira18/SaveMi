@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/objective")
+@RequestMapping("/api/objectives")
 public class ObjectiveController {
     private ObjectiveService objectiveService;
 
@@ -21,7 +21,7 @@ public class ObjectiveController {
         this.objectiveService = objectiveService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     @Transactional
     public ResponseEntity<Iterable<ObjectiveOutputDto>> getAllObjectiveByUserIdFromCurrency() {
         Iterable<Objective> objectives = objectiveService.getAllObjectives();
@@ -105,7 +105,7 @@ public class ObjectiveController {
         return ResponseEntity.ok(incomeOutputDto);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteObjectives(@RequestBody BulkDeleteDto bulkDeleteDto){
         objectiveService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
