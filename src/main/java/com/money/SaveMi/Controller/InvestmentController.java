@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/investment")
+@RequestMapping("/api/investments")
 public class InvestmentController {
     private final InvestmentService investmentService;
 
@@ -20,7 +20,7 @@ public class InvestmentController {
         this.investmentService = investmentService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<Iterable<InvestmentOutDto>> getAllInvestments() {
         Iterable<Investment> investments = investmentService.getAllInvestments();
 
@@ -108,7 +108,7 @@ public class InvestmentController {
         return ResponseEntity.ok(investmentOutDto);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteInvestments(@RequestBody BulkDeleteDto bulkDeleteDto){
         investmentService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();

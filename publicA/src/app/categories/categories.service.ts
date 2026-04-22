@@ -8,11 +8,11 @@ import { Category, CreateCategoryDto } from '../shared/models/category.model';
   providedIn: 'root',
 })
 export class CategoriesService {
-  private readonly apiUrl = `${environment.apiUrl}/api/category`;
+  private readonly apiUrl = `${environment.apiUrl}/api/categories`;
   constructor(private http: HttpClient) {}
 
   getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.apiUrl}/all`, { withCredentials: true });
+    return this.http.get<Category[]>(`${this.apiUrl}`, { withCredentials: true });
   }
 
   postCategory(category: CreateCategoryDto): Observable<Category> {
@@ -21,15 +21,10 @@ export class CategoriesService {
 
   deleteCategories(ids: Set<number>): Observable<void> {
     if (ids.size > 1) {
-      return this.http.post<void>(
-        `${this.apiUrl}/bulk-delete`,
-        {
-          ids: Array.from(ids),
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      return this.http.delete<void>(`${this.apiUrl}`, {
+        body: { ids: Array.from(ids) },
+        withCredentials: true,
+      });
     } else {
       const [id] = ids;
       return this.http.delete<void>(`${this.apiUrl}/${id}`, {

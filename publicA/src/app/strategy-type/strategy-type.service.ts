@@ -8,13 +8,13 @@ import { CreateStrategyTypeDto, StrategyType } from '../shared/models/strategy-t
   providedIn: 'root',
 })
 export class StrategyTypeService {
-  private readonly apiUrl = `${environment.apiUrl}/api/strategy-type`;
+  private readonly apiUrl = `${environment.apiUrl}/api/strategies`;
   private http = inject(HttpClient);
 
   constructor() {}
 
   getStrategyTypes(): Observable<StrategyType[]> {
-    return this.http.get<StrategyType[]>(`${this.apiUrl}/all`, { withCredentials: true });
+    return this.http.get<StrategyType[]>(`${this.apiUrl}`, { withCredentials: true });
   }
 
   postStrategyType(strategyType: CreateStrategyTypeDto): Observable<StrategyType> {
@@ -23,15 +23,10 @@ export class StrategyTypeService {
 
   deleteStrategies(ids: Set<number>): Observable<void> {
     if (ids.size > 1) {
-      return this.http.post<void>(
-        `${this.apiUrl}/bulk-delete`,
-        {
-          ids: Array.from(ids),
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      return this.http.delete<void>(`${this.apiUrl}`, {
+        body: { ids: Array.from(ids) },
+        withCredentials: true,
+      });
     } else {
       const [id] = ids;
       return this.http.delete<void>(`${this.apiUrl}/${id}`, {

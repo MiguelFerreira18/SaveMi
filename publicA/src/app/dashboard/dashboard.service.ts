@@ -24,11 +24,11 @@ interface DashboardData {
 })
 export class DashboardService {
   private readonly apiUrl = `${environment.apiUrl}/api`;
-  private readonly expenseUri = 'expense';
-  private readonly investmentUri = 'investment';
-  private readonly incomeUri = 'income';
-  private readonly wishesUri = 'wish';
-  private readonly currenciesUri = 'currency';
+  private readonly expenseUri = 'expenses';
+  private readonly investmentUri = 'investments';
+  private readonly incomeUri = 'incomes';
+  private readonly wishesUri = 'wishes';
+  private readonly currenciesUri = 'currencies';
   private readonly http = inject(HttpClient);
 
   constructor() {}
@@ -188,7 +188,7 @@ export class DashboardService {
 
   getIncomes(month: Date = new Date()): Observable<Income[]> {
     return this.http
-      .get<Income[]>(`${this.apiUrl}/${this.incomeUri}/all`, {
+      .get<Income[]>(`${this.apiUrl}/${this.incomeUri}`, {
         withCredentials: true,
       })
       .pipe(
@@ -210,7 +210,7 @@ export class DashboardService {
   }
   getWishes(month: Date = new Date()): Observable<Wish[]> {
     return this.http
-      .get<Wish[]>(`${this.apiUrl}/${this.wishesUri}/all`, {
+      .get<Wish[]>(`${this.apiUrl}/${this.wishesUri}`, {
         withCredentials: true,
       })
       .pipe(
@@ -232,18 +232,18 @@ export class DashboardService {
   }
 
   private getCurrencies(): Observable<Currency[]> {
-    return this.http.get<Currency[]>(`${this.apiUrl}/${this.currenciesUri}/all`, {
+    return this.http.get<Currency[]>(`${this.apiUrl}/${this.currenciesUri}`, {
       withCredentials: true,
     });
   }
 
   private getExpenses(): Observable<Expense[]> {
-    return this.http.get<Expense[]>(`${this.apiUrl}/${this.expenseUri}/all`, {
+    return this.http.get<Expense[]>(`${this.apiUrl}/${this.expenseUri}`, {
       withCredentials: true,
     });
   }
   private getInvestments(): Observable<Investment[]> {
-    return this.http.get<Investment[]>(`${this.apiUrl}/${this.investmentUri}/all`, {
+    return this.http.get<Investment[]>(`${this.apiUrl}/${this.investmentUri}`, {
       withCredentials: true,
     });
   }
