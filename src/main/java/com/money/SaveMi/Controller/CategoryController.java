@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/categories")
 public class CategoryController {
     private final CategoryService categoryService;
 
@@ -20,7 +20,7 @@ public class CategoryController {
     }
 
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<Iterable<CategoryDtoOut>> getAllCategories() {
         Iterable<Category> categories = categoryService.getAllCategories();
 
@@ -74,7 +74,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryDtoOut);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteCategories(@RequestBody BulkDeleteDto bulkDeleteDto){
         categoryService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();

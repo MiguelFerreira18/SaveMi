@@ -14,16 +14,16 @@ import java.util.Optional;
 @Repository
 public interface InvestmentRepo extends CrudRepository<Investment, Long> {
     @Query("SELECT i FROM Investment i WHERE i.user.id = ?1")
-    Iterable<Investment> findAllInvestmentsByUserId(String userUUID);
+    Iterable<Investment> findAllByUserId(String userUUID);
 
-    @Query("SELECT i FROM Investment i WHERE i.user.id = ?1 AND i.currency.id = ?2")
-    Iterable<Investment> findAllInvestmentByUserIdFromCurrency(String userUUID, Long currencyId);
+    @Query("SELECT i FROM Investment i WHERE i.user.id = ?1 AND YEAR(i.date) = ?2 AND MONTH(i.date) = ?3")
+    Iterable<Investment> findAllByUserIdAndYearMonth(String userUUID, int year, int month);
 
     @Query("SELECT i FROM Investment i WHERE i.id = ?1 AND i.user.id = ?2")
-    Optional<Investment> findByInvestmentIdAndUserId(Long id, String userUUID);
+    Optional<Investment> findByIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT i FROM Investment i WHERE i.user.id = ?1 AND i.strategyType.id = ?2 AND i.currency.id = ?3 AND i.amount = ?4")
-    Optional<Investment> findInvestmentByParameters(String userUUID, Long strategyTypeId, Long currencyId, BigDecimal amount);
+    Optional<Investment> findByUserIdAndStrategyIdAndCurrencyIdAndAmount(String userUUID, Long strategyTypeId, Long currencyId, BigDecimal amount);
 
     @Modifying
     @Transactional
@@ -33,5 +33,5 @@ public interface InvestmentRepo extends CrudRepository<Investment, Long> {
     @Transactional
     @Modifying
     @Query("DELETE FROM Investment i WHERE i.id = ?1 AND i.user.id = ?2")
-    void deleteInvestmentByIdAndUserId(Long id, String userUUID);
+    void deleteByIdAndUserId(Long id, String userUUID);
 }

@@ -14,10 +14,10 @@ import java.util.Optional;
 public interface CategoryRepo extends CrudRepository<Category, Long> {
 
     @Query("SELECT c FROM Category c WHERE c.user.id = ?1")
-    Iterable<Category> findAllCategoriesByUserId(String userUUID);
+    Iterable<Category> findAllByUserId(String userUUID);
 
     @Query("SELECT c FROM Category c WHERE c.id = ?1 AND c.user.id = ?2")
-    Optional<Category> findCategoryByIdAndUserId(Long id, String userUUID);
+    Optional<Category> findByIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT c FROM Category c WHERE c.name = ?1 AND c.description = ?2 AND c.user.id = ?3")
     Optional<Category> findByNameDescriptionAndUserId(String name, String description, String userUUID);

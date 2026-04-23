@@ -44,7 +44,7 @@ public class StrategyTypeBootstrap implements CommandLineRunner {
 
 
     private void saveStrategyType(User u, SaveStrategyTypeDto strategyTypeDto) {
-        if (strategyTypeRepo.findByNameDescriptionAndUserId(strategyTypeDto.name(),strategyTypeDto.description(), u.getId()).isEmpty()) {
+        if (strategyTypeRepo.findByNameAndDescriptionAndUserId(strategyTypeDto.name(),strategyTypeDto.description(), u.getId()).isEmpty()) {
             strategyTypeRepo.save(new StrategyType(u, strategyTypeDto.name(), strategyTypeDto.description()));
         }
 

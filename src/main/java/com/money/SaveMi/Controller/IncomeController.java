@@ -6,17 +6,20 @@ import com.money.SaveMi.DTO.Income.UpdateIncomeDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Income;
 import com.money.SaveMi.Service.IncomeService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/income")
+@RequestMapping("/api/incomes")
 public class IncomeController {
     private IncomeService incomeService;
 
@@ -24,10 +27,10 @@ public class IncomeController {
         this.incomeService = incomeService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     @Transactional
-    public ResponseEntity<Iterable<IncomeOutputDto>> getAllIncomeByUserIdFromCurrency() {
-        Iterable<Income> incomes = incomeService.getAllIncomeByUserId();
+    public ResponseEntity<Iterable<IncomeOutputDto>> getIncomesByUserIdFromCurrency(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM")YearMonth month) {
+        Iterable<Income> incomes = incomeService.getAllIncomeByUserId(Optional.ofNullable(month));
 
         if (incomes == null) {
             return ResponseEntity.notFound().build();
@@ -110,7 +113,7 @@ public class IncomeController {
         return ResponseEntity.ok(incomeOutputDto);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteIncomes(@RequestBody BulkDeleteDto bulkDeleteDto){
         incomeService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();

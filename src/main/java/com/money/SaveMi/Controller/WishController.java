@@ -6,14 +6,17 @@ import com.money.SaveMi.DTO.Wish.UpdateWishDto;
 import com.money.SaveMi.DTO.Wish.WishOutputDto;
 import com.money.SaveMi.Model.Wish;
 import com.money.SaveMi.Service.WishService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/wish")
+@RequestMapping("/api/wishes")
 public class WishController {
 
     private final WishService wishService;
@@ -23,9 +26,9 @@ public class WishController {
     }
 
 
-    @GetMapping("/all")
-    public ResponseEntity<Iterable<WishOutputDto>> getAllWishes(){
-        Iterable<Wish> wishes = wishService.getAllWishes();
+    @GetMapping
+    public ResponseEntity<Iterable<WishOutputDto>> getAllWishes(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM")YearMonth month){
+        Iterable<Wish> wishes = wishService.getAllWishes(Optional.ofNullable(month));
 
         if (wishes == null) {
             return ResponseEntity.notFound().build();
@@ -97,7 +100,7 @@ public class WishController {
         return ResponseEntity.ok(wishDto);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteWishes(@RequestBody BulkDeleteDto bulkDeleteDto){
         wishService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();

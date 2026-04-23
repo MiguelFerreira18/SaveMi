@@ -22,12 +22,12 @@ public class CategoryService {
 
     public Iterable<Category> getAllCategories(){
         String userUUID = authUtil.getCurrentUserUuid();
-        return categoryRepo.findAllCategoriesByUserId(userUUID);
+        return categoryRepo.findAllByUserId(userUUID);
     }
 
     public Category getCategoryById(Long id){
         String userUUID = authUtil.getCurrentUserUuid();
-        return categoryRepo.findCategoryByIdAndUserId(id, userUUID)
+        return categoryRepo.findByIdAndUserId(id, userUUID)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id + " for user: " + userUUID));
 
     }
@@ -44,7 +44,7 @@ public class CategoryService {
         String userId = authUtil.getCurrentUserUuid();
 
         bulkdeleteDto.ids().forEach(id -> {
-            if(categoryRepo.findCategoryByIdAndUserId(id,userId).isEmpty()){
+            if(categoryRepo.findByIdAndUserId(id,userId).isEmpty()){
                 throw new RuntimeException("Category not found with id: " + id + " for user: " + userId + " in bulk");
             }
         });
@@ -55,7 +55,7 @@ public class CategoryService {
     public void deleteCategory(Long id){
         String userUUID = authUtil.getCurrentUserUuid();
 
-        if(categoryRepo.findCategoryByIdAndUserId(id,userUUID).isEmpty()){
+        if(categoryRepo.findByIdAndUserId(id,userUUID).isEmpty()){
             throw new RuntimeException("Category not found with id: " + id + " for user: " + userUUID);
         }
 

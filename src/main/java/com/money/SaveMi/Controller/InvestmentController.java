@@ -6,13 +6,16 @@ import com.money.SaveMi.DTO.Investment.UpdateInvestmentDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Investment;
 import com.money.SaveMi.Service.InvestmentService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/investment")
+@RequestMapping("/api/investments")
 public class InvestmentController {
     private final InvestmentService investmentService;
 
@@ -20,9 +23,9 @@ public class InvestmentController {
         this.investmentService = investmentService;
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<Iterable<InvestmentOutDto>> getAllInvestments() {
-        Iterable<Investment> investments = investmentService.getAllInvestments();
+    @GetMapping
+    public ResponseEntity<Iterable<InvestmentOutDto>> getAllInvestments(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
+        Iterable<Investment> investments = investmentService.getAllInvestments(Optional.ofNullable(month));
 
         if (investments == null) {
             return ResponseEntity.notFound().build();
@@ -108,7 +111,7 @@ public class InvestmentController {
         return ResponseEntity.ok(investmentOutDto);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteInvestments(@RequestBody BulkDeleteDto bulkDeleteDto){
         investmentService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();

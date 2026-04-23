@@ -5,7 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../auth.service';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SignIn, SignUp } from '../../shared/models/user.model';
-import { err, fold, ok, Result } from '../../shared/Monads';
 import { Router } from '@angular/router';
 
 @Component({

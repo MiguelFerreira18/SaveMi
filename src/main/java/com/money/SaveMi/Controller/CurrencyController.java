@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/currency")
+@RequestMapping("/api/currencies")
 public class CurrencyController {
 
     private final CurrencyService currencyService;
@@ -21,7 +21,7 @@ public class CurrencyController {
         this.currencyService = currencyService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<CurrencyDtoOut>> getAllCurrencies() {
         Iterable<Currency> currencies = currencyService.getAllCurrenciesFromUser();
 
@@ -69,7 +69,7 @@ public class CurrencyController {
         return ResponseEntity.status(201).body(currencyDtoOut);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteCurrencies(@RequestBody BulkDeleteDto bulkDeleteDto){
         currencyService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();

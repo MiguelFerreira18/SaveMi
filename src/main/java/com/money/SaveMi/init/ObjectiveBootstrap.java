@@ -53,7 +53,7 @@ public class ObjectiveBootstrap implements CommandLineRunner {
             BigDecimal value = new BigDecimal(i * 100.23).setScale(2, RoundingMode.HALF_UP);
             String description = String.format("OBJECTIVE%d", i);
             int year = randomYear();
-            if (objectiveRepo.findObjectiveByAllFields(user.getId(), currency.getId(), value,year).isEmpty()) {
+            if (objectiveRepo.findByUserIdAndCurrencyIdAndAmountAndYear(user.getId(), currency.getId(), value,year).isEmpty()) {
                 Objective objective = new Objective(user, currency, value, description, year);
                 objectiveRepo.save(objective);
             }

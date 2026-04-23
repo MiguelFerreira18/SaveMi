@@ -15,16 +15,16 @@ import java.util.Optional;
 public interface IncomeRepo extends CrudRepository<Income, Long> {
 
     @Query("SELECT i FROM Income i WHERE i.user.id = ?1")
-    Iterable<Income> findAllIncomeByUserId(String userUUID);
+    Iterable<Income> findByUserId(String userUUID);
 
-    @Query("SELECT i FROM Income i WHERE i.user.id = ?1 AND i.currency.id = ?2")
-    Iterable<Income> findAllIncomeByUserIdFromCurrency(String userUUID, Long currencyId);
+    @Query("SELECT i FROM Income i WHERE i.user.id = ?1 AND YEAR(i.date) = ?2 AND MONTH(i.date) = ?3")
+    Iterable<Income> findAllByUserIdAndYearMonth(String userUUID, int year, int month);
 
     @Query("SELECT i FROM Income i WHERE i.id = ?1 AND i.user.id = ?2")
-    Optional<Income> findByIncomeIdAndUserId(Long id, String userUUID);
+    Optional<Income> findByIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT i FROM Income i WHERE i.user.id = ?1 AND i.currency.id = ?2 AND i.amount = ?3")
-    Optional<Income> findIncomeByUserIdCurrencyAndAmount(String userUUID, Long currencyId, BigDecimal amount);
+    Optional<Income> findByUserIdAndCurrencyAndAmount(String userUUID, Long currencyId, BigDecimal amount);
 
     @Modifying
     @Transactional
@@ -34,6 +34,6 @@ public interface IncomeRepo extends CrudRepository<Income, Long> {
     @Transactional
     @Modifying
     @Query("DELETE FROM Income i WHERE i.id = ?1 AND i.user.id = ?2")
-    void deleteIncomeByIdAndUserId(Long id, String userUUID);
+    void deleteByIdAndUserId(Long id, String userUUID);
 
 }

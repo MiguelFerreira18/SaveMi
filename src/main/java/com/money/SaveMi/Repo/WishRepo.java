@@ -4,7 +4,6 @@ import com.money.SaveMi.Model.Wish;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +17,9 @@ public interface WishRepo extends CrudRepository<Wish, Long> {
     @Query("SELECT w from Wish w WHERE w.user.id = ?1")
     Iterable<Wish> findAllByUserId(String userUUID);
 
+    @Query("SELECT w from Wish w where w.user.id = ?1 and year(w.date) = ?2 and month(w.date) = ?3")
+    Iterable<Wish> findAllByUserIdFilteredByMonthAndYear(String userUUID, int year, int month);
+
     @Query("SELECT w from Wish w WHERE w.user.id = ?1 AND w.currency.id = ?2")
     Optional<Wish> findByUserIdAndCurrencyId(String userUUID, Long currencyId);
 
@@ -25,7 +27,7 @@ public interface WishRepo extends CrudRepository<Wish, Long> {
     Optional<Wish> findByIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT w from Wish w WHERE w.user.id = ?1 AND w.currency.id = ?2 AND w.amount = ?3")
-    Optional<Wish> findByWishByUserIdCurrencyIdAndAmount(String userId, Long currencyId, BigDecimal amount);
+    Optional<Wish> findByUserIdCurrencyIdAndAmount(String userId, Long currencyId, BigDecimal amount);
 
     @Modifying
     @Transactional

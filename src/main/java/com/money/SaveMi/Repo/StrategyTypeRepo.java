@@ -17,10 +17,10 @@ public interface StrategyTypeRepo extends CrudRepository<StrategyType, Long> {
     Iterable<StrategyType> findAllByUserId(String userUUID);
 
     @Query("SELECT s FROM StrategyType s WHERE s.id = ?1 AND s.user.id = ?2")
-    Optional<StrategyType> findStrategyTypeByIdAndUserId(Long id, String userUUID);
+    Optional<StrategyType> findByIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT s FROM StrategyType s WHERE s.name = ?1 AND s.description = ?2 AND s.user.id = ?3")
-    Optional<StrategyType> findByNameDescriptionAndUserId(String name, String description, String userUUID);
+    Optional<StrategyType> findByNameAndDescriptionAndUserId(String name, String description, String userUUID);
 
     @Modifying
     @Transactional

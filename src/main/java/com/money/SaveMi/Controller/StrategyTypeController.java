@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/strategy-type")
+@RequestMapping("/api/strategies")
 public class StrategyTypeController {
     private final StrategyTypeService strategyTypeService;
 
@@ -19,7 +19,7 @@ public class StrategyTypeController {
         this.strategyTypeService = strategyTypeService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<Iterable<StrategyTypeOutputDto>> GetAllStrategyTypes() {
         Iterable<StrategyType> strategyTypes = strategyTypeService.getAllStrategyTypes();
 
@@ -72,7 +72,7 @@ public class StrategyTypeController {
         return ResponseEntity.ok(strategyTypeOutputDto);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteStrategyTypes(@RequestBody BulkDeleteDto bulkDeleteDto){
         strategyTypeService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();

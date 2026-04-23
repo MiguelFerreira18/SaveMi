@@ -28,7 +28,7 @@ public class StrategyTypeService {
 
     public StrategyType getStrategyTypeById(Long id){
         String userUUID = authUtil.getCurrentUserUuid();
-        return strategyTypeRepo.findStrategyTypeByIdAndUserId(id, userUUID)
+        return strategyTypeRepo.findByIdAndUserId(id, userUUID)
                 .orElseThrow(() -> new RuntimeException("StrategyType not found with id: " + id + " for user: " + userUUID));
     }
 
@@ -44,7 +44,7 @@ public class StrategyTypeService {
         String userId = authUtil.getCurrentUserUuid();
 
         bulkdeleteDto.ids().forEach(id -> {
-            if(strategyTypeRepo.findStrategyTypeByIdAndUserId(id,userId).isEmpty()){
+            if(strategyTypeRepo.findByIdAndUserId(id,userId).isEmpty()){
                 throw new RuntimeException("Strategy type not found with id: " + id + " for user: " + userId + " in bulk");
             }
         });
@@ -55,7 +55,7 @@ public class StrategyTypeService {
     public void deleteStrategyType(Long id){
         String userUUID = authUtil.getCurrentUserUuid();
 
-        if(strategyTypeRepo.findStrategyTypeByIdAndUserId(id,userUUID).isEmpty()){
+        if(strategyTypeRepo.findByIdAndUserId(id,userUUID).isEmpty()){
             throw new RuntimeException("Strategy type not found with id: " + id + " for user: " + userUUID);
         }
 
@@ -63,7 +63,7 @@ public class StrategyTypeService {
     }
 
     public StrategyType findStrategyTypeByNameDescriptionAndUserId(String name, String description, String userId ){
-        return strategyTypeRepo.findByNameDescriptionAndUserId(name, description, userId)
+        return strategyTypeRepo.findByNameAndDescriptionAndUserId(name, description, userId)
                 .orElse(null);
 
     }

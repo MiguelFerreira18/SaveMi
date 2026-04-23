@@ -6,13 +6,16 @@ import com.money.SaveMi.DTO.Expense.UpdateExpenseDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Expense;
 import com.money.SaveMi.Service.ExpenseService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/expense")
+@RequestMapping("/api/expenses")
 public class ExpenseController {
     private final ExpenseService expenseService;
 
@@ -20,9 +23,9 @@ public class ExpenseController {
         this.expenseService = expenseService;
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses() {
-        Iterable<Expense> expenses = expenseService.getAllExpenses();
+    @GetMapping
+    public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
+        Iterable<Expense> expenses = expenseService.getAllExpenses(Optional.ofNullable(month));
 
         if (expenses == null) {
             return ResponseEntity.notFound().build();
@@ -109,7 +112,7 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseOutDto);
     }
 
-    @PostMapping("/bulk-delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteExpenses(@RequestBody BulkDeleteDto bulkDeleteDto){
         expenseService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
