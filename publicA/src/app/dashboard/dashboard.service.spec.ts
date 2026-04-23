@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { HttpParams, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DashboardService } from './dashboard.service';
 import { environment } from '../../environments/environment';
@@ -35,7 +35,6 @@ describe('DashboardService', () => {
   describe('loadAllData', () => {
     it('should load, filter, reduce and round all data correctly', () => {
       const targetMonth = new Date(2024, 3, 15);
-      const wrongMonth = new Date(2024, 4, 15);
 
       const mockExpenses: Expense[] = [
         {
@@ -55,15 +54,6 @@ describe('DashboardService', () => {
           amount: 20.456,
           userId: '1',
           date: targetMonth,
-        },
-        {
-          id: 3,
-          category: 'Rent',
-          symbol: '€',
-          description: 'Rent',
-          amount: 500,
-          userId: '1',
-          date: wrongMonth,
         },
       ];
 
@@ -124,19 +114,19 @@ describe('DashboardService', () => {
         expect(data.currencies).toEqual(mockCurrencies);
       });
 
-      const reqExp = httpMock.expectOne(`${apiUrl}/expenses`);
+      const reqExp = httpMock.expectOne(`${apiUrl}/expenses?month=2024-04`);
       expect(reqExp.request.method).toBe('GET');
       reqExp.flush(mockExpenses);
 
-      const reqInv = httpMock.expectOne(`${apiUrl}/investments`);
+      const reqInv = httpMock.expectOne(`${apiUrl}/investments?month=2024-04`);
       expect(reqInv.request.method).toBe('GET');
       reqInv.flush(mockInvestments);
 
-      const reqInc = httpMock.expectOne(`${apiUrl}/incomes`);
+      const reqInc = httpMock.expectOne(`${apiUrl}/incomes?month=2024-04`);
       expect(reqInc.request.method).toBe('GET');
       reqInc.flush(mockIncomes);
 
-      const reqWish = httpMock.expectOne(`${apiUrl}/wishes`);
+      const reqWish = httpMock.expectOne(`${apiUrl}/wishes?month=2024-04`);
       expect(reqWish.request.method).toBe('GET');
       reqWish.flush(mockWishes);
 
@@ -152,11 +142,25 @@ describe('DashboardService', () => {
         expect(data.incomes).toEqual([]);
         expect(data.wishes).toEqual([]);
       });
+      const today = new Date();
+      const monthParam = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
-      httpMock.expectOne(`${apiUrl}/expenses`).error(new ErrorEvent('error'));
-      httpMock.expectOne(`${apiUrl}/investments`).error(new ErrorEvent('error'));
-      httpMock.expectOne(`${apiUrl}/incomes`).error(new ErrorEvent('error'));
-      httpMock.expectOne(`${apiUrl}/wishes`).error(new ErrorEvent('error'));
+      httpMock.expectOne(`${apiUrl}/expenses?month=${monthParam}`).flush(null, {
+        status: 500,
+        statusText: 'Internal Server Error',
+      });
+      httpMock.expectOne(`${apiUrl}/investments?month=${monthParam}`).flush(null, {
+        status: 500,
+        statusText: 'Internal Server Error',
+      });
+      httpMock.expectOne(`${apiUrl}/incomes?month=${monthParam}`).flush(null, {
+        status: 500,
+        statusText: 'Internal Server Error',
+      });
+      httpMock.expectOne(`${apiUrl}/wishes?month=${monthParam}`).flush(null, {
+        status: 500,
+        statusText: 'Internal Server Error',
+      });
       httpMock.expectOne(`${apiUrl}/currencies`).flush([]);
     });
   });
@@ -276,70 +280,6 @@ describe('DashboardService', () => {
       ).not.toBeUndefined();
 
       expect(monthlyLineChartData.datasets.every((d) => d.data.length > 0)).toBeTruthy();
-    });
-  });
-
-  describe('getIncomes', () => {
-    it('should filter incomes by month', () => {
-      const targetMonth = new Date(2024, 0, 1);
-      const mockIncomes: Income[] = [
-        {
-          id: 1,
-          symbol: '€',
-          description: 'Jan',
-          amount: 100,
-          userId: '1',
-          date: new Date(2024, 0, 10),
-        },
-        {
-          id: 2,
-          symbol: '€',
-          description: 'Feb',
-          amount: 200,
-          userId: '1',
-          date: new Date(2024, 1, 10),
-        },
-      ];
-
-      service.getIncomes(targetMonth).subscribe((data) => {
-        expect(data.length).toBe(1);
-        expect(data[0].description).toBe('Jan');
-      });
-
-      const req = httpMock.expectOne(`${apiUrl}/incomes`);
-      req.flush(mockIncomes);
-    });
-  });
-
-  describe('getWishes', () => {
-    it('should filter wishes by month', () => {
-      const targetMonth = new Date(2024, 5, 1);
-      const mockWishes: Wish[] = [
-        {
-          id: 1,
-          symbol: '€',
-          description: 'June',
-          amount: 100,
-          userId: '1',
-          date: new Date(2024, 5, 15),
-        },
-        {
-          id: 2,
-          symbol: '€',
-          description: 'July',
-          amount: 200,
-          userId: '1',
-          date: new Date(2024, 6, 15),
-        },
-      ];
-
-      service.getWishes(targetMonth).subscribe((data) => {
-        expect(data.length).toBe(1);
-        expect(data[0].description).toBe('June');
-      });
-
-      const req = httpMock.expectOne(`${apiUrl}/wishes`);
-      req.flush(mockWishes);
     });
   });
 });

@@ -23,12 +23,12 @@ public class CurrencyService {
 
     public Iterable<Currency> getAllCurrenciesFromUser() {
         String userUUID = authUtil.getCurrentUserUuid();
-        return currencyRepo.findAllCurrenciesByUserId(userUUID);
+        return currencyRepo.findAllByUserId(userUUID);
     }
 
     public Currency getCurrencyById(Long id) {
         String userUUID = authUtil.getCurrentUserUuid();
-        return currencyRepo.findCurrencyByIdAndUserId(id, userUUID)
+        return currencyRepo.findByIdAndUserId(id, userUUID)
                 .orElseThrow(() -> new RuntimeException("Currency not found with id: " + id + " for user: " + userUUID));
     }
 
@@ -44,7 +44,7 @@ public class CurrencyService {
         String userId = authUtil.getCurrentUserUuid();
 
         bulkdeleteDto.ids().forEach(id -> {
-            if(currencyRepo.findCurrencyByIdAndUserId(id,userId).isEmpty()){
+            if(currencyRepo.findByIdAndUserId(id,userId).isEmpty()){
                 throw new RuntimeException("Currency not found with id: " + id + " for user: " + userId + " in bulk");
             }
         });
@@ -55,11 +55,11 @@ public class CurrencyService {
     public void deleteCurrency(Long id) {
         String userUUID = authUtil.getCurrentUserUuid();
 
-        if(currencyRepo.findCurrencyByIdAndUserId(id,userUUID).isEmpty()){
+        if(currencyRepo.findByIdAndUserId(id,userUUID).isEmpty()){
             throw new RuntimeException("Currency not found with id: " + id + " for user: " + userUUID);
         }
 
-        currencyRepo.deleteCurrencyByIdAndUserId(id,userUUID);
+        currencyRepo.deleteByIdAndUserId(id,userUUID);
     }
 
     public Currency findByNameAndSymbolAndUserId(String name, String symbol, String userId) {

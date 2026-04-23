@@ -53,8 +53,6 @@ export class DataTableComponent<T extends { id: number }> implements AfterViewIn
         this.datasource.filteredData.map((element) => {
           next.add(element.id);
         });
-        console.log(next);
-
         return next;
       });
     } else {

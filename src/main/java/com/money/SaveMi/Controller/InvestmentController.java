@@ -6,9 +6,12 @@ import com.money.SaveMi.DTO.Investment.UpdateInvestmentDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Investment;
 import com.money.SaveMi.Service.InvestmentService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
@@ -21,8 +24,8 @@ public class InvestmentController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<InvestmentOutDto>> getAllInvestments() {
-        Iterable<Investment> investments = investmentService.getAllInvestments();
+    public ResponseEntity<Iterable<InvestmentOutDto>> getAllInvestments(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
+        Iterable<Investment> investments = investmentService.getAllInvestments(Optional.ofNullable(month));
 
         if (investments == null) {
             return ResponseEntity.notFound().build();

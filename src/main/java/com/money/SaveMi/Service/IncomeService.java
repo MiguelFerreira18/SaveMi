@@ -12,6 +12,9 @@ import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
 import org.springframework.stereotype.Service;
 
+import java.time.YearMonth;
+import java.util.Optional;
+
 @Service
 public class IncomeService {
     private IncomeRepo incomeRepo;
@@ -28,14 +31,18 @@ public class IncomeService {
 
     //CRUD
 
-    public Iterable<Income> getAllIncomeByUserId() {
+    public Iterable<Income> getAllIncomeByUserId(Optional<YearMonth> month) {
         String userId = authUtil.getCurrentUserUuid();
-        return incomeRepo.findAllIncomeByUserId(userId);
+        return month.map( m -> {
+            int monthValue = m.getMonthValue();
+            int year = m.getYear();
+        return incomeRepo.findAllByUserIdAndYearMonth(userId,year,monthValue);
+        }).orElse(incomeRepo.findByUserId(userId));
     }
 
     public Income getIncomeById(Long id) {
         String userId = authUtil.getCurrentUserUuid();
-        return incomeRepo.findByIncomeIdAndUserId(id, userId)
+        return incomeRepo.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new RuntimeException("Income not found with id: " + id + " for user: " + userId));
     }
 
@@ -44,7 +51,7 @@ public class IncomeService {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + userId));
 
-        Currency currency = currencyRepo.findCurrencyByIdAndUserId(income.currencyId(), userId)
+        Currency currency = currencyRepo.findByIdAndUserId(income.currencyId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + income.currencyId() + " for user: " + userId));
 
         Income newIncome = new Income(user, currency, income.amount(), income.description(), income.date());
@@ -55,10 +62,10 @@ public class IncomeService {
     public Income updateIncome(UpdateIncomeDto updatedIncomeDto) {
         String userId = authUtil.getCurrentUserUuid();
 
-        Currency currency = currencyRepo.findCurrencyByIdAndUserId(updatedIncomeDto.currencyId(), userId)
+        Currency currency = currencyRepo.findByIdAndUserId(updatedIncomeDto.currencyId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + updatedIncomeDto.currencyId() + " for user: " + userId));
 
-        Income oldIncome = incomeRepo.findByIncomeIdAndUserId(updatedIncomeDto.id(), userId)
+        Income oldIncome = incomeRepo.findByIdAndUserId(updatedIncomeDto.id(), userId)
                 .orElseThrow(() -> new RuntimeException("Income not found with id: " + updatedIncomeDto.id() + " for user: " + userId));
 
         oldIncome.setAmount(updatedIncomeDto.amount());
@@ -73,7 +80,7 @@ public class IncomeService {
         String userId = authUtil.getCurrentUserUuid();
 
         bulkdeleteDto.ids().forEach(id -> {
-            if(incomeRepo.findByIncomeIdAndUserId(id,userId).isEmpty()){
+            if(incomeRepo.findByIdAndUserId(id,userId).isEmpty()){
                 throw new RuntimeException("Income not found with id: " + id + " for user: " + userId + " in bulk");
             }
         });
@@ -84,11 +91,11 @@ public class IncomeService {
     public void deleteIncome(Long id) {
         String userId = authUtil.getCurrentUserUuid();
 
-        if (incomeRepo.findByIncomeIdAndUserId(id, userId).isEmpty()) {
+        if (incomeRepo.findByIdAndUserId(id, userId).isEmpty()) {
             throw new RuntimeException("Income not found with id: " + id + " for user: " + userId);
         }
 
-        incomeRepo.deleteIncomeByIdAndUserId(id, userId);
+        incomeRepo.deleteByIdAndUserId(id, userId);
     }
 
 

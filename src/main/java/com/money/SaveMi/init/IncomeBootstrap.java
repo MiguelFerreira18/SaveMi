@@ -51,7 +51,7 @@ public class IncomeBootstrap implements CommandLineRunner {
         for (int i = 1; i <= numberOfIncomes; i++) {
             BigDecimal value = new BigDecimal(i * 100.23).setScale(2, RoundingMode.HALF_UP);
             String description = String.format("INCOME%d",i);
-            if (incomeRepo.findIncomeByUserIdCurrencyAndAmount(user.getId(), currency.getId(), value).isEmpty()) {
+            if (incomeRepo.findByUserIdAndCurrencyAndAmount(user.getId(), currency.getId(), value).isEmpty()) {
                 Income income = new Income(user, currency, value, description, LocalDate.now().plusDays(i));
                 incomeRepo.save(income);
             }

@@ -14,6 +14,9 @@ import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
 import org.springframework.stereotype.Service;
 
+import java.time.YearMonth;
+import java.util.Optional;
+
 @Service
 public class ExpenseService {
     private final ExpenseRepo expenseRepo;
@@ -30,14 +33,18 @@ public class ExpenseService {
         this.categoryRepo = categoryRepo;
     }
 
-    public Iterable<Expense> getAllExpenses(){
+    public Iterable<Expense> getAllExpenses(Optional<YearMonth> month){
         String userId = authUtil.getCurrentUserUuid();
-        return expenseRepo.findAllExpensesByUserId(userId);
+        return month.map( m -> {
+            int monthValue = m.getMonthValue();
+            int year = m.getYear();
+            return expenseRepo.findAllByUserIdAndYearMonth(userId,year,monthValue);
+        }).orElse(expenseRepo.findAllByUserId(userId));
     }
 
     public Expense getExpenseById(Long id){
         String userId = authUtil.getCurrentUserUuid();
-        return expenseRepo.findByExpenseIdAndUserId(id, userId)
+        return expenseRepo.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new RuntimeException("Expense not found with id: " + id + " for user: " + userId));
     }
 
@@ -46,10 +53,10 @@ public class ExpenseService {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + userId));
 
-        Currency currency = currencyRepo.findCurrencyByIdAndUserId(expenseDto.currencyId(), userId)
+        Currency currency = currencyRepo.findByIdAndUserId(expenseDto.currencyId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + expenseDto.currencyId() + " for user: " + userId));
 
-        Category category = categoryRepo.findCategoryByIdAndUserId(expenseDto.categoryId(), userId)
+        Category category = categoryRepo.findByIdAndUserId(expenseDto.categoryId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + expenseDto.categoryId() + " for user: " + userId));
 
         Expense newExpense = new Expense(user,currency,category,expenseDto.amount(),expenseDto.description(),expenseDto.date());
@@ -60,13 +67,13 @@ public class ExpenseService {
     public Expense updateExpense(UpdateExpenseDto updateExpenseDto) {
         String userId = authUtil.getCurrentUserUuid();
 
-        Currency currency = currencyRepo.findCurrencyByIdAndUserId(updateExpenseDto.currencyId(), userId)
+        Currency currency = currencyRepo.findByIdAndUserId(updateExpenseDto.currencyId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + updateExpenseDto.currencyId() + " for user: " + userId));
 
-        Category category = categoryRepo.findCategoryByIdAndUserId(updateExpenseDto.categoryId(), userId)
+        Category category = categoryRepo.findByIdAndUserId(updateExpenseDto.categoryId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + updateExpenseDto.categoryId() + " for user: " + userId));
 
-        Expense oldExpense = expenseRepo.findByExpenseIdAndUserId(updateExpenseDto.id(), userId)
+        Expense oldExpense = expenseRepo.findByIdAndUserId(updateExpenseDto.id(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Expense not found with id: " + updateExpenseDto.id() + " for user: " + userId));
 
         oldExpense.setAmount(updateExpenseDto.amount());
@@ -82,7 +89,7 @@ public class ExpenseService {
         String userId = authUtil.getCurrentUserUuid();
 
         bulkdeleteDto.ids().forEach(id -> {
-            if(expenseRepo.findByExpenseIdAndUserId(id,userId).isEmpty()){
+            if(expenseRepo.findByIdAndUserId(id,userId).isEmpty()){
                 throw new RuntimeException("Expense not found with id: " + id + " for user: " + userId + " in bulk");
             }
         });
@@ -93,11 +100,11 @@ public class ExpenseService {
     public void deleteExpense(Long id) {
         String userId = authUtil.getCurrentUserUuid();
 
-        if (expenseRepo.findByExpenseIdAndUserId(id,userId).isEmpty()){
+        if (expenseRepo.findByIdAndUserId(id,userId).isEmpty()){
             throw new RuntimeException("Expense not found with id: " + id + " for user: " + userId);
         }
 
-        expenseRepo.deleteExpenseByIdAndUserId(id, userId);
+        expenseRepo.deleteByIdAndUserId(id, userId);
     }
 
 }

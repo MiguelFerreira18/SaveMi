@@ -3,10 +3,19 @@ package com.money.SaveMi.Service;
 import com.money.SaveMi.DTO.Investment.SaveInvestmentDto;
 import com.money.SaveMi.DTO.Investment.UpdateInvestmentDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
-import com.money.SaveMi.Model.*;
-import com.money.SaveMi.Repo.*;
+import com.money.SaveMi.Model.Currency;
+import com.money.SaveMi.Model.Investment;
+import com.money.SaveMi.Model.StrategyType;
+import com.money.SaveMi.Model.User;
+import com.money.SaveMi.Repo.CurrencyRepo;
+import com.money.SaveMi.Repo.InvestmentRepo;
+import com.money.SaveMi.Repo.StrategyTypeRepo;
+import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
 import org.springframework.stereotype.Service;
+
+import java.time.YearMonth;
+import java.util.Optional;
 
 @Service
 public class InvestmentService {
@@ -25,14 +34,18 @@ public class InvestmentService {
         this.strategyTypeRepo = strategyTypeRepo;
     }
 
-    public Iterable<Investment> getAllInvestments(){
+    public Iterable<Investment> getAllInvestments(Optional<YearMonth> month){
         String userId = authUtil.getCurrentUserUuid();
-        return investmentRepo.findAllInvestmentsByUserId(userId);
+        return month.map( m -> {
+            int monthValue = m.getMonthValue();
+            int year = m.getYear();
+            return investmentRepo.findAllByUserIdAndYearMonth(userId,year,monthValue);
+        }).orElse(investmentRepo.findAllByUserId(userId));
     }
 
     public Investment getInvestmentById(Long id){
         String userId = authUtil.getCurrentUserUuid();
-        return investmentRepo.findByInvestmentIdAndUserId(id, userId)
+        return investmentRepo.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new RuntimeException("Investment not found with id: " + id + " for user: " + userId));
     }
 
@@ -41,10 +54,10 @@ public class InvestmentService {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + userId));
 
-        Currency currency = currencyRepo.findCurrencyByIdAndUserId(investmentDto.currencyId(), userId)
+        Currency currency = currencyRepo.findByIdAndUserId(investmentDto.currencyId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + investmentDto.currencyId() + " for user: " + userId));
 
-        StrategyType strategyType = strategyTypeRepo.findStrategyTypeByIdAndUserId(investmentDto.strategyTypeId(), userId)
+        StrategyType strategyType = strategyTypeRepo.findByIdAndUserId(investmentDto.strategyTypeId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Strategy type not found with id: " + investmentDto.strategyTypeId() + " for user: " + userId));
 
         Investment newInvestment = new Investment(user,currency,investmentDto.amount(), strategyType,investmentDto.description(),investmentDto.date());
@@ -55,13 +68,13 @@ public class InvestmentService {
     public Investment updateInvestment(UpdateInvestmentDto updateInvestment) {
         String userId = authUtil.getCurrentUserUuid();
 
-        Currency currency = currencyRepo.findCurrencyByIdAndUserId(updateInvestment.currencyId(), userId)
+        Currency currency = currencyRepo.findByIdAndUserId(updateInvestment.currencyId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + updateInvestment.currencyId() + " for user: " + userId));
 
-        StrategyType strategyType = strategyTypeRepo.findStrategyTypeByIdAndUserId(updateInvestment.strategyTypeId(), userId)
+        StrategyType strategyType = strategyTypeRepo.findByIdAndUserId(updateInvestment.strategyTypeId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Strategy type not found with id: " + updateInvestment.strategyTypeId() + " for user: " + userId));
 
-        Investment oldInvestment = investmentRepo.findByInvestmentIdAndUserId(updateInvestment.id(), userId)
+        Investment oldInvestment = investmentRepo.findByIdAndUserId(updateInvestment.id(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Investment not found with id: " + updateInvestment.id() + " for user: " + userId));
 
         oldInvestment.setAmount(updateInvestment.amount());
@@ -77,7 +90,7 @@ public class InvestmentService {
         String userId = authUtil.getCurrentUserUuid();
 
         bulkdeleteDto.ids().forEach(id -> {
-            if(investmentRepo.findByInvestmentIdAndUserId(id,userId).isEmpty()){
+            if(investmentRepo.findByIdAndUserId(id,userId).isEmpty()){
                 throw new RuntimeException("Investment not found with id: " + id + " for user: " + userId + " in bulk");
             }
         });
@@ -88,10 +101,10 @@ public class InvestmentService {
     public void deleteInvestment(Long id) {
         String userId = authUtil.getCurrentUserUuid();
 
-        if(investmentRepo.findByInvestmentIdAndUserId(id,userId).isEmpty()){
+        if(investmentRepo.findByIdAndUserId(id,userId).isEmpty()){
             throw new RuntimeException("Investment not found with id: " + id + " for user: " + userId);
         }
 
-        investmentRepo.deleteInvestmentByIdAndUserId(id, userId);
+        investmentRepo.deleteByIdAndUserId(id, userId);
     }
 }

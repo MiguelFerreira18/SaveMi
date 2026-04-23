@@ -15,16 +15,16 @@ import java.util.Optional;
 public interface ExpenseRepo extends CrudRepository<Expense, Long> {
 
     @Query("SELECT e FROM Expense e WHERE e.user.id = ?1")
-    Iterable<Expense> findAllExpensesByUserId(String userUUID);
+    Iterable<Expense> findAllByUserId(String userUUID);
 
-    @Query("SELECT e FROM Expense e WHERE e.user.id = ?1 AND e.currency.id = ?2")
-    Iterable<Expense> findAllIncomeByUserIdFromCurrency(String userUUID, Long currencyId);
+    @Query("SELECT e FROM Expense e WHERE e.user.id = ?1 AND YEAR(e.date) = ?2 AND MONTH(e.date) = ?3")
+    Iterable<Expense> findAllByUserIdAndYearMonth(String userUUID, int year, int month);
 
     @Query("SELECT e FROM Expense e WHERE e.id = ?1 AND e.user.id = ?2")
-    Optional<Expense> findByExpenseIdAndUserId(Long id, String userUUID);
+    Optional<Expense> findByIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT e FROM Expense e WHERE e.user.id = ?1 AND e.currency.id = ?2 AND e.category.id = ?3 AND e.description = ?4 AND e.amount = ?5")
-    Optional<Expense> findExpenseByUserIdCurrencyCategoryAndAmount(String userUUID, Long currencyId, Long categoryId, String description, BigDecimal amount);
+    Optional<Expense> findByUserIdCurrencyAndCategoryAndAmount(String userUUID, Long currencyId, Long categoryId, String description, BigDecimal amount);
 
     @Modifying
     @Transactional
@@ -34,5 +34,5 @@ public interface ExpenseRepo extends CrudRepository<Expense, Long> {
     @Transactional
     @Modifying
     @Query("DELETE FROM Expense e WHERE e.id = ?1 AND e.user.id = ?2")
-    void deleteExpenseByIdAndUserId(Long id, String userUUID);
+    void deleteByIdAndUserId(Long id, String userUUID);
 }

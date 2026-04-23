@@ -55,7 +55,7 @@ public class ExpenseBootstrap implements CommandLineRunner {
         for(int i = 1; i <= numberOfExpenses; i++){
             BigDecimal value = new BigDecimal( i * 100.23).setScale(2, RoundingMode.HALF_UP);
             final String description = String.format("EXPENSE%d", i);
-            if (expenseRepo.findExpenseByUserIdCurrencyCategoryAndAmount(u.getId(),c.getId(),category.getId(), description,value).isEmpty()) {
+            if (expenseRepo.findByUserIdCurrencyAndCategoryAndAmount(u.getId(),c.getId(),category.getId(), description,value).isEmpty()) {
                 Expense expense = new Expense(u, c, category, value, description, LocalDate.now().plusDays(i));
                 expenseRepo.save(expense);
             }
