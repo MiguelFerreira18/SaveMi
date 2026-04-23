@@ -39,7 +39,7 @@ public class StrategyTypeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StrategyTypeOutputDto> GetStrategyTypeById(Long id) {
+    public ResponseEntity<StrategyTypeOutputDto> GetStrategyTypeById(@PathVariable Long id) {
         StrategyType strategyType = strategyTypeService.getStrategyTypeById(id);
 
         if (strategyType == null) {
