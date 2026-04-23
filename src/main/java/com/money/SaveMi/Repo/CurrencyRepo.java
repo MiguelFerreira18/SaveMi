@@ -14,10 +14,10 @@ import java.util.Optional;
 public interface CurrencyRepo extends CrudRepository<Currency, Long> {
 
     @Query("SELECT c FROM Currency c WHERE c.user.id = ?1")
-    Iterable<Currency> findAllCurrenciesByUserId(String userUUID);
+    Iterable<Currency> findAllByUserId(String userUUID);
 
     @Query("SELECT c FROM Currency c WHERE c.id = ?1 AND c.user.id = ?2")
-    Optional<Currency> findCurrencyByIdAndUserId(Long id, String userUUID);
+    Optional<Currency> findByIdAndUserId(Long id, String userUUID);
 
     @Query("SELECT c FROM Currency c WHERE c.name = ?1 AND c.symbol = ?2 AND c.user.id = ?3")
     Optional<Currency> findByNameAndSymbolAndUserId(String name, String symbol, String userUUID);
@@ -30,6 +30,6 @@ public interface CurrencyRepo extends CrudRepository<Currency, Long> {
     @Transactional
     @Modifying
     @Query("DELETE FROM Currency c WHERE c.id = ?1 AND c.user.id = ?2")
-    void deleteCurrencyByIdAndUserId(Long id, String userUUID);
+    void deleteByIdAndUserId(Long id, String userUUID);
 
 }

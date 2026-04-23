@@ -6,13 +6,16 @@ import com.money.SaveMi.DTO.Income.UpdateIncomeDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Income;
 import com.money.SaveMi.Service.IncomeService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
@@ -26,8 +29,8 @@ public class IncomeController {
 
     @GetMapping
     @Transactional
-    public ResponseEntity<Iterable<IncomeOutputDto>> getAllIncomeByUserIdFromCurrency() {
-        Iterable<Income> incomes = incomeService.getAllIncomeByUserId();
+    public ResponseEntity<Iterable<IncomeOutputDto>> getIncomesByUserIdFromCurrency(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM")YearMonth month) {
+        Iterable<Income> incomes = incomeService.getAllIncomeByUserId(Optional.ofNullable(month));
 
         if (incomes == null) {
             return ResponseEntity.notFound().build();

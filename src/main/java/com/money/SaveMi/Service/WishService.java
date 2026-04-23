@@ -13,7 +13,8 @@ import com.money.SaveMi.Repo.WishRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.StreamSupport;
+import java.time.YearMonth;
+import java.util.Optional;
 
 @Service
 public class WishService {
@@ -29,9 +30,14 @@ public class WishService {
         this.authUtil = authUtil;
     }
 
-    public Iterable<Wish> getAllWishes(){
+    public Iterable<Wish> getAllWishes(Optional<YearMonth> month){
+
         String userId = authUtil.getCurrentUserUuid();
-        return wishRepo.findAllByUserId(userId);
+        return month.map( m->{
+            int monthValue = m.getMonthValue();
+            int yearValue = m.getYear();
+            return wishRepo.findAllByUserIdFilteredByMonthAndYear(userId,yearValue,monthValue);
+        }).orElse(wishRepo.findAllByUserId(userId));
     }
 
     public Wish getWishById(Long currencyId){
@@ -44,7 +50,7 @@ public class WishService {
         String userId = authUtil.getCurrentUserUuid();
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + userId));
-        Currency currency = currencyRepo.findCurrencyByIdAndUserId(wishDto.currencyId(), userId)
+        Currency currency = currencyRepo.findByIdAndUserId(wishDto.currencyId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + wishDto.currencyId() + " for user: " + userId));
 
         Wish newWish = new Wish(user,currency,wishDto.amount(),wishDto.description(),wishDto.date());
@@ -56,7 +62,7 @@ public class WishService {
         Wish existingWish = wishRepo.findByIdAndUserId(updateWishDto.id(),userId)
                 .orElseThrow(() -> new RuntimeException("Wish not found with id: " + updateWishDto.id() + " for user: " + userId));
 
-        Currency currency = currencyRepo.findCurrencyByIdAndUserId(updateWishDto.currencyId(), userId)
+        Currency currency = currencyRepo.findByIdAndUserId(updateWishDto.currencyId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + updateWishDto.currencyId() + " for user: " + userId));
 
         existingWish.setCurrency(currency);

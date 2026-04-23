@@ -6,9 +6,12 @@ import com.money.SaveMi.DTO.Expense.UpdateExpenseDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Expense;
 import com.money.SaveMi.Service.ExpenseService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
@@ -21,8 +24,8 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses() {
-        Iterable<Expense> expenses = expenseService.getAllExpenses();
+    public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
+        Iterable<Expense> expenses = expenseService.getAllExpenses(Optional.ofNullable(month));
 
         if (expenses == null) {
             return ResponseEntity.notFound().build();

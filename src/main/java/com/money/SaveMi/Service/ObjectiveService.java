@@ -28,12 +28,12 @@ public class ObjectiveService {
 
    public Iterable<Objective> getAllObjectives(){
         String userId = authUtil.getCurrentUserUuid();
-        return objectiveRepo.findAllObjectiveByUserId(userId);
+        return objectiveRepo.findAllByUserId(userId);
    }
 
    public Objective getObjectiveById(Long id){
         String userId = authUtil.getCurrentUserUuid();
-        return objectiveRepo.findByObjectiveIdAndUserId(id, userId)
+        return objectiveRepo.findByIdAndUserId(id, userId)
                 .orElseThrow(()-> new IllegalArgumentException("Income not found with id: " + id + " for user: " + userId));
    }
 
@@ -43,7 +43,7 @@ public class ObjectiveService {
        User user = userRepo.findById(userId)
                .orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + userId));
 
-       Currency currency = currencyRepo.findCurrencyByIdAndUserId(objective.currencyId(), userId)
+       Currency currency = currencyRepo.findByIdAndUserId(objective.currencyId(), userId)
                .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + objective.currencyId() + " for user: " + userId));
 
        Objective newObjective = new Objective(user,currency,objective.amount(),objective.description(),objective.target());
@@ -54,10 +54,10 @@ public class ObjectiveService {
     public Objective updateObjective(UpdateObjectiveDto updatedObjectiveDto) {
         String userId = authUtil.getCurrentUserUuid();
 
-        Currency currency = currencyRepo.findCurrencyByIdAndUserId(updatedObjectiveDto.currencyId(), userId)
+        Currency currency = currencyRepo.findByIdAndUserId(updatedObjectiveDto.currencyId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found with id: " + updatedObjectiveDto.currencyId() + " for user: " + userId));
 
-        Objective oldObjective = objectiveRepo.findByObjectiveIdAndUserId(updatedObjectiveDto.id(), userId)
+        Objective oldObjective = objectiveRepo.findByIdAndUserId(updatedObjectiveDto.id(), userId)
                 .orElseThrow(() -> new RuntimeException("Objective not found with id: " + updatedObjectiveDto.id() + " for user: " + userId));
         oldObjective.setAmount(updatedObjectiveDto.amount());
         oldObjective.setDescription(updatedObjectiveDto.description());
@@ -71,7 +71,7 @@ public class ObjectiveService {
         String userId = authUtil.getCurrentUserUuid();
 
         bulkdeleteDto.ids().forEach(id -> {
-            if(objectiveRepo.findByObjectiveIdAndUserId(id,userId).isEmpty()){
+            if(objectiveRepo.findByIdAndUserId(id,userId).isEmpty()){
                 throw new RuntimeException("Objective not found with id: " + id + " for user: " + userId + " in bulk");
             }
         });
@@ -82,11 +82,11 @@ public class ObjectiveService {
     public void deleteObjective(Long id) {
         String userId = authUtil.getCurrentUserUuid();
 
-        if (objectiveRepo.findByObjectiveIdAndUserId(id, userId).isEmpty()) {
+        if (objectiveRepo.findByIdAndUserId(id, userId).isEmpty()) {
             throw new RuntimeException("Objective not found with id: " + id + " for user: " + userId);
         }
 
-        objectiveRepo.deleteObjectiveByIdAndUserId(id, userId);
+        objectiveRepo.deleteByIdAndUserId(id, userId);
     }
 
 

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable, of, catchError, forkJoin } from 'rxjs';
 import { Expense } from '../shared/models/expense.model';
 import { Income } from '../shared/models/income.model';
@@ -34,12 +34,16 @@ export class DashboardService {
   constructor() {}
 
   loadAllData(month: Date = new Date()): Observable<DashboardData> {
+    const params = new HttpParams().set(
+      'month',
+      `${month.getFullYear()}-${(month.getMonth() + 1).toString().padStart(2, '0')}`
+    );
     return forkJoin({
-      rawExpenses: this.getFiltered(month, this.getExpenses()),
-      rawInvestments: this.getFiltered(month, this.getInvestments()),
-      incomes: this.getIncomes(month),
-      wishes: this.getWishes(month),
-      currencies: this.getCurrencies(),
+      rawExpenses: this.getExpenses(params).pipe(catchError(() => of([]))),
+      rawInvestments: this.getInvestments(params).pipe(catchError(() => of([]))),
+      incomes: this.getIncomes(params).pipe(catchError(() => of([]))),
+      wishes: this.getWishes(params).pipe(catchError(() => of([]))),
+      currencies: this.getCurrencies().pipe(catchError(() => of([]))),
     }).pipe(
       map((data) => {
         const expenses = this.reduceExpenses(data.rawExpenses);
@@ -63,8 +67,6 @@ export class DashboardService {
   ): LineChartData {
     const totalDaysOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
     const labels = Array.from({ length: totalDaysOfMonth }, (_, i) => i + 1);
-    console.log(expenses);
-    console.log(this.filterByDateAndSymbol(incomes, symbol, date.getMonth(), date.getFullYear()));
 
     return {
       labels: labels,
@@ -110,14 +112,12 @@ export class DashboardService {
     labels: number[]
   ): number[] {
     const dayMap = new Map<number, number>();
-    console.log(a);
 
     a.map((item) => {
       const date = new Date(item.date);
       const day = date.getDate();
       dayMap.set(day, (dayMap.get(day) || 0) + item.amount);
     });
-    console.log(dayMap);
 
     return labels.map((day) => dayMap.get(day) || 0);
   }
@@ -131,21 +131,6 @@ export class DashboardService {
       const date = new Date(data.date);
       return data.symbol === symbol && date.getMonth() === month && date.getFullYear() === year;
     });
-  }
-
-  private getFiltered<T extends { date: Date }>(month: Date, o: Observable<T[]>): Observable<T[]> {
-    return o.pipe(
-      map((data: T[]) =>
-        data.filter((t) => {
-          const date = new Date(t.date);
-          return date.getMonth() === month.getMonth() && date.getFullYear() === month.getFullYear();
-        })
-      ),
-      catchError((err) => {
-        console.error(err);
-        return of([]);
-      })
-    );
   }
 
   private reduceExpenses(filteredData: Expense[]): Expense[] {
@@ -186,49 +171,17 @@ export class DashboardService {
     }, []);
   }
 
-  getIncomes(month: Date = new Date()): Observable<Income[]> {
-    return this.http
-      .get<Income[]>(`${this.apiUrl}/${this.incomeUri}`, {
-        withCredentials: true,
-      })
-      .pipe(
-        map((data: Income[]) => {
-          const filteredData = data.filter((income) => {
-            const incomeDate = new Date(income.date);
-            return (
-              incomeDate.getMonth() === month.getMonth() &&
-              incomeDate.getFullYear() === month.getFullYear()
-            );
-          });
-          return filteredData;
-        }),
-        catchError((err) => {
-          console.error(err);
-          return of([]);
-        })
-      );
+  getIncomes(queryParams: HttpParams): Observable<Income[]> {
+    return this.http.get<Income[]>(`${this.apiUrl}/${this.incomeUri}`, {
+      withCredentials: true,
+      params: queryParams,
+    });
   }
-  getWishes(month: Date = new Date()): Observable<Wish[]> {
-    return this.http
-      .get<Wish[]>(`${this.apiUrl}/${this.wishesUri}`, {
-        withCredentials: true,
-      })
-      .pipe(
-        map((data: Wish[]) => {
-          const filteredData = data.filter((wish) => {
-            const incomeDate = new Date(wish.date);
-            return (
-              incomeDate.getMonth() === month.getMonth() &&
-              incomeDate.getFullYear() === month.getFullYear()
-            );
-          });
-          return filteredData;
-        }),
-        catchError((err) => {
-          console.error(err);
-          return of([]);
-        })
-      );
+  getWishes(queryParams: HttpParams): Observable<Wish[]> {
+    return this.http.get<Wish[]>(`${this.apiUrl}/${this.wishesUri}`, {
+      withCredentials: true,
+      params: queryParams,
+    });
   }
 
   private getCurrencies(): Observable<Currency[]> {
@@ -237,14 +190,16 @@ export class DashboardService {
     });
   }
 
-  private getExpenses(): Observable<Expense[]> {
+  private getExpenses(queryParams: HttpParams): Observable<Expense[]> {
     return this.http.get<Expense[]>(`${this.apiUrl}/${this.expenseUri}`, {
       withCredentials: true,
+      params: queryParams,
     });
   }
-  private getInvestments(): Observable<Investment[]> {
+  private getInvestments(queryParams: HttpParams): Observable<Investment[]> {
     return this.http.get<Investment[]>(`${this.apiUrl}/${this.investmentUri}`, {
       withCredentials: true,
+      params: queryParams,
     });
   }
 
