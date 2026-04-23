@@ -53,8 +53,8 @@ public class IncomeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<IncomeOutputDto> getIncomeById(@PathVariable Long incomeId) {
-        Income income = incomeService.getIncomeById(incomeId);
+    public ResponseEntity<IncomeOutputDto> getIncomeById(@PathVariable Long id) {
+        Income income = incomeService.getIncomeById(id);
 
         if (income == null) {
             return ResponseEntity.notFound().build();
