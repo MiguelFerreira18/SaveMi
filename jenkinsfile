@@ -47,10 +47,24 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Unit test'){
+          steps{
+            dir('./'){
+              execCommand('mvn clean test')
+            }
+          }
+        }
         stage('Build Spring Boot jar') {
             steps {
                 dir('./') {
                     execCommand('mvn clean package -DskipTests')
+                }
+            }
+        }
+        stage('Login to Dockerhub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'savemi-docker', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_NAME')]) {
+                    execCommand("docker login -u ${DOCKERHUB_NAME} -p ${DOCKERHUB_PASSWORD}")
                 }
             }
         }
@@ -80,13 +94,6 @@ pipeline {
             steps {
                 dir('publicA') {
                     execCommand("docker build --build-arg PROFILE=${FRONTEND_PROFILE} -t ${DOCKERHUB_ID}/${DOCKER_SAVEMI_FRONTEND}:${TAG} .")
-                }
-            }
-        }
-        stage('Login to Dockerhub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'savemi-docker', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_NAME')]) {
-                    execCommand("docker login -u ${DOCKERHUB_NAME} -p ${DOCKERHUB_PASSWORD}")
                 }
             }
         }
