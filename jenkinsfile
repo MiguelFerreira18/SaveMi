@@ -28,6 +28,7 @@ pipeline {
 
     tools {
         jdk 'java_21'
+        nodejs 'NodeJS_22'
     }
 
     environment {
