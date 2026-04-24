@@ -13,6 +13,7 @@ import { AddStrategyTypeDialogComponent } from './add-strategy-type-dialog/add-s
 import { StrategyTypeService } from './strategy-type.service';
 
 @Component({
+  standalone: true,
   selector: 'app-strategy-type',
   imports: [
     DataTableComponent,

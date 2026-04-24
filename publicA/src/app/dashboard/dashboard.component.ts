@@ -21,6 +21,7 @@ import { BudgetTableComponent } from '../budget-table/budget-table.component';
 import { Investment } from '../shared/models/investment.model';
 
 @Component({
+  standalone: true,
   selector: 'app-dashboard',
   imports: [
     MatButtonModule,

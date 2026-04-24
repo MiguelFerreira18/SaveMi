@@ -13,6 +13,7 @@ import { ErrorDisplayComponent } from '../shared/error-display/error-display.com
 import { AddCurrencyDialogComponent } from './add-currency-dialog/add-currency-dialog.component';
 
 @Component({
+  standalone: true,
   selector: 'app-currencies',
   imports: [
     DataTableComponent,

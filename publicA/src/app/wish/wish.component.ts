@@ -13,6 +13,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AddWishDialogComponent } from './add-wish-dialog/add-wish-dialog.component';
 
 @Component({
+  standalone: true,
   selector: 'app-wish',
   imports: [
     DataTableComponent,

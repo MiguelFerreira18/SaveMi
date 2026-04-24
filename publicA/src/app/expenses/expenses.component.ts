@@ -13,6 +13,7 @@ import { ErrorDisplayComponent } from '../shared/error-display/error-display.com
 import { AddExpenseDialogComponent } from './add-expense-dialog/add-expense-dialog.component';
 
 @Component({
+  standalone: true,
   selector: 'app-expenses',
   imports: [
     DataTableComponent,

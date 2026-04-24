@@ -13,6 +13,7 @@ import { ErrorDisplayComponent } from '../shared/error-display/error-display.com
 import { IncomeService } from './income.service';
 
 @Component({
+  standalone: true,
   selector: 'app-income',
   imports: [
     DataTableComponent,

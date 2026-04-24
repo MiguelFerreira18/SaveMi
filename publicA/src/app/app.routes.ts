@@ -1,80 +1,76 @@
 import { Routes } from '@angular/router';
-import { CategoriesComponent } from './categories/categories.component';
 import { AuthGuardService } from './auth/auth-guard.service';
-import { AuthComponent } from './auth/auth/auth.component';
-import { MainComponent } from './main/main.component';
-import { CurrenciesComponent } from './currencies/currencies.component';
-import { ExpensesComponent } from './expenses/expenses.component';
-import { IncomeComponent } from './income/income.component';
-import { WishComponent } from './wish/wish.component';
-import { StrategyTypeComponent } from './strategy-type/strategy-type.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { InvestmentComponent } from './investments/investment.component';
-import { ObjectiveComponent } from './objective/objective.component';
 
 //INFO: PATHS ARE BY LISTED AS ORDER OF IMPLMENTATION BUT IN MAIN.ts THEY ARE LISTED BY FEATURE
 export const routes: Routes = [
   {
     path: 'login',
-    component: AuthComponent,
+    loadComponent: () => import('./auth/auth/auth.component').then((m) => m.AuthComponent),
     title: 'Auth Page',
   },
   {
     path: '',
-    component: MainComponent,
+    loadComponent: () => import('./main/main.component').then((m) => m.MainComponent),
     canActivate: [AuthGuardService],
     children: [
       {
         path: 'category',
-        component: CategoriesComponent,
+        loadComponent: () =>
+          import('./categories/categories.component').then((m) => m.CategoriesComponent),
         title: 'Categories Page',
         canActivate: [AuthGuardService],
       },
       {
         path: 'currency',
-        component: CurrenciesComponent,
+        loadComponent: () =>
+          import('./currencies/currencies.component').then((m) => m.CurrenciesComponent),
         title: 'Currency Page',
         canActivate: [AuthGuardService],
       },
       {
         path: 'strategy-type',
-        component: StrategyTypeComponent,
+        loadComponent: () =>
+          import('./strategy-type/strategy-type.component').then((m) => m.StrategyTypeComponent),
         title: 'Strategy Type Page',
         canActivate: [AuthGuardService],
       },
       {
         path: 'expense',
-        component: ExpensesComponent,
+        loadComponent: () =>
+          import('./expenses/expenses.component').then((m) => m.ExpensesComponent),
         title: 'Expense Page',
         canActivate: [AuthGuardService],
       },
       {
         path: 'income',
-        component: IncomeComponent,
+        loadComponent: () => import('./income/income.component').then((m) => m.IncomeComponent),
         title: 'Income Page',
         canActivate: [AuthGuardService],
       },
       {
         path: 'wish',
-        component: WishComponent,
+        loadComponent: () => import('./wish/wish.component').then((m) => m.WishComponent),
         title: 'Wish Page',
         canActivate: [AuthGuardService],
       },
       {
         path: 'investment',
-        component: InvestmentComponent,
+        loadComponent: () =>
+          import('./investments/investment.component').then((m) => m.InvestmentComponent),
         title: 'Investment Page',
         canActivate: [AuthGuardService],
       },
       {
         path: '',
-        component: DashboardComponent,
-        title: 'dashboard Page',
+        loadComponent: () =>
+          import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
+        title: 'Dashboard Page',
         canActivate: [AuthGuardService],
       },
       {
         path: 'objective',
-        component: ObjectiveComponent,
+        loadComponent: () =>
+          import('./objective/objective.component').then((m) => m.ObjectiveComponent),
         title: 'Objective Page',
         canActivate: [AuthGuardService],
       },

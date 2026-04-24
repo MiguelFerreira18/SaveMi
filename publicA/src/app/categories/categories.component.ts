@@ -13,6 +13,7 @@ import { ErrorDisplayComponent } from '../shared/error-display/error-display.com
 import { ToastService } from '../shared/toast.service';
 
 @Component({
+  standalone: true,
   selector: 'app-categories',
   imports: [
     DataTableComponent,

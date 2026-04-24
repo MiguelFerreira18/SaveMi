@@ -13,6 +13,7 @@ import { AddInvestmentDialogComponent } from './add-investment-dialog/add-invest
 import { InvestmentService } from './investment.service';
 
 @Component({
+  standalone: true,
   selector: 'app-investment',
   imports: [
     DataTableComponent,

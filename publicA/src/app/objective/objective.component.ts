@@ -13,6 +13,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
+  standalone: true,
   selector: 'app-objective',
   imports: [
     MatProgressSpinner,
