@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "expense")
-public class Expense {
+public class Expense extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -56,14 +56,6 @@ public class Expense {
     @NotNull
     @Column(name = "date", nullable = false)
     private LocalDate date;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
 
     public Expense(User user, Currency currency, Category category, BigDecimal amount, String description, LocalDate date) {
         this.user = user;

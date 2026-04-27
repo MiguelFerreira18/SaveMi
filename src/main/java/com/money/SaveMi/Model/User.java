@@ -18,7 +18,7 @@ import java.util.*;
 @NoArgsConstructor
 @ToString
 @Entity
-public class User implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
     @Id
     @UuidGenerator
     private String id;
@@ -39,36 +39,11 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "authority_id"))
     private List<Authority> authorities = new ArrayList<>();
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
-
     public User(String email, String name, String password) {
         this.email = email;
         this.name = name;
         this.password = password;
     }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
 
     public void setPassword(String password, PasswordEncoder encoder) {
         if (password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,128}$")) {

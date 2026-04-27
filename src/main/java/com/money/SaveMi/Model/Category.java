@@ -19,7 +19,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Entity
 @Table(name = "category")
-public class Category {
+public class Category extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -40,14 +40,6 @@ public class Category {
     @Size(max = 255)
     @Column(name = "description")
     private String description;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
 
     public Category(User user, String name, String description) {
         this.user = user;
