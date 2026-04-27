@@ -19,7 +19,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "currency")
-public class Currency {
+public class Currency extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -41,13 +41,6 @@ public class Currency {
     @Column(name = "symbol", nullable = false, length = 10)
     private String symbol;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
 
     public Currency(User user, String name, String symbol) {
         this.user = user;

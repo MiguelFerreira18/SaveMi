@@ -21,7 +21,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "objective")
-public class Objective {
+public class Objective extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -50,14 +50,6 @@ public class Objective {
     @CurrentOrFutureYear
     @Column(name = "target", nullable = false)
     private Integer target;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
 
     public Objective(User user, Currency currency, BigDecimal amount, String description, Integer target) {
         this.user = user;
