@@ -98,7 +98,7 @@ public class CategoryControllerTest {
         doNothing().when(categoryService).deleteCategory(1L);
 
         mockMvc.perform(delete("/api/categories/1"))
-                .andExpect(status().isAccepted());
+                .andExpect(status().isNoContent());
 
     }
 }

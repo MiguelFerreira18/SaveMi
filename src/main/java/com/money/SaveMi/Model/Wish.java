@@ -1,6 +1,7 @@
 package com.money.SaveMi.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -48,6 +49,7 @@ public class Wish extends BaseEntity {
     private String description;
 
     @NotNull
+    @FutureOrPresent
     @Column(name = "date", nullable = false)
     private LocalDate date;
 

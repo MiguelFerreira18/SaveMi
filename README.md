@@ -52,6 +52,11 @@ Syncronize data with banks
 1. Create the secret keys using *setup-keys.sh* in linux or *setup-keys.bat* for windows
 2. Run ```Docker compose -f Docker-Compose.prod.yml up```
 
+
+## How to run the tests
+
+1. Simply run `mvn clean test -Dspring.profiles.active=test`
+
 ## Sources of Knowledge (Work in Progress)
 
 ### Videos

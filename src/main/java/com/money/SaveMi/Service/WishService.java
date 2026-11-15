@@ -36,7 +36,7 @@ public class WishService {
         return month.map( m->{
             int monthValue = m.getMonthValue();
             int yearValue = m.getYear();
-            return wishRepo.findAllByUserIdFilteredByMonthAndYear(userId,yearValue,monthValue);
+              return wishRepo.findAllByUserIdFilteredByMonthAndYear(userId,yearValue,monthValue);
         }).orElse(wishRepo.findAllByUserId(userId));
     }
 
