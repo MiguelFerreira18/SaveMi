@@ -22,13 +22,13 @@ public interface CategoryRepo extends CrudRepository<Category, Long> {
     @Query("SELECT c FROM Category c WHERE c.name = ?1 AND c.description = ?2 AND c.user.id = ?3")
     Optional<Category> findByNameDescriptionAndUserId(String name, String description, String userUUID);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query("DELETE FROM Category c WHERE c.id in ?1 AND c.user.id = ?2")
     void bulkDelete(List<Long> ids, String userUUID);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM Category c WHERE c.id = ?1 AND c.user.id = ?2")
     void deleteById(Long id, String userUUID);
 

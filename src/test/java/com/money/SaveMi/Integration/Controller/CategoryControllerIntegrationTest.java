@@ -101,7 +101,7 @@ public class CategoryControllerIntegrationTest extends BaseTest {
         Category category = categoryRepo.save(new Category(testUser, "To Delete", "Delete me"));
 
         mockMvc.perform(delete("/api/categories/" + category.getId()))
-                .andExpect(status().isAccepted());
+                .andExpect(status().isNoContent());
 
         assert(categoryRepo.findById(category.getId()).isEmpty());
     }
