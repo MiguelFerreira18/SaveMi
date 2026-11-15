@@ -1,5 +1,24 @@
 package com.money.SaveMi.Service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.money.SaveMi.DTO.Expense.SaveExpenseDto;
 import com.money.SaveMi.DTO.Expense.UpdateExpenseDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
@@ -12,22 +31,6 @@ import com.money.SaveMi.Repo.CurrencyRepo;
 import com.money.SaveMi.Repo.ExpenseRepo;
 import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.Arrays;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ExpenseServiceTest {
@@ -59,29 +62,6 @@ public class ExpenseServiceTest {
         testCurrency.setId(1L);
         testCategory = new Category();
         testCategory.setId(1L);
-    }
-
-    @Test
-    void testGetAllExpensesNoMonth() {
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(expenseRepo.findAllByUserId(userUuid)).thenReturn(Arrays.asList(new Expense(), new Expense()));
-
-        Iterable<Expense> result = expenseService.getAllExpenses(Optional.empty());
-
-        assertNotNull(result);
-        verify(expenseRepo, times(1)).findAllByUserId(userUuid);
-    }
-
-    @Test
-    void testGetAllExpensesWithMonth() {
-        YearMonth ym = YearMonth.of(2023, 10);
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(expenseRepo.findAllByUserIdAndYearMonth(userUuid, 2023, 10)).thenReturn(Arrays.asList(new Expense()));
-
-        Iterable<Expense> result = expenseService.getAllExpenses(Optional.of(ym));
-
-        assertNotNull(result);
-        verify(expenseRepo, times(1)).findAllByUserIdAndYearMonth(userUuid, 2023, 10);
     }
 
     @Test

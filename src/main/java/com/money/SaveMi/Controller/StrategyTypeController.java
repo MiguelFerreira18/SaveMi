@@ -81,7 +81,7 @@ public class StrategyTypeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> DeleteStrategyType(@PathVariable Long id) {
         strategyTypeService.deleteStrategyType(id);
-        return ResponseEntity.status(202).build();
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -1,18 +1,28 @@
 package com.money.SaveMi.Controller;
 
+import java.util.stream.StreamSupport;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.money.SaveMi.DTO.Expense.ExpenseOutDto;
 import com.money.SaveMi.DTO.Expense.SaveExpenseDto;
 import com.money.SaveMi.DTO.Expense.UpdateExpenseDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
+import com.money.SaveMi.Filter.ExpenseFilter;
 import com.money.SaveMi.Model.Expense;
 import com.money.SaveMi.Service.ExpenseService;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.time.YearMonth;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/expenses")
@@ -24,8 +34,8 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
-        Iterable<Expense> expenses = expenseService.getAllExpenses(Optional.ofNullable(month));
+    public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses(ExpenseFilter filter, @PageableDefault(size = 5) Pageable pageable) {
+        Iterable<Expense> expenses = expenseService.getAllExpenses(filter,pageable);
 
         if (expenses == null) {
             return ResponseEntity.notFound().build();
@@ -71,7 +81,7 @@ public class ExpenseController {
 
 
     @PostMapping
-    public ResponseEntity<ExpenseOutDto> saveExpense(@RequestBody SaveExpenseDto expense) {
+    public ResponseEntity<ExpenseOutDto> saveExpense(@RequestBody @Valid SaveExpenseDto expense) {
         Expense savedExpense = expenseService.saveExpense(expense);
 
         if (savedExpense == null) {
@@ -92,7 +102,7 @@ public class ExpenseController {
     }
 
     @PutMapping
-    public ResponseEntity<ExpenseOutDto> updateExpense(@RequestBody UpdateExpenseDto expense) {
+    public ResponseEntity<ExpenseOutDto> updateExpense(@RequestBody @Valid UpdateExpenseDto expense) {
         Expense updatedExpense = expenseService.updateExpense(expense);
 
         if (updatedExpense == null) {
@@ -113,7 +123,7 @@ public class ExpenseController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteExpenses(@RequestBody BulkDeleteDto bulkDeleteDto){
+    public ResponseEntity<Void> deleteExpenses(@RequestBody @Valid BulkDeleteDto bulkDeleteDto){
         expenseService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }
@@ -121,6 +131,6 @@ public class ExpenseController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
         expenseService.deleteExpense(id);
-        return ResponseEntity.status(202).build();
+        return ResponseEntity.noContent().build();
     }
 }

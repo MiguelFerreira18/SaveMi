@@ -24,8 +24,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -66,7 +64,7 @@ public class ExpenseControllerTest {
 
     @Test
     void testGetAllExpenses() throws Exception {
-        when(expenseService.getAllExpenses(any(Optional.class))).thenReturn(Collections.singletonList(expense));
+        when(expenseService.getAllExpenses(null,null)).thenReturn(Collections.singletonList(expense));
 
         mockMvc.perform(get("/api/expenses"))
                 .andExpect(status().isOk())
