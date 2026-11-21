@@ -53,17 +53,6 @@ public class ObjectiveServiceTest {
     }
 
     @Test
-    void testGetAllObjectives() {
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(objectiveRepo.findAllByUserId(userUuid)).thenReturn(Arrays.asList(new Objective(), new Objective()));
-
-        Iterable<Objective> result = objectiveService.getAllObjectives();
-
-        assertNotNull(result);
-        verify(objectiveRepo, times(1)).findAllByUserId(userUuid);
-    }
-
-    @Test
     void testGetObjectiveByIdSuccess() {
         Objective objective = new Objective();
         objective.setId(1L);

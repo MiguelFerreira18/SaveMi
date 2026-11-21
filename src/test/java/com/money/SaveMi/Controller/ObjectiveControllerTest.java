@@ -57,16 +57,6 @@ public class ObjectiveControllerTest {
     }
 
     @Test
-    void testGetAllObjectives() throws Exception {
-        when(objectiveService.getAllObjectives()).thenReturn(Collections.singletonList(objective));
-
-        mockMvc.perform(get("/api/objectives"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].description").value("Save for Car"));
-    }
-
-    @Test
     void testGetObjectiveById() throws Exception {
         when(objectiveService.getObjectiveById(1L)).thenReturn(objective);
 

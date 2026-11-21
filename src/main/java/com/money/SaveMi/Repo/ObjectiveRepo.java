@@ -1,18 +1,20 @@
 package com.money.SaveMi.Repo;
 
-import com.money.SaveMi.Model.Objective;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import com.money.SaveMi.Model.Objective;
 
 @Repository
-public interface ObjectiveRepo extends CrudRepository<Objective, Long> {
+public interface ObjectiveRepo extends CrudRepository<Objective, Long>, JpaSpecificationExecutor<Objective> {
 
     @Query("SELECT o FROM Objective o WHERE o.user.id = ?1")
     Iterable<Objective> findAllByUserId(String userUUID);

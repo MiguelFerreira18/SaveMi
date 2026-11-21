@@ -50,7 +50,7 @@ public class InvestmentService {
             String like = "%" + filter.text().toLowerCase() + "%";
             specs.add((root, q, cb) -> {
                 return cb.or(
-                        cb.like(cb.lower(root.get("category").get("name")), like),
+                        cb.like(cb.lower(root.get("strategyType").get("name")), like),
                         cb.like(cb.lower(root.get("currency").get("name")), like),
                         cb.like(cb.lower(root.get("description")), like),
                         cb.like(root.get("amount").as(String.class), like));
