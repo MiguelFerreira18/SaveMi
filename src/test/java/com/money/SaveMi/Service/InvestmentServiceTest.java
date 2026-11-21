@@ -1,5 +1,24 @@
 package com.money.SaveMi.Service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.money.SaveMi.DTO.Investment.SaveInvestmentDto;
 import com.money.SaveMi.DTO.Investment.UpdateInvestmentDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
@@ -12,23 +31,6 @@ import com.money.SaveMi.Repo.InvestmentRepo;
 import com.money.SaveMi.Repo.StrategyTypeRepo;
 import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class InvestmentServiceTest {
@@ -67,22 +69,10 @@ public class InvestmentServiceTest {
         when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
         when(investmentRepo.findAllByUserId(userUuid)).thenReturn(Arrays.asList(new Investment(), new Investment()));
 
-        Iterable<Investment> result = investmentService.getAllInvestments(Optional.empty());
+        Iterable<Investment> result = investmentService.getAllInvestments(null,null);
 
         assertNotNull(result);
         verify(investmentRepo, times(1)).findAllByUserId(userUuid);
-    }
-
-    @Test
-    void testGetAllInvestmentsWithMonth() {
-        YearMonth ym = YearMonth.of(2023, 10);
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(investmentRepo.findAllByUserIdAndYearMonth(userUuid, 2023, 10)).thenReturn(List.of(new Investment()));
-
-        Iterable<Investment> result = investmentService.getAllInvestments(Optional.of(ym));
-
-        assertNotNull(result);
-        verify(investmentRepo, times(1)).findAllByUserIdAndYearMonth(userUuid, 2023, 10);
     }
 
     @Test

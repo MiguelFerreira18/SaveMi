@@ -1,16 +1,10 @@
 package com.money.SaveMi.Authentication;
 
-import com.money.SaveMi.DTO.Authentication.SignInRequest;
-import com.money.SaveMi.DTO.Authentication.SignUpRequest;
-import com.money.SaveMi.DTO.Authentication.StatusRequest;
-import com.money.SaveMi.Mapper.UserMapper;
-import com.money.SaveMi.Model.User;
-import com.money.SaveMi.Model.UserView;
-import com.money.SaveMi.Service.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
+
+import java.time.Instant;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +18,24 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import com.money.SaveMi.DTO.Authentication.SignInRequest;
+import com.money.SaveMi.DTO.Authentication.SignUpRequest;
+import com.money.SaveMi.DTO.Authentication.StatusRequest;
+import com.money.SaveMi.Mapper.UserMapper;
+import com.money.SaveMi.Model.User;
+import com.money.SaveMi.Model.UserView;
+import com.money.SaveMi.Service.UserService;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("auth/public")
@@ -59,8 +63,9 @@ public class AuthenticationApi {
     @Value("${app.cookie.secure:false}")
     private boolean cookieSecure;
 
-    public AuthenticationApi(AuthenticationManager authenticationManager, JwtEncoder jwtEncoder, JwtDecoder jwtDecoder, UserService userService, UserMapper userMapper,
-                             PasswordEncoder passwordEncoder) {
+    public AuthenticationApi(AuthenticationManager authenticationManager, JwtEncoder jwtEncoder, JwtDecoder jwtDecoder,
+            UserService userService, UserMapper userMapper,
+            PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
@@ -71,7 +76,8 @@ public class AuthenticationApi {
     }
 
     @PostMapping("login")
-    public ResponseEntity<UserView> login(@RequestBody @Valid final SignInRequest request, HttpServletResponse response) {
+    public ResponseEntity<UserView> login(@RequestBody @Valid final SignInRequest request,
+            HttpServletResponse response) {
 
         try {
             Authentication authentication = authenticate(request);
@@ -96,7 +102,8 @@ public class AuthenticationApi {
                 .authenticate(new UsernamePasswordAuthenticationToken(request.email, request.password));
     }
 
-    private ResponseEntity<UserView> buildAuthenticationResponse(Authentication authentication, User principal, HttpServletResponse response) {
+    private ResponseEntity<UserView> buildAuthenticationResponse(Authentication authentication, User principal,
+            HttpServletResponse response) {
 
         String scope = extractScope(authentication);
         JwtClaimsSet claims = buildClaims(principal, scope);
@@ -137,7 +144,7 @@ public class AuthenticationApi {
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    private Cookie createJwtCookie(String token, int maxAge){
+    private Cookie createJwtCookie(String token, int maxAge) {
         Cookie cookie = new Cookie(JWT_COOKIE_NAME, token);
         cookie.setHttpOnly(true);
         cookie.setSecure(cookieSecure);
@@ -153,7 +160,7 @@ public class AuthenticationApi {
     }
 
     @GetMapping("status")
-    public ResponseEntity<StatusRequest> chekAuthStatus(HttpServletRequest request){
+    public ResponseEntity<StatusRequest> chekAuthStatus(HttpServletRequest request) {
         boolean authenticated = isUserAuthenticated(request);
         StatusRequest status = new StatusRequest(authenticated);
 
@@ -198,7 +205,6 @@ public class AuthenticationApi {
                     .orElseGet(() -> {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     });
-
 
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

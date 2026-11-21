@@ -1,18 +1,28 @@
 package com.money.SaveMi.Controller;
 
+import java.util.stream.StreamSupport;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.money.SaveMi.DTO.Investment.InvestmentOutDto;
 import com.money.SaveMi.DTO.Investment.SaveInvestmentDto;
 import com.money.SaveMi.DTO.Investment.UpdateInvestmentDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
+import com.money.SaveMi.Filter.InvestmentFilter;
 import com.money.SaveMi.Model.Investment;
 import com.money.SaveMi.Service.InvestmentService;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.time.YearMonth;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/investments")
@@ -24,8 +34,8 @@ public class InvestmentController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<InvestmentOutDto>> getAllInvestments(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
-        Iterable<Investment> investments = investmentService.getAllInvestments(Optional.ofNullable(month));
+    public ResponseEntity<Iterable<InvestmentOutDto>> getAllInvestments(InvestmentFilter filter, @PageableDefault(size = 5) Pageable pageable) {
+        Iterable<Investment> investments = investmentService.getAllInvestments(filter,pageable);
 
         if (investments == null) {
             return ResponseEntity.notFound().build();
@@ -70,7 +80,7 @@ public class InvestmentController {
 
 
     @PostMapping
-    public ResponseEntity<InvestmentOutDto> saveExpense(@RequestBody SaveInvestmentDto investment) {
+    public ResponseEntity<InvestmentOutDto> saveExpense(@RequestBody @Valid SaveInvestmentDto investment) {
         Investment savedInvestment = investmentService.saveInvestment(investment);
 
         if (savedInvestment == null) {
@@ -91,7 +101,7 @@ public class InvestmentController {
     }
 
     @PutMapping
-    public ResponseEntity<InvestmentOutDto> updateExpense(@RequestBody UpdateInvestmentDto investment) {
+    public ResponseEntity<InvestmentOutDto> updateExpense(@RequestBody @Valid UpdateInvestmentDto investment) {
         Investment updateInvestment = investmentService.updateInvestment(investment);
 
         if (updateInvestment == null) {
@@ -112,7 +122,7 @@ public class InvestmentController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteInvestments(@RequestBody BulkDeleteDto bulkDeleteDto){
+    public ResponseEntity<Void> deleteInvestments(@RequestBody @Valid BulkDeleteDto bulkDeleteDto){
         investmentService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }

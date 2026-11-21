@@ -61,7 +61,7 @@ public class IncomeService {
             specs.add((root, q, cb) -> cb.lessThanOrEqualTo(root.get("amount"), filter.amountFinish()));
         }
 
-        return incomeRepo.findAll(Specification.allOf(specs));
+        return incomeRepo.findAll(Specification.allOf(specs), pageable);
     }
 
     public Income getIncomeById(Long id) {
