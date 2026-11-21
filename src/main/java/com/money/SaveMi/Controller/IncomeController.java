@@ -37,7 +37,7 @@ public class IncomeController {
 
     @GetMapping
     @Transactional
-    public ResponseEntity<Iterable<IncomeOutputDto>> getIncomesByUserIdFromCurrency(IncomeFilter filter,
+    public ResponseEntity<Page<IncomeOutputDto>> getIncomesByUserIdFromCurrency(IncomeFilter filter,
             @PageableDefault(size = 5) Pageable pageable) {
         Page<IncomeOutputDto> result = incomeService
                 .getAllIncomeByUserId(filter, pageable)

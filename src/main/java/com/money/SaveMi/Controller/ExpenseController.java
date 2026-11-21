@@ -35,7 +35,7 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses(ExpenseFilter filter,
+    public ResponseEntity<Page<ExpenseOutDto>> getAllExpenses(ExpenseFilter filter,
             @PageableDefault(size = 5) Pageable pageable) {
         Page<ExpenseOutDto> result = expenseService
                 .getAllExpenses(filter, pageable)

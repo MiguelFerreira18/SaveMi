@@ -2,6 +2,7 @@ package com.money.SaveMi.Controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,7 +34,7 @@ public class ObjectiveController {
     @GetMapping
     @Transactional
     public ResponseEntity<Page<ObjectiveOutputDto>> getAllObjectiveByUserIdFromCurrency(ObjectiveFilter filter,
-            Pageable pageable) {
+            @PageableDefault(size = 5) Pageable pageable) {
         Page<ObjectiveOutputDto> result = objectiveService
                 .getAllObjectives(filter, pageable)
                 .map(
