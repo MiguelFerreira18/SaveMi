@@ -1,22 +1,29 @@
 package com.money.SaveMi.Controller;
 
+import java.util.stream.StreamSupport;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.money.SaveMi.DTO.Income.IncomeOutputDto;
 import com.money.SaveMi.DTO.Income.SaveIncomeDto;
 import com.money.SaveMi.DTO.Income.UpdateIncomeDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
+import com.money.SaveMi.Filter.IncomeFilter;
 import com.money.SaveMi.Model.Income;
 import com.money.SaveMi.Service.IncomeService;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.ZoneId;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/incomes")
@@ -29,8 +36,9 @@ public class IncomeController {
 
     @GetMapping
     @Transactional
-    public ResponseEntity<Iterable<IncomeOutputDto>> getIncomesByUserIdFromCurrency(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM")YearMonth month) {
-        Iterable<Income> incomes = incomeService.getAllIncomeByUserId(Optional.ofNullable(month));
+    public ResponseEntity<Iterable<IncomeOutputDto>> getIncomesByUserIdFromCurrency(IncomeFilter filter,
+            @PageableDefault(size = 5) Pageable pageable) {
+        Iterable<Income> incomes = incomeService.getAllIncomeByUserId(filter, pageable);
 
         if (incomes == null) {
             return ResponseEntity.notFound().build();
@@ -43,9 +51,8 @@ public class IncomeController {
                         income.getDescription(),
                         income.getAmount(),
                         income.getUser().getId(),
-                        income.getDate()
-                )
-        ).toList();
+                        income.getDate()))
+                .toList();
 
         System.out.println(incomeOutputDtos);
 
@@ -74,7 +81,7 @@ public class IncomeController {
     }
 
     @PostMapping
-    public ResponseEntity<IncomeOutputDto> saveIncome(@RequestBody SaveIncomeDto income) {
+    public ResponseEntity<IncomeOutputDto> saveIncome(@RequestBody @Valid SaveIncomeDto income) {
         Income savedIncome = incomeService.saveIncome(income);
 
         if (savedIncome == null) {
@@ -87,14 +94,13 @@ public class IncomeController {
                 savedIncome.getDescription(),
                 savedIncome.getAmount(),
                 savedIncome.getUser().getId(),
-                savedIncome.getDate()
-        );
+                savedIncome.getDate());
 
         return ResponseEntity.ok(incomeOutputDto);
     }
 
     @PutMapping
-    public ResponseEntity<IncomeOutputDto> updateIncome(@RequestBody UpdateIncomeDto income) {
+    public ResponseEntity<IncomeOutputDto> updateIncome(@RequestBody @Valid UpdateIncomeDto income) {
         Income updatedIncome = incomeService.updateIncome(income);
 
         if (updatedIncome == null) {
@@ -107,14 +113,13 @@ public class IncomeController {
                 updatedIncome.getDescription(),
                 updatedIncome.getAmount(),
                 updatedIncome.getUser().getId(),
-                updatedIncome.getDate()
-        );
+                updatedIncome.getDate());
 
         return ResponseEntity.ok(incomeOutputDto);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteIncomes(@RequestBody BulkDeleteDto bulkDeleteDto){
+    public ResponseEntity<Void> deleteIncomes(@RequestBody @Valid BulkDeleteDto bulkDeleteDto) {
         incomeService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }
@@ -124,12 +129,4 @@ public class IncomeController {
         incomeService.deleteIncome(id);
         return ResponseEntity.status(202).build();
     }
-
-    private LocalDateTime parserToLocalDateTime(Instant instant) {
-        ZoneId zoneId = ZoneId.systemDefault();
-        return LocalDateTime.ofInstant(instant, zoneId);
-
-    }
-
-
 }

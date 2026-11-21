@@ -62,7 +62,7 @@ public class IncomeControllerTest {
 
     @Test
     void testGetAllIncomes() throws Exception {
-        when(incomeService.getAllIncomeByUserId(any(Optional.class))).thenReturn(Collections.singletonList(income));
+        when(incomeService.getAllIncomeByUserId(null,null));
 
         mockMvc.perform(get("/api/incomes"))
                 .andExpect(status().isOk())

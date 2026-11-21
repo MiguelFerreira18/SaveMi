@@ -1,5 +1,24 @@
 package com.money.SaveMi.Service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.money.SaveMi.DTO.Income.SaveIncomeDto;
 import com.money.SaveMi.DTO.Income.UpdateIncomeDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
@@ -10,22 +29,6 @@ import com.money.SaveMi.Repo.CurrencyRepo;
 import com.money.SaveMi.Repo.IncomeRepo;
 import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.Arrays;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class IncomeServiceTest {
@@ -59,22 +62,10 @@ public class IncomeServiceTest {
         when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
         when(incomeRepo.findByUserId(userUuid)).thenReturn(Arrays.asList(new Income(), new Income()));
 
-        Iterable<Income> result = incomeService.getAllIncomeByUserId(Optional.empty());
+        Iterable<Income> result = incomeService.getAllIncomeByUserId(null, null);
 
         assertNotNull(result);
         verify(incomeRepo, times(1)).findByUserId(userUuid);
-    }
-
-    @Test
-    void testGetAllIncomeByUserIdWithMonth() {
-        YearMonth ym = YearMonth.of(2023, 10);
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(incomeRepo.findAllByUserIdAndYearMonth(userUuid, 2023, 10)).thenReturn(Arrays.asList(new Income()));
-
-        Iterable<Income> result = incomeService.getAllIncomeByUserId(Optional.of(ym));
-
-        assertNotNull(result);
-        verify(incomeRepo, times(1)).findAllByUserIdAndYearMonth(userUuid, 2023, 10);
     }
 
     @Test
