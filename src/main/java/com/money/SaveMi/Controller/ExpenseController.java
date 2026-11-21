@@ -2,6 +2,7 @@ package com.money.SaveMi.Controller;
 
 import java.util.stream.StreamSupport;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -34,29 +35,21 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses(ExpenseFilter filter, @PageableDefault(size = 5) Pageable pageable) {
-        Iterable<Expense> expenses = expenseService.getAllExpenses(filter,pageable);
-
-        if (expenses == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Iterable<ExpenseOutDto> expenseOutDtos = StreamSupport.stream(expenses.spliterator(),false).map(
-                expense -> new ExpenseOutDto(
+    public ResponseEntity<Iterable<ExpenseOutDto>> getAllExpenses(ExpenseFilter filter,
+            @PageableDefault(size = 5) Pageable pageable) {
+        Page<ExpenseOutDto> result = expenseService
+                .getAllExpenses(filter, pageable)
+                .map(expense -> new ExpenseOutDto(
                         expense.getId(),
                         expense.getCategory().getName(),
                         expense.getCurrency().getSymbol(),
                         expense.getDescription(),
                         expense.getAmount(),
                         expense.getUser().getId(),
-                        expense.getDate()
-                )
-        ).toList();
+                        expense.getDate()));
 
-        return ResponseEntity.ok(expenseOutDtos);
+        return ResponseEntity.ok(result);
     }
-
-
 
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseOutDto> getExpenseById(@PathVariable Long id) {
@@ -73,12 +66,10 @@ public class ExpenseController {
                 expense.getDescription(),
                 expense.getAmount(),
                 expense.getUser().getId(),
-                expense.getDate()
-        );
+                expense.getDate());
 
         return ResponseEntity.ok(expenseOutDto);
     }
-
 
     @PostMapping
     public ResponseEntity<ExpenseOutDto> saveExpense(@RequestBody @Valid SaveExpenseDto expense) {
@@ -95,8 +86,7 @@ public class ExpenseController {
                 savedExpense.getDescription(),
                 savedExpense.getAmount(),
                 savedExpense.getUser().getId(),
-                savedExpense.getDate()
-        );
+                savedExpense.getDate());
 
         return ResponseEntity.status(201).body(expenseOutDto);
     }
@@ -116,14 +106,13 @@ public class ExpenseController {
                 updatedExpense.getDescription(),
                 updatedExpense.getAmount(),
                 updatedExpense.getUser().getId(),
-                updatedExpense.getDate()
-        );
+                updatedExpense.getDate());
 
         return ResponseEntity.ok(expenseOutDto);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteExpenses(@RequestBody @Valid BulkDeleteDto bulkDeleteDto){
+    public ResponseEntity<Void> deleteExpenses(@RequestBody @Valid BulkDeleteDto bulkDeleteDto) {
         expenseService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }

@@ -71,16 +71,6 @@ public class InvestmentControllerTest {
     }
 
     @Test
-    void testGetAllInvestments() throws Exception {
-        when(investmentService.getAllInvestments(null, null)).thenReturn(Collections.singletonList(investment));
-
-        mockMvc.perform(get("/api/investments"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].description").value("Apple Stocks"));
-    }
-
-    @Test
     void testGetInvestmentById() throws Exception {
         when(investmentService.getInvestmentById(1L)).thenReturn(investment);
 

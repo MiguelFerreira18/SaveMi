@@ -2,6 +2,7 @@ package com.money.SaveMi.Controller;
 
 import java.util.stream.StreamSupport;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -34,28 +35,21 @@ public class InvestmentController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<InvestmentOutDto>> getAllInvestments(InvestmentFilter filter, @PageableDefault(size = 5) Pageable pageable) {
-        Iterable<Investment> investments = investmentService.getAllInvestments(filter,pageable);
-
-        if (investments == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Iterable<InvestmentOutDto> InvestmentOutDtos = StreamSupport.stream(investments.spliterator(),false).map(
-                investment -> new InvestmentOutDto(
+    public ResponseEntity<Page<InvestmentOutDto>> getAllInvestments(InvestmentFilter filter,
+            @PageableDefault(size = 5) Pageable pageable) {
+        Page<InvestmentOutDto> result = investmentService
+                .getAllInvestments(filter, pageable)
+                .map(investment -> new InvestmentOutDto(
                         investment.getId(),
                         investment.getStrategyType().getName(),
                         investment.getCurrency().getSymbol(),
                         investment.getDescription(),
                         investment.getAmount(),
                         investment.getUser().getId(),
-                        investment.getDate()
-                )
-        ).toList();
+                        investment.getDate()));
 
-        return ResponseEntity.ok(InvestmentOutDtos);
+        return ResponseEntity.ok(result);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<InvestmentOutDto> getInvestmentById(@PathVariable Long id) {
@@ -72,12 +66,10 @@ public class InvestmentController {
                 investment.getDescription(),
                 investment.getAmount(),
                 investment.getUser().getId(),
-                investment.getDate()
-        );
+                investment.getDate());
 
         return ResponseEntity.ok(investmentOutDto);
     }
-
 
     @PostMapping
     public ResponseEntity<InvestmentOutDto> saveExpense(@RequestBody @Valid SaveInvestmentDto investment) {
@@ -87,15 +79,14 @@ public class InvestmentController {
             return ResponseEntity.badRequest().build();
         }
 
-        InvestmentOutDto investmentOutDto = new InvestmentOutDto (
+        InvestmentOutDto investmentOutDto = new InvestmentOutDto(
                 savedInvestment.getId(),
                 savedInvestment.getStrategyType().getName(),
                 savedInvestment.getCurrency().getSymbol(),
                 savedInvestment.getDescription(),
                 savedInvestment.getAmount(),
                 savedInvestment.getUser().getId(),
-                savedInvestment.getDate()
-        );
+                savedInvestment.getDate());
 
         return ResponseEntity.status(201).body(investmentOutDto);
     }
@@ -115,14 +106,13 @@ public class InvestmentController {
                 updateInvestment.getDescription(),
                 updateInvestment.getAmount(),
                 updateInvestment.getUser().getId(),
-                updateInvestment.getDate()
-        );
+                updateInvestment.getDate());
 
         return ResponseEntity.ok(investmentOutDto);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteInvestments(@RequestBody @Valid BulkDeleteDto bulkDeleteDto){
+    public ResponseEntity<Void> deleteInvestments(@RequestBody @Valid BulkDeleteDto bulkDeleteDto) {
         investmentService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }

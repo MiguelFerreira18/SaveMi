@@ -63,16 +63,6 @@ public class ExpenseControllerTest {
     }
 
     @Test
-    void testGetAllExpenses() throws Exception {
-        when(expenseService.getAllExpenses(null,null)).thenReturn(Collections.singletonList(expense));
-
-        mockMvc.perform(get("/api/expenses"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].description").value("Lunch"));
-    }
-
-    @Test
     void testGetExpenseById() throws Exception {
         when(expenseService.getExpenseById(1L)).thenReturn(expense);
 

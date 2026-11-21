@@ -2,6 +2,7 @@ package com.money.SaveMi.Controller;
 
 import java.util.stream.StreamSupport;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -38,25 +39,17 @@ public class IncomeController {
     @Transactional
     public ResponseEntity<Iterable<IncomeOutputDto>> getIncomesByUserIdFromCurrency(IncomeFilter filter,
             @PageableDefault(size = 5) Pageable pageable) {
-        Iterable<Income> incomes = incomeService.getAllIncomeByUserId(filter, pageable);
-
-        if (incomes == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Iterable<IncomeOutputDto> incomeOutputDtos = StreamSupport.stream(incomes.spliterator(), false).map(
-                income -> new IncomeOutputDto(
+        Page<IncomeOutputDto> result = incomeService
+                .getAllIncomeByUserId(filter, pageable)
+                .map(income -> new IncomeOutputDto(
                         income.getId(),
                         income.getCurrency().getSymbol(),
                         income.getDescription(),
                         income.getAmount(),
                         income.getUser().getId(),
-                        income.getDate()))
-                .toList();
+                        income.getDate()));
 
-        System.out.println(incomeOutputDtos);
-
-        return ResponseEntity.ok(incomeOutputDtos);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")

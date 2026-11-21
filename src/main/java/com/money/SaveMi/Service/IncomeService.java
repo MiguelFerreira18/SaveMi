@@ -3,6 +3,7 @@ package com.money.SaveMi.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class IncomeService {
 
     // CRUD
 
-    public Iterable<Income> getAllIncomeByUserId(IncomeFilter filter, Pageable pageable) {
+    public Page<Income> getAllIncomeByUserId(IncomeFilter filter, Pageable pageable) {
         List<Specification<Income>> specs = new ArrayList<>();
         String userId = authUtil.getCurrentUserUuid();
 

@@ -3,6 +3,7 @@ package com.money.SaveMi.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class ExpenseService {
         this.categoryRepo = categoryRepo;
     }
 
-    public Iterable<Expense> getAllExpenses(ExpenseFilter filter, Pageable pageable) {
+    public Page<Expense> getAllExpenses(ExpenseFilter filter, Pageable pageable) {
         List<Specification<Expense>> specs = new ArrayList<>();
         String userId = authUtil.getCurrentUserUuid();
 

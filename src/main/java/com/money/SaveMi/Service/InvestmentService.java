@@ -3,6 +3,7 @@ package com.money.SaveMi.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class InvestmentService {
         this.strategyTypeRepo = strategyTypeRepo;
     }
 
-    public Iterable<Investment> getAllInvestments(InvestmentFilter filter, Pageable pageable) {
+    public Page<Investment> getAllInvestments(InvestmentFilter filter, Pageable pageable) {
         List<Specification<Investment>> specs = new ArrayList<>();
         String userId = authUtil.getCurrentUserUuid();
 
