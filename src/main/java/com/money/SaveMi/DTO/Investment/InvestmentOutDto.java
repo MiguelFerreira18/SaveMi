@@ -1,6 +1,7 @@
 package com.money.SaveMi.DTO.Investment;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public record InvestmentOutDto(
@@ -10,6 +11,10 @@ public record InvestmentOutDto(
         String description,
         BigDecimal amount,
         String userId,
-        LocalDate date
-) {
+        LocalDate date) {
+    public InvestmentOutDto {
+        if (amount != null) {
+            amount = amount.setScale(2, RoundingMode.HALF_UP);
+        }
+    }
 }

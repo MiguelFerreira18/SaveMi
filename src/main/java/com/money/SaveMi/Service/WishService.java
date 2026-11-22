@@ -58,6 +58,12 @@ public class WishService {
         if (filter.amountFinish() != null) {
             specs.add((root, q, cb) -> cb.lessThanOrEqualTo(root.get("amount"), filter.amountFinish()));
         }
+        if (filter.dateStart() != null) {
+            specs.add((root, q, cb) -> cb.greaterThanOrEqualTo(root.get("date"), filter.dateStart()));
+        }
+        if (filter.dateFinish() != null) {
+            specs.add((root, q, cb) -> cb.lessThanOrEqualTo(root.get("date"), filter.dateFinish()));
+        }
 
         return this.wishRepo.findAll(Specification.allOf(specs), pageable);
     }
