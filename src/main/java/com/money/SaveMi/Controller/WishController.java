@@ -21,6 +21,8 @@ import com.money.SaveMi.Filter.WishFilter;
 import com.money.SaveMi.Model.Wish;
 import com.money.SaveMi.Service.WishService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/wishes")
 public class WishController {
@@ -65,7 +67,7 @@ public class WishController {
     }
 
     @PostMapping
-    public ResponseEntity<WishOutputDto> saveWish(@RequestBody SaveWishDto saveWishDto) {
+    public ResponseEntity<WishOutputDto> saveWish(@RequestBody @Valid SaveWishDto saveWishDto) {
         Wish wish = wishService.saveWish(saveWishDto);
 
         if (wish == null) {
@@ -83,7 +85,7 @@ public class WishController {
     }
 
     @PutMapping
-    public ResponseEntity<WishOutputDto> updateWish(@RequestBody UpdateWishDto updateWishDto) {
+    public ResponseEntity<WishOutputDto> updateWish(@RequestBody @Valid UpdateWishDto updateWishDto) {
         Wish wish = wishService.updateWish(updateWishDto);
 
         if (wish == null) {
@@ -101,7 +103,7 @@ public class WishController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteWishes(@RequestBody BulkDeleteDto bulkDeleteDto) {
+    public ResponseEntity<Void> deleteWishes(@RequestBody @Valid BulkDeleteDto bulkDeleteDto) {
         wishService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }

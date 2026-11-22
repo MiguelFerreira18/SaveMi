@@ -22,6 +22,8 @@ import com.money.SaveMi.Filter.ObjectiveFilter;
 import com.money.SaveMi.Model.Objective;
 import com.money.SaveMi.Service.ObjectiveService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/objectives")
 public class ObjectiveController {
@@ -71,7 +73,7 @@ public class ObjectiveController {
     }
 
     @PostMapping
-    public ResponseEntity<ObjectiveOutputDto> saveObjective(@RequestBody SaveObjectiveDto objective) {
+    public ResponseEntity<ObjectiveOutputDto> saveObjective(@RequestBody @Valid SaveObjectiveDto objective) {
         Objective saveObjective = objectiveService.saveObjective(objective);
 
         if (saveObjective == null) {
@@ -90,7 +92,7 @@ public class ObjectiveController {
     }
 
     @PutMapping
-    public ResponseEntity<ObjectiveOutputDto> updateObjective(@RequestBody UpdateObjectiveDto objective) {
+    public ResponseEntity<ObjectiveOutputDto> updateObjective(@RequestBody @Valid UpdateObjectiveDto objective) {
         Objective updateObjective = objectiveService.updateObjective(objective);
 
         if (updateObjective == null) {
@@ -109,7 +111,7 @@ public class ObjectiveController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteObjectives(@RequestBody BulkDeleteDto bulkDeleteDto) {
+    public ResponseEntity<Void> deleteObjectives(@RequestBody @Valid BulkDeleteDto bulkDeleteDto) {
         objectiveService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }
