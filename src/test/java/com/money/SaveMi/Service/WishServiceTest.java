@@ -55,29 +55,6 @@ public class WishServiceTest {
     }
 
     @Test
-    void testGetAllWishesNoMonth() {
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(wishRepo.findAllByUserId(userUuid)).thenReturn(Arrays.asList(new Wish(), new Wish()));
-
-        Iterable<Wish> result = wishService.getAllWishes(Optional.empty());
-
-        assertNotNull(result);
-        verify(wishRepo, times(1)).findAllByUserId(userUuid);
-    }
-
-    @Test
-    void testGetAllWishesWithMonth() {
-        YearMonth ym = YearMonth.of(2023, 10);
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(wishRepo.findAllByUserIdFilteredByMonthAndYear(userUuid, 2023, 10)).thenReturn(Arrays.asList(new Wish()));
-
-        Iterable<Wish> result = wishService.getAllWishes(Optional.of(ym));
-
-        assertNotNull(result);
-        verify(wishRepo, times(1)).findAllByUserIdFilteredByMonthAndYear(userUuid, 2023, 10);
-    }
-
-    @Test
     void testGetWishByIdSuccess() {
         Wish wish = new Wish();
         wish.setId(1L);

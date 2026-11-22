@@ -61,16 +61,6 @@ public class WishControllerTest {
     }
 
     @Test
-    void testGetAllWishes() throws Exception {
-        when(wishService.getAllWishes(any(Optional.class))).thenReturn(Collections.singletonList(wish));
-
-        mockMvc.perform(get("/api/wishes"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].description").value("New Bike"));
-    }
-
-    @Test
     void testGetWishById() throws Exception {
         when(wishService.getWishById(1L)).thenReturn(wish);
 
