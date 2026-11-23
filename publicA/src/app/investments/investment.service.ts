@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CreateInvestmentDto, Investment } from '../shared/models/investment.model';
 import { Page } from '../shared/models/page';
@@ -14,8 +14,20 @@ export class InvestmentService {
 
   constructor() {}
 
-  getInvestments(): Observable<Page<Investment>> {
-    return this.http.get<Page<Investment>>(`${this.apiUrl}`, { withCredentials: true });
+  getInvestments(
+    size: number = 5,
+    page: number = 1,
+    sort: string[] = ['id', 'asc'],
+    text: string = ''
+  ): Observable<Page<Investment>> {
+    let params = new HttpParams().set('size', size).set('page', page).set('sort', sort.join(','));
+    if (text.trim()) {
+      params.set('text', text);
+    }
+    return this.http.get<Page<Investment>>(`${this.apiUrl}`, {
+      withCredentials: true,
+      params: params,
+    });
   }
   postInvestments(investment: CreateInvestmentDto): Observable<Investment> {
     return this.http.post<Investment>(this.apiUrl, investment, { withCredentials: true });

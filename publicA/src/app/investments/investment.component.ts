@@ -5,12 +5,25 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ErrorDisplayComponent } from '../shared/error-display/error-display.component';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import {
+  count,
+  debounceTime,
+  delay,
+  distinctUntilChanged,
+  retry,
+  Subject,
+  Subscription,
+  takeUntil,
+  timer,
+} from 'rxjs';
 import { CreateInvestmentDto, Investment } from '../shared/models/investment.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastService } from '../shared/toast.service';
 import { AddInvestmentDialogComponent } from './add-investment-dialog/add-investment-dialog.component';
 import { InvestmentService } from './investment.service';
+import { emptyPage, Page } from '../shared/models/page';
+import { formatDateFromType } from '../shared/utils/date.utils';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   standalone: true,
@@ -28,6 +41,7 @@ import { InvestmentService } from './investment.service';
 })
 export class InvestmentComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private request?: Subscription;
   columns: TableColumn<Investment>[] = [
     { header: 'Strategy Type', field: 'strategyType' },
     { header: 'Symbol', field: 'symbol' },
@@ -49,16 +63,18 @@ export class InvestmentComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-  readonly allInvestments = signal<Investment[]>([]);
+  readonly pageInvestment = signal<Page<Investment>>(emptyPage());
   investments = signal<Investment[]>([]);
   selectedIds = signal<Set<number>>(new Set<number>());
+  selectedPageSize = signal<number>(5);
+  currentPageIndex = signal<number>(1);
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
   searchControl = new FormControl('');
 
   clearFilter(): void {
-    this.investments.set(this.allInvestments());
+    this.investments.set(this.pageInvestment().content);
     this.searchControl.setValue('', { emitEvent: false });
   }
 
@@ -93,48 +109,36 @@ export class InvestmentComponent implements OnInit, OnDestroy {
     this.selectedIds.update(updater);
   }
 
-  private loadInvestment(retryCount: number = 0, maxRetries: number = 3) {
-    this.investmentService.getInvestments().subscribe({
-      next: (data) => {
-        const processedData = this.formatDateFromInvestment(data.content);
-        this.allInvestments.set(processedData);
-        this.investments.set(processedData);
-        this.isLoading.set(false);
-        this.toast.show(`All Investments were loaded successfully`, 'success', 3000);
-      },
-      error: (_) => {
-        this.hasErrorLoading.set(true);
-        if (retryCount < maxRetries) {
-          const delay = 5000 * Math.pow(2, retryCount);
-          setTimeout(() => {
-            this.loadInvestment(retryCount + 1, maxRetries);
-          }, delay);
-        } else {
+  onPageChange(event: PageEvent) {
+    this.selectedPageSize.set(event.pageSize);
+    this.currentPageIndex.set(event.pageIndex);
+    this.loadInvestment();
+  }
+
+  private loadInvestment(maxRetries: number = 3) {
+    this.request?.unsubscribe;
+    this.isLoading.set(true);
+
+    this.request = this.investmentService
+      .getInvestments(this.selectedPageSize(), this.currentPageIndex())
+      .pipe(retry({ count: maxRetries, delay: (_, n) => timer(5000 * 2 ** (n - 1)) }))
+      .subscribe({
+        next: (data) => {
+          const processedData = formatDateFromType(data);
+          this.pageInvestment.set(processedData);
+          this.investments.set(processedData.content);
+          this.isLoading.set(false);
+          this.hasErrorLoading.set(false);
+          this.toast.show(`All Investments were loaded successfully`, 'success', 3000);
+        },
+        error: (_) => {
+          this.hasErrorLoading.set(true);
           this.isLoading.set(false);
           this.toast.show('An Error occurred ', 'error', 5000);
-        }
-      },
-    });
+        },
+      });
   }
-  private formatDateFromInvestment(investments: Investment[]): Investment[] {
-    return investments.map((investment) => ({
-      ...investment,
-      formattedDate: this.formatDate(investment.date),
-    }));
-  }
-  private formatDate(date: Date): string {
-    if (!date) return '';
 
-    if (Array.isArray(date)) {
-      const [year, month, day] = date;
-      return `${day.toString().padStart(2, '0')}-${(month + 1).toString().padStart(2, '0')}-${year}`;
-    }
-
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  }
   private createInvestment(investment: CreateInvestmentDto) {
     this.investmentService.postInvestments(investment).subscribe({
       next: (data) => {
@@ -150,29 +154,9 @@ export class InvestmentComponent implements OnInit, OnDestroy {
   private setupSearchFilter() {
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => this.filterInvestments());
-  }
-
-  private filterInvestments(): void {
-    const searchTerm = this.searchControl.value;
-    if (
-      searchTerm === null ||
-      searchTerm === undefined ||
-      searchTerm === '' ||
-      searchTerm.trim() === ''
-    ) {
-      this.investments.set(this.allInvestments());
-      return;
-    }
-
-    const filtered = this.allInvestments().filter(
-      (investment) =>
-        investment.description.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        investment.symbol.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        investment.strategyType.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        investment.amount.toString().toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        investment.date.toString().toLowerCase().includes(searchTerm.trim().toLowerCase())
-    );
-    this.investments.set(filtered);
+      .subscribe(() => {
+        this.currentPageIndex.set(0);
+        this.loadInvestment();
+      });
   }
 }

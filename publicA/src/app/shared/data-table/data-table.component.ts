@@ -1,16 +1,8 @@
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  OnChanges,
-  Signal,
-  SimpleChanges,
-  ViewChild,
-  WritableSignal,
-} from '@angular/core';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { Page } from '../models/page';
 export interface TableColumn<T> {
   header: string;
   field: keyof T & string;
@@ -22,28 +14,26 @@ export interface TableColumn<T> {
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.css',
 })
-export class DataTableComponent<T extends { id: number }> implements AfterViewInit, OnChanges {
+export class DataTableComponent<T extends { id: number }> implements OnChanges {
   @Input() columns!: TableColumn<T>[];
-  @Input() data!: T[];
-  @Input() minRows: number = 10;
-  @Input() pageSizeOption?: number[];
+  @Input() page!: Page<T> | null;
+  @Input() pageIndex = 0;
+  @Input() pageSize = 5;
+  @Input() pageSizeOption: number[] = [2, 5, 10, 20, 50];
   @Input() selectedIds!: Set<number>;
   @Input() updateSelectedIds!: (fn: (s: Set<number>) => Set<number>) => void;
+  @Output() onPageChange = new EventEmitter<PageEvent>();
+
   datasource = new MatTableDataSource<T>();
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  private readonly defaultPageSizeOption: number[] = [5, 10, 20, 50];
-
-  ngAfterViewInit(): void {
-    this.datasource.paginator = this.paginator;
-    this.datasource.data = this.data;
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['page'] && this.page) {
+      this.datasource.data = this.page.content;
+    }
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['data']) {
-      this.datasource.data = this.data;
-    }
+  handlePage(event: PageEvent): void {
+    this.onPageChange.emit(event);
   }
 
   toggleAll(event: MatCheckboxChange): void {
@@ -89,8 +79,5 @@ export class DataTableComponent<T extends { id: number }> implements AfterViewIn
 
   get displayedColumns(): string[] {
     return ['actions', ...this.columns.map((c) => c.field as string)];
-  }
-  get paginatorPageSizeOption(): number[] {
-    return this.pageSizeOption || this.defaultPageSizeOption;
   }
 }
