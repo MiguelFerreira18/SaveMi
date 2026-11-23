@@ -96,8 +96,8 @@ export class ObjectiveComponent implements OnInit, OnDestroy {
   private loadObjectives(retryCount: number = 0, maxRetries: number = 3) {
     this.objectiveService.getObjective().subscribe({
       next: (data) => {
-        this.allObjectives.set(data);
-        this.objectives.set(data);
+        this.allObjectives.set(data.content);
+        this.objectives.set(data.content);
         this.isLoading.set(false);
         this.toast.show(`All Incomes were loaded successfully`, 'success', 3000);
       },

@@ -96,7 +96,7 @@ export class InvestmentComponent implements OnInit, OnDestroy {
   private loadInvestment(retryCount: number = 0, maxRetries: number = 3) {
     this.investmentService.getInvestments().subscribe({
       next: (data) => {
-        const processedData = this.formatDateFromInvestment(data);
+        const processedData = this.formatDateFromInvestment(data.content);
         this.allInvestments.set(processedData);
         this.investments.set(processedData);
         this.isLoading.set(false);

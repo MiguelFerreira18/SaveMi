@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CreateObjectiveDto, Objective } from '../shared/models/objective.model';
+import { Page } from '../shared/models/page';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,8 @@ export class ObjectiveService {
 
   constructor() {}
 
-  getObjective(): Observable<Objective[]> {
-    return this.http.get<Objective[]>(`${this.apiUrl}`, { withCredentials: true });
+  getObjective(): Observable<Page<Objective>> {
+    return this.http.get<Page<Objective>>(`${this.apiUrl}`, { withCredentials: true });
   }
 
   postObjective(objective: CreateObjectiveDto): Observable<Objective> {
