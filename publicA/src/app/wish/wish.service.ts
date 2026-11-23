@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CreateWishDto, Wish } from '../shared/models/wish.model';
+import { Page } from '../shared/models/page';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,8 @@ export class WishService {
 
   constructor() {}
 
-  getWishes(): Observable<Wish[]> {
-    return this.http.get<Wish[]>(`${this.apiUrl}`, { withCredentials: true });
+  getWishes(): Observable<Page<Wish>> {
+    return this.http.get<Page<Wish>>(`${this.apiUrl}`, { withCredentials: true });
   }
   postWishes(wish: CreateWishDto): Observable<Wish> {
     return this.http.post<Wish>(this.apiUrl, wish, { withCredentials: true });

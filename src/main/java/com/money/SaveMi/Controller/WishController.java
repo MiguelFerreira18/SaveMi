@@ -1,19 +1,27 @@
 package com.money.SaveMi.Controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.DTO.Wish.SaveWishDto;
 import com.money.SaveMi.DTO.Wish.UpdateWishDto;
 import com.money.SaveMi.DTO.Wish.WishOutputDto;
+import com.money.SaveMi.Filter.WishFilter;
 import com.money.SaveMi.Model.Wish;
 import com.money.SaveMi.Service.WishService;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.time.YearMonth;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/wishes")
@@ -25,30 +33,24 @@ public class WishController {
         this.wishService = wishService;
     }
 
-
     @GetMapping
-    public ResponseEntity<Iterable<WishOutputDto>> getAllWishes(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM")YearMonth month){
-        Iterable<Wish> wishes = wishService.getAllWishes(Optional.ofNullable(month));
-
-        if (wishes == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        List<WishOutputDto> wishesDto = StreamSupport.stream(wishes.spliterator(),false)
+    public ResponseEntity<Page<WishOutputDto>> getAllWishes(WishFilter filter,
+            @PageableDefault(size = 5) Pageable pageable) {
+        Page<WishOutputDto> result = wishService
+                .getAllWishes(filter, pageable)
                 .map(wish -> new WishOutputDto(wish.getId(),
                         wish.getCurrency().getSymbol(),
                         wish.getDescription(),
                         wish.getAmount(),
                         wish.getUser().getId(),
-                        wish.getDate()))
-                .toList();
+                        wish.getDate()));
 
-        return ResponseEntity.ok(wishesDto);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WishOutputDto> getWishById(@PathVariable Long id){
-         Wish wish = wishService.getWishById(id);
+    public ResponseEntity<WishOutputDto> getWishById(@PathVariable Long id) {
+        Wish wish = wishService.getWishById(id);
 
         if (wish == null) {
             return ResponseEntity.notFound().build();
@@ -65,7 +67,7 @@ public class WishController {
     }
 
     @PostMapping
-    public ResponseEntity<WishOutputDto> saveWish(@RequestBody SaveWishDto saveWishDto){
+    public ResponseEntity<WishOutputDto> saveWish(@RequestBody @Valid SaveWishDto saveWishDto) {
         Wish wish = wishService.saveWish(saveWishDto);
 
         if (wish == null) {
@@ -83,7 +85,7 @@ public class WishController {
     }
 
     @PutMapping
-    public ResponseEntity<WishOutputDto> updateWish(@RequestBody UpdateWishDto updateWishDto){
+    public ResponseEntity<WishOutputDto> updateWish(@RequestBody @Valid UpdateWishDto updateWishDto) {
         Wish wish = wishService.updateWish(updateWishDto);
 
         if (wish == null) {
@@ -101,13 +103,13 @@ public class WishController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteWishes(@RequestBody BulkDeleteDto bulkDeleteDto){
+    public ResponseEntity<Void> deleteWishes(@RequestBody @Valid BulkDeleteDto bulkDeleteDto) {
         wishService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWish(@PathVariable Long id){
+    public ResponseEntity<Void> deleteWish(@PathVariable Long id) {
         wishService.deleteWishById(id);
         return ResponseEntity.noContent().build();
     }

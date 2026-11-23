@@ -1,6 +1,8 @@
 package com.money.SaveMi.Repo;
 
 import com.money.SaveMi.Model.Wish;
+
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface WishRepo extends CrudRepository<Wish, Long> {
+public interface WishRepo extends CrudRepository<Wish, Long>, JpaSpecificationExecutor<Wish> {
 
     @Query("SELECT w from Wish w WHERE w.user.id = ?1")
     Iterable<Wish> findAllByUserId(String userUUID);

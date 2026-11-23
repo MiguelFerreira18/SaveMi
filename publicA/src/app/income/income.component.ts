@@ -97,7 +97,7 @@ export class IncomeComponent implements OnInit, OnDestroy {
   private loadIncomes(retryCount: number = 0, maxRetries: number = 3) {
     this.incomeService.getIncome().subscribe({
       next: (data) => {
-        const processedData = this.formatDateFromIncome(data);
+        const processedData = this.formatDateFromIncome(data.content);
         this.allIncomes.set(processedData);
         this.incomes.set(processedData);
         this.isLoading.set(false);

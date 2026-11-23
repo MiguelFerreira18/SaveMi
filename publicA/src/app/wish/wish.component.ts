@@ -98,7 +98,7 @@ export class WishComponent implements OnInit, OnDestroy {
   private loadWishes(retryCount: number = 0, maxRetries: number = 3) {
     this.wishService.getWishes().subscribe({
       next: (data) => {
-        const processedData = this.formatDateFromWish(data);
+        const processedData = this.formatDateFromWish(data.content);
         this.allWishes.set(processedData);
         this.wishes.set(processedData);
         this.isLoading.set(false);

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CreateExpenseDto, Expense } from '../shared/models/expense.model';
+import { Page } from '../shared/models/page';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,8 @@ export class ExpensesService {
 
   constructor() {}
 
-  getExpenses(): Observable<Expense[]> {
-    return this.http.get<Expense[]>(`${this.apiUrl}`, { withCredentials: true });
+  getExpenses(): Observable<Page<Expense>> {
+    return this.http.get<Page<Expense>>(`${this.apiUrl}`, { withCredentials: true });
   }
 
   postExpense(expense: CreateExpenseDto): Observable<Expense> {

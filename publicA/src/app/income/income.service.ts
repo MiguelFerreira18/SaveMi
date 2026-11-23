@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CreateIncomeDto, Income } from '../shared/models/income.model';
+import { Page } from '../shared/models/page';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,8 @@ export class IncomeService {
 
   constructor() {}
 
-  getIncome(): Observable<Income[]> {
-    return this.http.get<Income[]>(`${this.apiUrl}`, { withCredentials: true });
+  getIncome(): Observable<Page<Income>> {
+    return this.http.get<Page<Income>>(`${this.apiUrl}`, { withCredentials: true });
   }
 
   postIncome(income: CreateIncomeDto): Observable<Income> {

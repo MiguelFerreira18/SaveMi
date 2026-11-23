@@ -1,6 +1,7 @@
 package com.money.SaveMi.DTO.Income;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public record IncomeOutputDto(
@@ -9,6 +10,10 @@ public record IncomeOutputDto(
         String description,
         BigDecimal amount,
         String userId,
-        LocalDate date
-) {
+        LocalDate date) {
+    public IncomeOutputDto {
+        if (amount != null) {
+            amount = amount.setScale(2, RoundingMode.HALF_UP);
+        }
+    }
 }

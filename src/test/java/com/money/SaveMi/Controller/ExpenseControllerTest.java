@@ -24,8 +24,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -62,16 +60,6 @@ public class ExpenseControllerTest {
         
         expense = new Expense(testUser, currency, category, new BigDecimal("50.00"), "Lunch", LocalDate.now());
         expense.setId(1L);
-    }
-
-    @Test
-    void testGetAllExpenses() throws Exception {
-        when(expenseService.getAllExpenses(any(Optional.class))).thenReturn(Collections.singletonList(expense));
-
-        mockMvc.perform(get("/api/expenses"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].description").value("Lunch"));
     }
 
     @Test

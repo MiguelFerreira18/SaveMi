@@ -96,6 +96,6 @@ public class StrategyTypeControllerTest {
         doNothing().when(strategyTypeService).deleteStrategyType(1L);
 
         mockMvc.perform(delete("/api/strategies/1"))
-                .andExpect(status().isAccepted());
+                .andExpect(status().isNoContent());
     }
 }

@@ -1,6 +1,8 @@
 package com.money.SaveMi.Repo;
 
 import com.money.SaveMi.Model.Expense;
+
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ExpenseRepo extends CrudRepository<Expense, Long> {
+public interface ExpenseRepo extends CrudRepository<Expense, Long>, JpaSpecificationExecutor<Expense> {
 
     @Query("SELECT e FROM Expense e WHERE e.user.id = ?1")
     Iterable<Expense> findAllByUserId(String userUUID);

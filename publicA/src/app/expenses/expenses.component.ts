@@ -97,7 +97,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
   private loadExpenses(retryCount: number = 0, maxRetries: number = 3) {
     this.expenseService.getExpenses().subscribe({
       next: (data) => {
-        const processedData = this.formatDateFromExpenses(data);
+        const processedData = this.formatDateFromExpenses(data.content);
         this.allExpenses.set(processedData);
         this.expenses.set(processedData);
         this.isLoading.set(false);

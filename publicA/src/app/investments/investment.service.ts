@@ -3,6 +3,7 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CreateInvestmentDto, Investment } from '../shared/models/investment.model';
+import { Page } from '../shared/models/page';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,8 @@ export class InvestmentService {
 
   constructor() {}
 
-  getInvestments(): Observable<Investment[]> {
-    return this.http.get<Investment[]>(`${this.apiUrl}`, { withCredentials: true });
+  getInvestments(): Observable<Page<Investment>> {
+    return this.http.get<Page<Investment>>(`${this.apiUrl}`, { withCredentials: true });
   }
   postInvestments(investment: CreateInvestmentDto): Observable<Investment> {
     return this.http.post<Investment>(this.apiUrl, investment, { withCredentials: true });

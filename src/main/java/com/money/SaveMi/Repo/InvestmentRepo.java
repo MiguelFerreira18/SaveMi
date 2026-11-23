@@ -1,6 +1,8 @@
 package com.money.SaveMi.Repo;
 
 import com.money.SaveMi.Model.Investment;
+
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface InvestmentRepo extends CrudRepository<Investment, Long> {
+public interface InvestmentRepo extends CrudRepository<Investment, Long>, JpaSpecificationExecutor<Investment> {
     @Query("SELECT i FROM Investment i WHERE i.user.id = ?1")
     Iterable<Investment> findAllByUserId(String userUUID);
 
