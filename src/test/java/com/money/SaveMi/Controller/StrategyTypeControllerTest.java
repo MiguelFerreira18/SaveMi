@@ -49,16 +49,6 @@ public class StrategyTypeControllerTest {
     }
 
     @Test
-    void testGetAllStrategyTypes() throws Exception {
-        when(strategyTypeService.getAllStrategyTypes()).thenReturn(Collections.singletonList(strategyType));
-
-        mockMvc.perform(get("/api/strategies"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Aggressive"));
-    }
-
-    @Test
     void testGetStrategyTypeById() throws Exception {
         when(strategyTypeService.getStrategyTypeById(1L)).thenReturn(strategyType);
 

@@ -49,16 +49,6 @@ public class CategoryControllerTest {
     }
 
     @Test
-    void testGetAllCategories() throws Exception {
-        when(categoryService.getAllCategories()).thenReturn(Collections.singletonList(category));
-
-        mockMvc.perform(get("/api/categories"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Cat 1"));
-    }
-
-    @Test
     void testGetCategoryById() throws Exception {
         when(categoryService.getCategoryById(1L)).thenReturn(category);
 

@@ -6,9 +6,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ErrorDisplayComponent } from '../shared/error-display/error-display.component';
 import {
-  count,
   debounceTime,
-  delay,
   distinctUntilChanged,
   retry,
   Subject,
@@ -67,7 +65,7 @@ export class InvestmentComponent implements OnInit, OnDestroy {
   investments = signal<Investment[]>([]);
   selectedIds = signal<Set<number>>(new Set<number>());
   selectedPageSize = signal<number>(5);
-  currentPageIndex = signal<number>(1);
+  currentPageIndex = signal<number>(0);
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 

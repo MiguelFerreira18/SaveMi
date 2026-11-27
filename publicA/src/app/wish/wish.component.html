@@ -31,7 +31,9 @@
 
   <app-data-table
     [columns]="columns"
-    [data]="wishes()"
+    [page]="pageWishes()"
+    [pageIndex]="currentPageIndex()"
+    [pageSize]="selectedPageSize()"
     [selectedIds]="selectedIds()"
     [updateSelectedIds]="updateSelectedIds.bind(this)"
   >

@@ -1,15 +1,22 @@
 package com.money.SaveMi.Controller;
 
-import com.money.SaveMi.DTO.Currency.SaveCurrencyDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.money.SaveMi.DTO.Currency.CurrencyDtoOut;
+import com.money.SaveMi.DTO.Currency.SaveCurrencyDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Currency;
 import com.money.SaveMi.Service.CurrencyService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/api/currencies")
@@ -22,22 +29,15 @@ public class CurrencyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CurrencyDtoOut>> getAllCurrencies() {
-        Iterable<Currency> currencies = currencyService.getAllCurrenciesFromUser();
-
-        if(currencies == null){
-            return ResponseEntity.notFound().build();
-        }
-
-        List<CurrencyDtoOut> currencyDtos = StreamSupport.stream(currencies.spliterator(),false).map(
-                currency -> new CurrencyDtoOut(
-                        currency.getId(),
-                        currency.getName(),
-                        currency.getSymbol()
-                )
-        ).toList();
-
-        return ResponseEntity.ok(currencyDtos);
+    public ResponseEntity<Page<CurrencyDtoOut>> getAllCurrencies(@PageableDefault(5) Pageable pageable) {
+        Page<CurrencyDtoOut> result = currencyService
+                .getAllCurrenciesFromUser(pageable)
+                .map(
+                        currency -> new CurrencyDtoOut(
+                                currency.getId(),
+                                currency.getName(),
+                                currency.getSymbol()));
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
@@ -51,8 +51,7 @@ public class CurrencyController {
         CurrencyDtoOut currencyDtoOut = new CurrencyDtoOut(
                 currency.getId(),
                 currency.getName(),
-                currency.getSymbol()
-        );
+                currency.getSymbol());
 
         return ResponseEntity.ok(currencyDtoOut);
     }
@@ -63,14 +62,13 @@ public class CurrencyController {
         CurrencyDtoOut currencyDtoOut = new CurrencyDtoOut(
                 savedCurrency.getId(),
                 savedCurrency.getName(),
-                savedCurrency.getSymbol()
-        );
+                savedCurrency.getSymbol());
 
         return ResponseEntity.status(201).body(currencyDtoOut);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteCurrencies(@RequestBody BulkDeleteDto bulkDeleteDto){
+    public ResponseEntity<Void> deleteCurrencies(@RequestBody BulkDeleteDto bulkDeleteDto) {
         currencyService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }

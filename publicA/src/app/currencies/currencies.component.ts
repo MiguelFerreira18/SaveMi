@@ -1,6 +1,14 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CurrenciesService } from './currencies.service';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  retry,
+  Subject,
+  Subscription,
+  takeUntil,
+  timer,
+} from 'rxjs';
 import { DataTableComponent, TableColumn } from '../shared/data-table/data-table.component';
 import { CreateCurrencyDto, Currency } from '../shared/models/currency.model';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -11,6 +19,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ErrorDisplayComponent } from '../shared/error-display/error-display.component';
 import { AddCurrencyDialogComponent } from './add-currency-dialog/add-currency-dialog.component';
+import { PageEvent } from '@angular/material/paginator';
+import { emptyPage, Page } from '../shared/models/page';
 
 @Component({
   standalone: true,
@@ -28,6 +38,7 @@ import { AddCurrencyDialogComponent } from './add-currency-dialog/add-currency-d
 })
 export class CurrenciesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private request?: Subscription;
 
   columns: TableColumn<Currency>[] = [
     { header: 'Name', field: 'name' },
@@ -49,8 +60,10 @@ export class CurrenciesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  readonly allCurrencies = signal<Currency[]>([]);
+  readonly pageCurrencies = signal<Page<Currency>>(emptyPage());
   currencies = signal<Currency[]>([]);
+  currentPageIndex = signal<number>(0);
+  selectedPageSize = signal<number>(5);
   selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
@@ -58,7 +71,7 @@ export class CurrenciesComponent implements OnInit, OnDestroy {
   searchControl = new FormControl('');
 
   clearFilter(): void {
-    this.currencies.set(this.allCurrencies());
+    this.currencies.set(this.pageCurrencies().content);
     this.searchControl.setValue('', { emitEvent: false });
   }
 
@@ -93,27 +106,30 @@ export class CurrenciesComponent implements OnInit, OnDestroy {
     this.selectedIds.update(updater);
   }
 
-  private loadCurrencies(retryCount: number = 0, maxRetries: number = 3) {
-    this.currencyService.getCurrencies().subscribe({
-      next: (data) => {
-        this.allCurrencies.set(data);
-        this.currencies.set(data);
-        this.isLoading.set(false);
-        this.toast.show(`All Currencies were loaded successfully`, 'success', 3000);
-      },
-      error: (_) => {
-        this.hasErrorLoading.set(true);
-        if (retryCount < maxRetries) {
-          const delay = 5000 * Math.pow(2, retryCount);
-          setTimeout(() => {
-            this.loadCurrencies(retryCount + 1, maxRetries);
-          }, delay);
-        } else {
+  onPageChange(event: PageEvent) {
+    this.currentPageIndex.set(event.pageIndex);
+    this.selectedPageSize.set(event.pageSize);
+    this.loadCurrencies();
+  }
+
+  private loadCurrencies(maxRetries: number = 3) {
+    this.currencyService
+      .getCurrencies(this.selectedPageSize(), this.currentPageIndex())
+      .pipe(retry({ count: maxRetries, delay: (_, n) => timer(5000 * 2 ** (n - 1)) }))
+      .subscribe({
+        next: (data) => {
+          this.pageCurrencies.set(data);
+          this.currencies.set(data.content);
+          this.isLoading.set(false);
+          this.hasErrorLoading.set(false);
+          this.toast.show(`All Currencies were loaded successfully`, 'success', 3000);
+        },
+        error: (_) => {
+          this.hasErrorLoading.set(true);
           this.isLoading.set(false);
           this.toast.show('An Error ocurred ', 'error', 5000);
-        }
-      },
-    });
+        },
+      });
   }
 
   private createCurrency(currency: CreateCurrencyDto) {
@@ -129,26 +145,9 @@ export class CurrenciesComponent implements OnInit, OnDestroy {
   private setupSearchFilter() {
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => this.filterCurrencies());
-  }
-
-  private filterCurrencies(): void {
-    const searchTerm = this.searchControl.value;
-    if (
-      searchTerm === null ||
-      searchTerm === undefined ||
-      searchTerm === '' ||
-      searchTerm.trim() === ''
-    ) {
-      this.currencies.set(this.allCurrencies());
-      return;
-    }
-
-    const filtered = this.allCurrencies().filter(
-      (currency) =>
-        currency.name.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        currency.symbol.toLowerCase().includes(searchTerm.trim().toLowerCase())
-    );
-    this.currencies.set(filtered);
+      .subscribe(() => {
+        this.currentPageIndex.set(0);
+        this.loadCurrencies();
+      });
   }
 }

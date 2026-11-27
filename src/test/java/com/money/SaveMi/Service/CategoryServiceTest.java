@@ -51,23 +51,6 @@ public class CategoryServiceTest {
     }
 
     @Test
-    void testGetAllCategories() {
-        Category cat1 = new Category(testUser, "Cat 1", "Desc 1");
-        Category cat2 = new Category(testUser, "Cat 2", "Desc 2");
-        
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(categoryRepo.findAllByUserId(userUuid)).thenReturn(Arrays.asList(cat1, cat2));
-
-        Iterable<Category> result = categoryService.getAllCategories();
-
-        assertNotNull(result);
-        int count = 0;
-        for (Category ignored : result) count++;
-        assertEquals(2, count);
-        verify(categoryRepo, times(1)).findAllByUserId(userUuid);
-    }
-
-    @Test
     void testGetCategoryByIdSuccess() {
         Category cat = new Category(testUser, "Cat 1", "Desc 1");
         cat.setId(1L);

@@ -16,7 +16,7 @@ export class InvestmentService {
 
   getInvestments(
     size: number = 5,
-    page: number = 1,
+    page: number = 0,
     sort: string[] = ['id', 'asc'],
     text: string = ''
   ): Observable<Page<Investment>> {

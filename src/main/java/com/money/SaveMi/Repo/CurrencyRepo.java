@@ -1,6 +1,8 @@
 package com.money.SaveMi.Repo;
 
 import com.money.SaveMi.Model.Currency;
+
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CurrencyRepo extends CrudRepository<Currency, Long> {
+public interface CurrencyRepo extends CrudRepository<Currency, Long>, JpaSpecificationExecutor<Currency> {
 
     @Query("SELECT c FROM Currency c WHERE c.user.id = ?1")
     Iterable<Currency> findAllByUserId(String userUUID);

@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { CurrenciesService } from '../../currencies/currencies.service';
+import { APP_CONSTANTS } from '../../app.constants';
 
 @Component({
   selector: 'app-add-income-dialog',
@@ -71,11 +72,13 @@ export class AddIncomeDialogComponent implements OnInit {
   }
 
   private loadCurrencies() {
-    this.currencyService.getCurrencies().subscribe({
-      next: (currencies) => {
-        this.currencies.set(currencies);
-      },
-      error: (_) => {}, //TODO: ADD a LOADING SPINNER
-    });
+    this.currencyService
+      .getCurrencies(APP_CONSTANTS.PAGE_SIZE_MAX, APP_CONSTANTS.PAGE_INDEX_MIN)
+      .subscribe({
+        next: (currencies) => {
+          this.currencies.set(currencies.content);
+        },
+        error: (_) => {}, //TODO: ADD a LOADING SPINNER
+      });
   }
 }

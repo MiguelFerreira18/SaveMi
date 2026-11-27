@@ -4,13 +4,24 @@ import { DataTableComponent, TableColumn } from '../shared/data-table/data-table
 import { MatIcon } from '@angular/material/icon';
 import { CategoriesService } from './categories.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import {
+  count,
+  debounceTime,
+  distinctUntilChanged,
+  retry,
+  Subject,
+  Subscription,
+  takeUntil,
+  timer,
+} from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { AddCategoryDialogComponent } from './add-category-dialog/add-category-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ErrorDisplayComponent } from '../shared/error-display/error-display.component';
 import { ToastService } from '../shared/toast.service';
+import { emptyPage, Page } from '../shared/models/page';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   standalone: true,
@@ -28,15 +39,18 @@ import { ToastService } from '../shared/toast.service';
 })
 export class CategoriesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private request?: Subscription;
 
   columns: TableColumn<Category>[] = [
     { header: 'Name', field: 'name' },
     { header: 'description', field: 'description' },
   ];
 
-  readonly allCategories = signal<Category[]>([]);
+  readonly pageCategories = signal<Page<Category>>(emptyPage());
   categories = signal<Category[]>([]);
   selectedIds = signal<Set<number>>(new Set<number>());
+  selectedPageSize = signal<number>(5);
+  currentPageIndex = signal<number>(0);
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -58,7 +72,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   }
 
   clearFilter(): void {
-    this.categories.set(this.allCategories());
+    this.categories.set(this.pageCategories().content);
     this.searchControl.setValue('', { emitEvent: false });
   }
 
@@ -93,27 +107,33 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     this.selectedIds.update(updater);
   }
 
-  private loadCategories(retryCount: number = 0, maxRetries: number = 3) {
-    this.categoryService.getCategories().subscribe({
-      next: (data) => {
-        this.allCategories.set(data);
-        this.categories.set(data);
-        this.isLoading.set(false);
-        this.toast.show(`All Categories were loaded successfully`, 'success', 3000);
-      },
-      error: (_) => {
-        this.hasErrorLoading.set(true);
-        if (retryCount < maxRetries) {
-          const delay = 5000 * Math.pow(2, retryCount);
-          setTimeout(() => {
-            this.loadCategories(retryCount + 1, maxRetries);
-          }, delay);
-        } else {
+  onPageChange(event: PageEvent) {
+    this.selectedPageSize.set(event.pageSize);
+    this.currentPageIndex.set(event.pageIndex);
+    this.loadCategories();
+  }
+
+  private loadCategories(maxRetries: number = 3) {
+    this.request?.unsubscribe;
+    this.isLoading.set(true);
+
+    this.request = this.categoryService
+      .getCategories(this.selectedPageSize(), this.currentPageIndex())
+      .pipe(retry({ count: maxRetries, delay: (_, n) => timer(5000 * 2 ** (n - 1)) }))
+      .subscribe({
+        next: (data) => {
+          this.pageCategories.set(data);
+          this.categories.set(data.content);
           this.isLoading.set(false);
-          this.toast.show('An Error ocurred ', 'error', 5000);
-        }
-      },
-    });
+          this.hasErrorLoading.set(false);
+          this.toast.show(`All Categories were loaded successfully`, 'success', 3000);
+        },
+        error: () => {
+          this.hasErrorLoading.set(true);
+          this.isLoading.set(false);
+          this.toast.show('An Error occurred ', 'error', 5000);
+        },
+      });
   }
 
   private createCategory(category: CreateCategoryDto) {
@@ -129,26 +149,9 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   private setupSearchFilter() {
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => this.filterCategories());
-  }
-
-  private filterCategories(): void {
-    const searchTerm = this.searchControl.value;
-    if (
-      searchTerm === null ||
-      searchTerm === undefined ||
-      searchTerm === '' ||
-      searchTerm.trim() === ''
-    ) {
-      this.categories.set(this.allCategories());
-      return;
-    }
-
-    const filtered = this.allCategories().filter(
-      (category) =>
-        category.name.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        category.description?.toLowerCase().includes(searchTerm.trim().toLowerCase())
-    );
-    this.categories.set(filtered);
+      .subscribe(() => {
+        this.currentPageIndex.set(0);
+        this.loadCategories();
+      });
   }
 }

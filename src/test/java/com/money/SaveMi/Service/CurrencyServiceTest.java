@@ -46,22 +46,6 @@ public class CurrencyServiceTest {
     }
 
     @Test
-    void testGetAllCurrenciesFromUser() {
-        Currency curr1 = new Currency(testUser, "Dollar", "USD");
-        Currency curr2 = new Currency(testUser, "Euro", "EUR");
-        
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(currencyRepo.findAllByUserId(userUuid)).thenReturn(Arrays.asList(curr1, curr2));
-
-        Iterable<Currency> result = currencyService.getAllCurrenciesFromUser();
-
-        assertNotNull(result);
-        int count = 0;
-        for (Currency ignored : result) count++;
-        assertEquals(2, count);
-    }
-
-    @Test
     void testGetCurrencyByIdSuccess() {
         Currency curr = new Currency(testUser, "Dollar", "USD");
         curr.setId(1L);

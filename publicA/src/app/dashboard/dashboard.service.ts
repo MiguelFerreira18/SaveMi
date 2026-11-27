@@ -9,6 +9,7 @@ import { Currency } from '../shared/models/currency.model';
 import { Investment } from '../shared/models/investment.model';
 import { LineChartData } from '../shared/monthly-line-graph/monthly-line-graph.component';
 import { emptyPage, Page } from '../shared/models/page';
+import { APP_CONSTANTS } from '../app.constants';
 
 interface DashboardData {
   expenses: Expense[];
@@ -70,7 +71,7 @@ export class DashboardService {
   }
 
   loadCurrencies() {
-    return this.getCurrencies().pipe(catchError(() => of([])));
+    return this.getCurrencies().pipe(catchError(() => of(emptyPage<Currency>())));
   }
 
   monthlyLineChartData(
@@ -184,9 +185,13 @@ export class DashboardService {
     });
   }
 
-  private getCurrencies(): Observable<Currency[]> {
-    return this.http.get<Currency[]>(`${this.apiUrl}/${this.currenciesUri}`, {
+  private getCurrencies(): Observable<Page<Currency>> {
+    const params = new HttpParams()
+      .set('size', APP_CONSTANTS.PAGE_SIZE_MAX)
+      .set('page', APP_CONSTANTS.PAGE_INDEX_MIN);
+    return this.http.get<Page<Currency>>(`${this.apiUrl}/${this.currenciesUri}`, {
       withCredentials: true,
+      params,
     });
   }
 

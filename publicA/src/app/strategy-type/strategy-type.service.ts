@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CreateStrategyTypeDto, StrategyType } from '../shared/models/strategy-type.model';
+import { Page } from '../shared/models/page';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,20 @@ export class StrategyTypeService {
 
   constructor() {}
 
-  getStrategyTypes(): Observable<StrategyType[]> {
-    return this.http.get<StrategyType[]>(`${this.apiUrl}`, { withCredentials: true });
+  getStrategyTypes(
+    pageSize: number = 5,
+    pageIndex: number = 0,
+    sort: string[] = ['id', 'asc'],
+    text: string = ''
+  ): Observable<Page<StrategyType>> {
+    let params = new HttpParams()
+      .set('page', pageIndex)
+      .set('size', pageSize)
+      .set('sort', sort.join(','));
+    if (text.trim()) {
+      params = params.set('text', text);
+    }
+    return this.http.get<Page<StrategyType>>(`${this.apiUrl}`, { withCredentials: true, params });
   }
 
   postStrategyType(strategyType: CreateStrategyTypeDto): Observable<StrategyType> {

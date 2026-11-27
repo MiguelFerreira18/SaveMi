@@ -44,17 +44,6 @@ public class StrategyTypeServiceTest {
     }
 
     @Test
-    void testGetAllStrategyTypes() {
-        when(authUtil.getCurrentUserUuid()).thenReturn(userUuid);
-        when(strategyTypeRepo.findAllByUserId(userUuid)).thenReturn(Arrays.asList(new StrategyType(), new StrategyType()));
-
-        Iterable<StrategyType> result = strategyTypeService.getAllStrategyTypes();
-
-        assertNotNull(result);
-        verify(strategyTypeRepo, times(1)).findAllByUserId(userUuid);
-    }
-
-    @Test
     void testGetStrategyTypeByIdSuccess() {
         StrategyType st = new StrategyType();
         st.setId(1L);

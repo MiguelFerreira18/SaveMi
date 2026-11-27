@@ -1,5 +1,10 @@
 package com.money.SaveMi.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.money.SaveMi.DTO.Currency.SaveCurrencyDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Currency;
@@ -7,7 +12,6 @@ import com.money.SaveMi.Model.User;
 import com.money.SaveMi.Repo.CurrencyRepo;
 import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CurrencyService {
@@ -21,15 +25,17 @@ public class CurrencyService {
         this.authUtil = authUtil;
     }
 
-    public Iterable<Currency> getAllCurrenciesFromUser() {
+    public Page<Currency> getAllCurrenciesFromUser(Pageable pageable) {
         String userUUID = authUtil.getCurrentUserUuid();
-        return currencyRepo.findAllByUserId(userUUID);
+        Specification<Currency> spec = (root, q, cb) -> cb.equal(root.get("user").get("id"), userUUID);
+        return currencyRepo.findAll(spec, pageable);
     }
 
     public Currency getCurrencyById(Long id) {
         String userUUID = authUtil.getCurrentUserUuid();
         return currencyRepo.findByIdAndUserId(id, userUUID)
-                .orElseThrow(() -> new RuntimeException("Currency not found with id: " + id + " for user: " + userUUID));
+                .orElseThrow(
+                        () -> new RuntimeException("Currency not found with id: " + id + " for user: " + userUUID));
     }
 
     public Currency saveCurrency(SaveCurrencyDto currency) {
@@ -40,26 +46,26 @@ public class CurrencyService {
         return currencyRepo.save(newCurrency);
     }
 
-    public void bulkDelete(BulkDeleteDto bulkdeleteDto){
+    public void bulkDelete(BulkDeleteDto bulkdeleteDto) {
         String userId = authUtil.getCurrentUserUuid();
 
         bulkdeleteDto.ids().forEach(id -> {
-            if(currencyRepo.findByIdAndUserId(id,userId).isEmpty()){
+            if (currencyRepo.findByIdAndUserId(id, userId).isEmpty()) {
                 throw new RuntimeException("Currency not found with id: " + id + " for user: " + userId + " in bulk");
             }
         });
 
-        currencyRepo.bulkDelete(bulkdeleteDto.ids(),userId);
+        currencyRepo.bulkDelete(bulkdeleteDto.ids(), userId);
     }
 
     public void deleteCurrency(Long id) {
         String userUUID = authUtil.getCurrentUserUuid();
 
-        if(currencyRepo.findByIdAndUserId(id,userUUID).isEmpty()){
+        if (currencyRepo.findByIdAndUserId(id, userUUID).isEmpty()) {
             throw new RuntimeException("Currency not found with id: " + id + " for user: " + userUUID);
         }
 
-        currencyRepo.deleteByIdAndUserId(id,userUUID);
+        currencyRepo.deleteByIdAndUserId(id, userUUID);
     }
 
     public Currency findByNameAndSymbolAndUserId(String name, String symbol, String userId) {

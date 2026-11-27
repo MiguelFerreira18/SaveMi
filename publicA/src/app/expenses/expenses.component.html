@@ -31,9 +31,12 @@
 
   <app-data-table
     [columns]="columns"
-    [data]="expenses()"
+    [page]="pageExpenses()"
+    [pageIndex]="currentPageIndex()"
+    [pageSize]="selectedPageSize()"
     [selectedIds]="selectedIds()"
     [updateSelectedIds]="updateSelectedIds.bind(this)"
+    (onPageChange)="onPageChange($event)"
   >
   </app-data-table>
 }

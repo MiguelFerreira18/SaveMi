@@ -7,6 +7,10 @@ import com.money.SaveMi.Model.User;
 import com.money.SaveMi.Repo.StrategyTypeRepo;
 import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,9 +25,10 @@ public class StrategyTypeService {
         this.authUtil = authUtil;
     }
 
-    public Iterable<StrategyType> getAllStrategyTypes(){
+    public Page<StrategyType> getAllStrategyTypes(Pageable pageable){
         String userUUID = authUtil.getCurrentUserUuid();
-        return strategyTypeRepo.findAllByUserId(userUUID);
+        Specification<StrategyType> spec = (root, q, cb) -> cb.equal(root.get("user").get("id"), userUUID);
+        return strategyTypeRepo.findAll(spec, pageable);
     }
 
     public StrategyType getStrategyTypeById(Long id){

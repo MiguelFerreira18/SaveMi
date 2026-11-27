@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Currency } from '../../shared/models/currency.model';
 import { CurrenciesService } from '../../currencies/currencies.service';
+import { APP_CONSTANTS } from '../../app.constants';
 
 @Component({
   selector: 'app-add-wish-dialog',
@@ -69,11 +70,13 @@ export class AddWishDialogComponent implements OnInit {
   }
 
   private loadCurrencies() {
-    this.currencyService.getCurrencies().subscribe({
-      next: (currencies) => {
-        this.currencies.set(currencies);
-      },
-      error: (err) => console.log(err), //TODO: ADD a LOADING SPINNER
-    });
+    this.currencyService
+      .getCurrencies(APP_CONSTANTS.PAGE_SIZE_MAX, APP_CONSTANTS.PAGE_INDEX_MIN)
+      .subscribe({
+        next: (currencies) => {
+          this.currencies.set(currencies.content);
+        },
+        error: (err) => console.log(err), //TODO: ADD a LOADING SPINNER
+      });
   }
 }

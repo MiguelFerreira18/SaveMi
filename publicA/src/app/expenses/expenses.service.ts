@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CreateExpenseDto, Expense } from '../shared/models/expense.model';
@@ -14,8 +14,20 @@ export class ExpensesService {
 
   constructor() {}
 
-  getExpenses(): Observable<Page<Expense>> {
-    return this.http.get<Page<Expense>>(`${this.apiUrl}`, { withCredentials: true });
+  getExpenses(
+    pageSize: number = 5,
+    pageIndex: number = 0,
+    sort: string[] = ['id', 'asc'],
+    text: string = ''
+  ): Observable<Page<Expense>> {
+    let params = new HttpParams()
+      .set('page', pageIndex)
+      .set('size', pageSize)
+      .set('sort', sort.join(','));
+    if (text.trim()) {
+      params = params.set('text', text);
+    }
+    return this.http.get<Page<Expense>>(`${this.apiUrl}`, { withCredentials: true, params });
   }
 
   postExpense(expense: CreateExpenseDto): Observable<Expense> {

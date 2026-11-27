@@ -1,6 +1,8 @@
 package com.money.SaveMi.Repo;
 
 import com.money.SaveMi.Model.StrategyType;
+
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface StrategyTypeRepo extends CrudRepository<StrategyType, Long> {
+public interface StrategyTypeRepo extends CrudRepository<StrategyType, Long>, JpaSpecificationExecutor<StrategyType> {
 
     @Query("SELECT s FROM StrategyType s WHERE s.user.id = ?1")
     Iterable<StrategyType> findAllByUserId(String userUUID);

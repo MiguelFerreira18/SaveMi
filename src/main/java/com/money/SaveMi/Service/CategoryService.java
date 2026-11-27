@@ -1,5 +1,10 @@
 package com.money.SaveMi.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.money.SaveMi.DTO.Category.SaveCategoryDto;
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.Model.Category;
@@ -7,7 +12,6 @@ import com.money.SaveMi.Model.User;
 import com.money.SaveMi.Repo.CategoryRepo;
 import com.money.SaveMi.Repo.UserRepo;
 import com.money.SaveMi.Utils.AuthenticationServiceUtil;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CategoryService {
@@ -20,9 +24,11 @@ public class CategoryService {
         this.authUtil = authUtil;
     }
 
-    public Iterable<Category> getAllCategories(){
+    public Page<Category> getAllCategories(Pageable pageable){
         String userUUID = authUtil.getCurrentUserUuid();
-        return categoryRepo.findAllByUserId(userUUID);
+        Specification<Category> spec = (root, q, cb) -> cb.equal(root.get("user").get("id"), userUUID);
+        
+        return categoryRepo.findAll(spec,pageable);
     }
 
     public Category getCategoryById(Long id){

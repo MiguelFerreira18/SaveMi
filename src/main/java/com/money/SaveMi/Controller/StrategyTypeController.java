@@ -1,14 +1,22 @@
 package com.money.SaveMi.Controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.money.SaveMi.DTO.Shared.BulkDeleteDto;
 import com.money.SaveMi.DTO.StrategyType.SaveStrategyTypeDto;
 import com.money.SaveMi.DTO.StrategyType.StrategyTypeOutputDto;
 import com.money.SaveMi.Model.StrategyType;
 import com.money.SaveMi.Service.StrategyTypeService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/api/strategies")
@@ -20,22 +28,16 @@ public class StrategyTypeController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<StrategyTypeOutputDto>> GetAllStrategyTypes() {
-        Iterable<StrategyType> strategyTypes = strategyTypeService.getAllStrategyTypes();
+    public ResponseEntity<Page<StrategyTypeOutputDto>> GetAllStrategyTypes(@PageableDefault(5) Pageable pageable) {
+        Page<StrategyTypeOutputDto> result = strategyTypeService
+                .getAllStrategyTypes(pageable)
+                .map(
+                        strategyType -> new StrategyTypeOutputDto(
+                                strategyType.getId(),
+                                strategyType.getName(),
+                                strategyType.getDescription()));
 
-        if (strategyTypes == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Iterable<StrategyTypeOutputDto> strategyTypeOutputDtos = StreamSupport.stream(strategyTypes.spliterator(), false).map(
-                strategyType -> new StrategyTypeOutputDto(
-                        strategyType.getId(),
-                        strategyType.getName(),
-                        strategyType.getDescription()
-                )
-        ).toList();
-
-        return ResponseEntity.ok(strategyTypeOutputDtos);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
@@ -49,8 +51,7 @@ public class StrategyTypeController {
         StrategyTypeOutputDto strategyTypeOutputDto = new StrategyTypeOutputDto(
                 strategyType.getId(),
                 strategyType.getName(),
-                strategyType.getDescription()
-        );
+                strategyType.getDescription());
 
         return ResponseEntity.ok(strategyTypeOutputDto);
     }
@@ -66,14 +67,13 @@ public class StrategyTypeController {
         StrategyTypeOutputDto strategyTypeOutputDto = new StrategyTypeOutputDto(
                 strategyType.getId(),
                 strategyType.getName(),
-                strategyType.getDescription()
-        );
+                strategyType.getDescription());
 
         return ResponseEntity.ok(strategyTypeOutputDto);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteStrategyTypes(@RequestBody BulkDeleteDto bulkDeleteDto){
+    public ResponseEntity<Void> deleteStrategyTypes(@RequestBody BulkDeleteDto bulkDeleteDto) {
         strategyTypeService.bulkDelete(bulkDeleteDto);
         return ResponseEntity.noContent().build();
     }

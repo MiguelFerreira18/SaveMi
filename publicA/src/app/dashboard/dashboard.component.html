@@ -4,6 +4,7 @@
 <!-- Filter by symbol  -->
 <app-generic-dropdown-filter
   [(selected)]="selectedSymbol"
+  (selectedChange)="loadData()"
   [data]="symbols()"
   [displayFn]="displaySymbol"
 ></app-generic-dropdown-filter>

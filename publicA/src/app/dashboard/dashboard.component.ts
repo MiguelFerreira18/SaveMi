@@ -19,7 +19,6 @@ import {
 } from '../shared/monthly-line-graph/monthly-line-graph.component';
 import { BudgetTableComponent } from '../budget-table/budget-table.component';
 import { Investment } from '../shared/models/investment.model';
-import { CurrencyPipe } from '@angular/common';
 
 @Component({
   standalone: true,
@@ -55,33 +54,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { key: 'amount', header: 'Amount', align: 'right' },
   ];
 
-  constructor(private dasboardService: DashboardService) {
-    effect(() => {
-      const symbol = this.selectedSymbol().symbol;
-      this.applyFilters(symbol);
-    });
-  }
+  constructor(private dasboardService: DashboardService) {}
 
   ngOnInit(): void {
-    this.dasboardService
-      .loadCurrencies()
-      .pipe(
-        tap((currencies) => {
-          if (currencies.length !== 0) {
-            this.selectedSymbol.set(currencies[0]);
-            this.symbols.set(currencies);
-          }
-        }),
-        switchMap(() => this.dasboardService.loadAllData(this.selectedSymbol()))
-      )
-      .subscribe((data) => {
-        this.allReducedExpenses.set(data.expenses);
-        this.allRawExpenses.set(data.rawExpenses.content);
-        this.allReducedInvestments.set(data.investments);
-        this.allRawInvestments.set(data.rawInvestments.content);
-        this.allIncomes.set(data.incomes.content);
-        this.allWishes.set(data.wishes.content);
-      });
+    this.loadCurrencies();
   }
 
   ngOnDestroy(): void {
@@ -108,6 +84,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   totalWishes = computed(() => this.wishes().reduce((acc, w) => acc + w.amount, 0));
   totalExpenses = computed(() => this.expenses().reduce((acc, e) => acc + e.amount, 0));
   totalInvestments = computed(() => this.investments().reduce((acc, e) => acc + e.amount, 0));
+
+  loadData() {
+    this.dasboardService.loadAllData(this.selectedSymbol()).subscribe({
+      next: (data) => {
+        this.expenses.set(data.expenses);
+        this.investments.set(data.investments);
+        this.incomes.set(data.incomes.content);
+        this.wishes.set(data.wishes.content);
+        this.allRawExpenses.set(data.rawExpenses.content);
+        this.allRawInvestments.set(data.rawInvestments.content);
+      },
+      error: (err) => console.error('loadAllData failed', err),
+    });
+  }
 
   displaySymbol(currency: Currency): string {
     return currency.symbol;
@@ -141,10 +131,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
   });
 
-  private applyFilters(symbol: string) {
-    this.expenses.set(this.allReducedExpenses().filter((e) => e.symbol == symbol));
-    this.investments.set(this.allReducedInvestments().filter((inv) => inv.symbol == symbol));
-    this.incomes.set(this.allIncomes().filter((i) => i.symbol == symbol));
-    this.wishes.set(this.allWishes().filter((w) => w.symbol == symbol));
+  private loadCurrencies() {
+    this.dasboardService.loadCurrencies().subscribe(({ content }) => {
+      if (content.length) {
+        this.symbols.set(content);
+        this.selectedSymbol.set(content[0]);
+      }
+      this.loadData();
+    });
   }
 }

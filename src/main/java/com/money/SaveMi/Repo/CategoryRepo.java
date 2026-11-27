@@ -1,20 +1,23 @@
 package com.money.SaveMi.Repo;
 
-import com.money.SaveMi.Model.Category;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.money.SaveMi.Model.Category;
 
 @Repository
-public interface CategoryRepo extends CrudRepository<Category, Long> {
+public interface CategoryRepo extends CrudRepository<Category, Long>, JpaSpecificationExecutor<Category>{
 
     @Query("SELECT c FROM Category c WHERE c.user.id = ?1")
-    Iterable<Category> findAllByUserId(String userUUID);
+    Iterator<Category> findAllByUserId(String userUUID);
 
     @Query("SELECT c FROM Category c WHERE c.id = ?1 AND c.user.id = ?2")
     Optional<Category> findByIdAndUserId(Long id, String userUUID);

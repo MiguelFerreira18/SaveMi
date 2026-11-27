@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { APP_CONSTANTS } from '../../app.constants';
 
 @Component({
   selector: 'app-add-objective-dialog',
@@ -56,11 +57,13 @@ export class AddObjectiveDialogComponent implements OnInit {
   }
 
   private loadCurrencies() {
-    this.currencyService.getCurrencies().subscribe({
-      next: (currencies) => {
-        this.currencies.set(currencies);
-      },
-      error: (_) => {}, //TODO: ADD a LOADING SPINNER
-    });
+    this.currencyService
+      .getCurrencies(APP_CONSTANTS.PAGE_SIZE_MAX, APP_CONSTANTS.PAGE_INDEX_MIN)
+      .subscribe({
+        next: (currencies) => {
+          this.currencies.set(currencies.content);
+        },
+        error: (_) => {}, //TODO: ADD a LOADING SPINNER
+      });
   }
 }

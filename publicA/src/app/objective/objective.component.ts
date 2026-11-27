@@ -1,5 +1,13 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  retry,
+  Subject,
+  Subscription,
+  takeUntil,
+  timer,
+} from 'rxjs';
 import { Objective, CreateObjectiveDto } from '../shared/models/objective.model';
 import { TableColumn, DataTableComponent } from '../shared/data-table/data-table.component';
 import { ObjectiveService } from './objective.service';
@@ -11,6 +19,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ErrorDisplayComponent } from '../shared/error-display/error-display.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { emptyPage, Page } from '../shared/models/page';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   standalone: true,
@@ -28,6 +38,7 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class ObjectiveComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private request?: Subscription;
   columns: TableColumn<Objective>[] = [
     { header: 'Symbol', field: 'symbol' },
     { header: 'Description', field: 'description' },
@@ -49,16 +60,18 @@ export class ObjectiveComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-  readonly allObjectives = signal<Objective[]>([]);
+  readonly pageObjectives = signal<Page<Objective>>(emptyPage());
   objectives = signal<Objective[]>([]);
   selectedIds = signal<Set<number>>(new Set<number>());
+  currentPageIndex = signal<number>(0);
+  selectedPageSize = signal<number>(5);
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
   searchControl = new FormControl('');
 
   clearFilter(): void {
-    this.objectives.set(this.allObjectives());
+    this.objectives.set(this.pageObjectives().content);
     this.searchControl.setValue('', { emitEvent: false });
   }
 
@@ -93,27 +106,32 @@ export class ObjectiveComponent implements OnInit, OnDestroy {
     this.selectedIds.update(updater);
   }
 
-  private loadObjectives(retryCount: number = 0, maxRetries: number = 3) {
-    this.objectiveService.getObjective().subscribe({
-      next: (data) => {
-        this.allObjectives.set(data.content);
-        this.objectives.set(data.content);
-        this.isLoading.set(false);
-        this.toast.show(`All Incomes were loaded successfully`, 'success', 3000);
-      },
-      error: (_) => {
-        this.hasErrorLoading.set(true);
-        if (retryCount < maxRetries) {
-          const delay = 5000 * Math.pow(2, retryCount);
-          setTimeout(() => {
-            this.loadObjectives(retryCount + 1, maxRetries);
-          }, delay);
-        } else {
+  onPageChange(event: PageEvent) {
+    this.currentPageIndex.set(event.pageIndex);
+    this.selectedPageSize.set(event.pageSize);
+    this.loadObjectives();
+  }
+
+  private loadObjectives(maxRetries: number = 3) {
+    this.request?.unsubscribe();
+    this.isLoading.set(true);
+
+    this.objectiveService
+      .getObjective(this.selectedPageSize(), this.currentPageIndex())
+      .pipe(retry({ count: maxRetries, delay: (_, n) => timer(5000 * 2 ** (n - 1)) }))
+      .subscribe({
+        next: (data) => {
+          this.pageObjectives.set(data);
+          this.objectives.set(data.content);
+          this.isLoading.set(false);
+          this.toast.show(`All Incomes were loaded successfully`, 'success', 3000);
+        },
+        error: (_) => {
+          this.hasErrorLoading.set(true);
           this.isLoading.set(false);
           this.toast.show('An Error occurred ', 'error', 5000);
-        }
-      },
-    });
+        },
+      });
   }
 
   private createObjective(objective: CreateObjectiveDto) {
@@ -131,28 +149,9 @@ export class ObjectiveComponent implements OnInit, OnDestroy {
   private setupSearchFilter() {
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => this.filterObjectives());
-  }
-
-  private filterObjectives(): void {
-    const searchTerm = this.searchControl.value;
-    if (
-      searchTerm === null ||
-      searchTerm === undefined ||
-      searchTerm === '' ||
-      searchTerm.trim() === ''
-    ) {
-      this.objectives.set(this.allObjectives());
-      return;
-    }
-
-    const filtered = this.allObjectives().filter(
-      (objective) =>
-        objective.description.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        objective.symbol.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        objective.amount.toString().toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        objective.target.toString().toLowerCase().includes(searchTerm.trim().toLowerCase())
-    );
-    this.objectives.set(filtered);
+      .subscribe(() => {
+        this.currentPageIndex.set(0);
+        this.loadObjectives();
+      });
   }
 }

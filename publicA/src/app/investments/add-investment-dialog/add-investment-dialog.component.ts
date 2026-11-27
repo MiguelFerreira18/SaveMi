@@ -11,6 +11,7 @@ import { StrategyType } from '../../shared/models/strategy-type.model';
 import { StrategyTypeService } from '../../strategy-type/strategy-type.service';
 import { CurrenciesService } from '../../currencies/currencies.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { APP_CONSTANTS } from '../../app.constants';
 
 @Component({
   selector: 'app-add-investment-dialog',
@@ -75,20 +76,24 @@ export class AddInvestmentDialogComponent implements OnInit {
   }
 
   private loadCurrencies() {
-    this.currencyService.getCurrencies().subscribe({
-      next: (currencies) => {
-        this.currencies.set(currencies);
-      },
-      error: (err) => console.log(err), //TODO: ADD A LOADING SPINNER LATER TO REQUEST THIS
-    });
+    this.currencyService
+      .getCurrencies(APP_CONSTANTS.PAGE_SIZE_MAX, APP_CONSTANTS.PAGE_INDEX_MIN)
+      .subscribe({
+        next: (currencies) => {
+          this.currencies.set(currencies.content);
+        },
+        error: (err) => console.log(err), //TODO: ADD A LOADING SPINNER LATER TO REQUEST THIS
+      });
   }
 
   private loadCategories() {
-    this.strategyTypeService.getStrategyTypes().subscribe({
-      next: (strategyTypes) => {
-        this.strategyTypes.set(strategyTypes);
-      },
-      error: (err) => console.log(err), //TODO: ADD A LOADING SPINNER LATER TO REQUEST THIS
-    });
+    this.strategyTypeService
+      .getStrategyTypes(APP_CONSTANTS.PAGE_SIZE_MAX, APP_CONSTANTS.PAGE_INDEX_MIN)
+      .subscribe({
+        next: (strategyTypes) => {
+          this.strategyTypes.set(strategyTypes.content);
+        },
+        error: (err) => console.log(err), //TODO: ADD A LOADING SPINNER LATER TO REQUEST THIS
+      });
   }
 }

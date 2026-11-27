@@ -2,7 +2,16 @@ import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { DataTableComponent, TableColumn } from '../shared/data-table/data-table.component';
 import { MatIcon } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import {
+  count,
+  debounceTime,
+  distinctUntilChanged,
+  retry,
+  Subject,
+  Subscription,
+  takeUntil,
+  timer,
+} from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -11,6 +20,8 @@ import { ToastService } from '../shared/toast.service';
 import { CreateStrategyTypeDto, StrategyType } from '../shared/models/strategy-type.model';
 import { AddStrategyTypeDialogComponent } from './add-strategy-type-dialog/add-strategy-type-dialog.component';
 import { StrategyTypeService } from './strategy-type.service';
+import { emptyPage, Page } from '../shared/models/page';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   standalone: true,
@@ -28,15 +39,18 @@ import { StrategyTypeService } from './strategy-type.service';
 })
 export class StrategyTypeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private request?: Subscription;
 
   columns: TableColumn<StrategyType>[] = [
     { header: 'Name', field: 'name' },
     { header: 'description', field: 'description' },
   ];
 
-  readonly allStrategyTypes = signal<StrategyType[]>([]);
+  readonly pageStrategyTypes = signal<Page<StrategyType>>(emptyPage());
   strategyTypes = signal<StrategyType[]>([]);
   selectedIds = signal<Set<number>>(new Set<number>());
+  selectedPageSize = signal<number>(5);
+  currentPageIndex = signal<number>(0);
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
 
@@ -57,7 +71,7 @@ export class StrategyTypeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
   clearFilter(): void {
-    this.strategyTypes.set(this.allStrategyTypes());
+    this.strategyTypes.set(this.pageStrategyTypes().content);
     this.searchControl.setValue('', { emitEvent: false });
   }
 
@@ -92,27 +106,33 @@ export class StrategyTypeComponent implements OnInit, OnDestroy {
     this.selectedIds.update(updater);
   }
 
-  private loadStrategyTypes(retryCount: number = 0, maxRetries: number = 3) {
-    this.strategyService.getStrategyTypes().subscribe({
-      next: (data) => {
-        this.allStrategyTypes.set(data);
-        this.strategyTypes.set(data);
-        this.isLoading.set(false);
-        this.toast.show(`All strategies were loaded successfully`, 'success', 3000);
-      },
-      error: (_) => {
-        this.hasErrorLoading.set(true);
-        if (retryCount < maxRetries) {
-          const delay = 5000 * Math.pow(2, retryCount);
-          setTimeout(() => {
-            this.loadStrategyTypes(retryCount + 1, maxRetries);
-          }, delay);
-        } else {
+  onPageChange(event: PageEvent) {
+    this.selectedPageSize.set(event.pageSize);
+    this.currentPageIndex.set(event.pageIndex);
+    this.loadStrategyTypes();
+  }
+
+  private loadStrategyTypes(maxRetries: number = 3) {
+    this.request?.unsubscribe;
+    this.isLoading.set(true);
+
+    this.request = this.strategyService
+      .getStrategyTypes(this.selectedPageSize(), this.currentPageIndex())
+      .pipe(retry({ count: maxRetries, delay: (_, n) => timer(5000 * 2 ** (n - 1)) }))
+      .subscribe({
+        next: (data) => {
+          this.pageStrategyTypes.set(data);
+          this.strategyTypes.set(data.content);
+          this.isLoading.set(false);
+          this.hasErrorLoading.set(false);
+          this.toast.show(`All strategies were loaded successfully`, 'success', 3000);
+        },
+        error: (_) => {
+          this.hasErrorLoading.set(true);
           this.isLoading.set(false);
           this.toast.show('An Error ocurred ', 'error', 5000);
-        }
-      },
-    });
+        },
+      });
   }
 
   private createStrategyType(strategy: CreateStrategyTypeDto) {
@@ -128,26 +148,9 @@ export class StrategyTypeComponent implements OnInit, OnDestroy {
   private setupSearchFilter() {
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => this.filterStrategies());
-  }
-
-  private filterStrategies(): void {
-    const searchTerm = this.searchControl.value;
-    if (
-      searchTerm === null ||
-      searchTerm === undefined ||
-      searchTerm === '' ||
-      searchTerm.trim() === ''
-    ) {
-      this.strategyTypes.set(this.allStrategyTypes());
-      return;
-    }
-
-    const filtered = this.allStrategyTypes().filter(
-      (category) =>
-        category.name.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        category.description?.toLowerCase().includes(searchTerm.trim().toLowerCase())
-    );
-    this.strategyTypes.set(filtered);
+      .subscribe(() => {
+        this.currentPageIndex.set(0);
+        this.loadStrategyTypes();
+      });
   }
 }

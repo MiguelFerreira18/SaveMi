@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CreateWishDto, Wish } from '../shared/models/wish.model';
@@ -14,8 +14,21 @@ export class WishService {
 
   constructor() {}
 
-  getWishes(): Observable<Page<Wish>> {
-    return this.http.get<Page<Wish>>(`${this.apiUrl}`, { withCredentials: true });
+  getWishes(
+    pageSize: number = 5,
+    pageIndex: number = 0,
+    sort: string[] = ['id,asc'],
+    text: string = ''
+  ): Observable<Page<Wish>> {
+    let params = new HttpParams()
+      .set('size', pageSize)
+      .set('page', pageIndex)
+      .set('sort', sort.join(','));
+    if (text.trim()) {
+      params = params.set('text', text);
+    }
+
+    return this.http.get<Page<Wish>>(`${this.apiUrl}`, { withCredentials: true, params });
   }
   postWishes(wish: CreateWishDto): Observable<Wish> {
     return this.http.post<Wish>(this.apiUrl, wish, { withCredentials: true });

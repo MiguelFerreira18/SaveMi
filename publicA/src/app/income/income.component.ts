@@ -2,7 +2,16 @@ import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { AddIncomeDialogComponent } from './add-income-dialog/add-income-dialog.component';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import {
+  debounceTime,
+  delay,
+  distinctUntilChanged,
+  retry,
+  Subject,
+  Subscription,
+  takeUntil,
+  timer,
+} from 'rxjs';
 import { DataTableComponent, TableColumn } from '../shared/data-table/data-table.component';
 import { CreateIncomeDto, Income } from '../shared/models/income.model';
 import { ToastService } from '../shared/toast.service';
@@ -11,6 +20,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ErrorDisplayComponent } from '../shared/error-display/error-display.component';
 import { IncomeService } from './income.service';
+import { emptyPage, Page } from '../shared/models/page';
+import { PageEvent } from '@angular/material/paginator';
+import { formatDateFromType } from '../shared/utils/date.utils';
 
 @Component({
   standalone: true,
@@ -28,6 +40,7 @@ import { IncomeService } from './income.service';
 })
 export class IncomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private request?: Subscription;
   columns: TableColumn<Income>[] = [
     { header: 'Symbol', field: 'symbol' },
     { header: 'Description', field: 'description' },
@@ -50,8 +63,10 @@ export class IncomeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  readonly allIncomes = signal<Income[]>([]);
+  readonly pageIncomes = signal<Page<Income>>(emptyPage());
   incomes = signal<Income[]>([]);
+  currentPageIndex = signal<number>(0);
+  selectedPageSize = signal<number>(5);
   selectedIds = signal<Set<number>>(new Set<number>());
   isLoading = signal<boolean>(true);
   hasErrorLoading = signal<boolean>(false);
@@ -59,7 +74,7 @@ export class IncomeComponent implements OnInit, OnDestroy {
   searchControl = new FormControl('');
 
   clearFilter(): void {
-    this.incomes.set(this.allIncomes());
+    this.incomes.set(this.pageIncomes().content);
     this.searchControl.setValue('', { emitEvent: false });
   }
 
@@ -94,28 +109,34 @@ export class IncomeComponent implements OnInit, OnDestroy {
     this.selectedIds.update(updater);
   }
 
-  private loadIncomes(retryCount: number = 0, maxRetries: number = 3) {
-    this.incomeService.getIncome().subscribe({
-      next: (data) => {
-        const processedData = this.formatDateFromIncome(data.content);
-        this.allIncomes.set(processedData);
-        this.incomes.set(processedData);
-        this.isLoading.set(false);
-        this.toast.show(`All Incomes were loaded successfully`, 'success', 3000);
-      },
-      error: (_) => {
-        this.hasErrorLoading.set(true);
-        if (retryCount < maxRetries) {
-          const delay = 5000 * Math.pow(2, retryCount);
-          setTimeout(() => {
-            this.loadIncomes(retryCount + 1, maxRetries);
-          }, delay);
-        } else {
+  onPageChange(event: PageEvent) {
+    this.currentPageIndex.set(event.pageIndex);
+    this.selectedPageSize.set(event.pageSize);
+    this.loadIncomes();
+  }
+
+  private loadIncomes(maxRetries: number = 3) {
+    this.request?.unsubscribe();
+    this.isLoading.set(true);
+
+    this.incomeService
+      .getIncome(this.selectedPageSize(), this.currentPageIndex())
+      .pipe(retry({ count: maxRetries, delay: (_, n) => timer(5000 * 2 ** (n - 1)) }))
+      .subscribe({
+        next: (data) => {
+          const processedData = formatDateFromType(data);
+          this.pageIncomes.set(processedData);
+          this.incomes.set(processedData.content);
+          this.isLoading.set(false);
+          this.hasErrorLoading.set(false);
+          this.toast.show(`All Incomes were loaded successfully`, 'success', 3000);
+        },
+        error: (_) => {
+          this.hasErrorLoading.set(true);
           this.isLoading.set(false);
           this.toast.show('An Error occurred ', 'error', 5000);
-        }
-      },
-    });
+        },
+      });
   }
 
   private createIncome(income: CreateIncomeDto) {
@@ -130,50 +151,12 @@ export class IncomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  private formatDateFromIncome(incomes: Income[]): Income[] {
-    return incomes.map((income) => ({
-      ...income,
-      formattedDate: this.formatDate(income.date),
-    }));
-  }
-  private formatDate(date: Date): string {
-    if (!date) return '';
-
-    if (Array.isArray(date)) {
-      const [year, month, day] = date;
-      return `${day.toString().padStart(2, '0')}-${(month + 1).toString().padStart(2, '0')}-${year}`;
-    }
-
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  }
   private setupSearchFilter() {
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => this.filterIncomes());
-  }
-
-  private filterIncomes(): void {
-    const searchTerm = this.searchControl.value;
-    if (
-      searchTerm === null ||
-      searchTerm === undefined ||
-      searchTerm === '' ||
-      searchTerm.trim() === ''
-    ) {
-      this.incomes.set(this.allIncomes());
-      return;
-    }
-
-    const filtered = this.allIncomes().filter(
-      (incomes) =>
-        incomes.description.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        incomes.symbol.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        incomes.amount.toString().toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        incomes.date.toString().toLowerCase().includes(searchTerm.trim().toLowerCase())
-    );
-    this.incomes.set(filtered);
+      .subscribe(() => {
+        this.currentPageIndex.set(0);
+        this.loadIncomes();
+      });
   }
 }

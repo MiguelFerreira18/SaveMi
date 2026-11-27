@@ -11,6 +11,7 @@ import { CategoriesService } from '../../categories/categories.service';
 import { CurrenciesService } from '../../currencies/currencies.service';
 import { Currency } from '../../shared/models/currency.model';
 import { Category } from '../../shared/models/category.model';
+import { APP_CONSTANTS } from '../../app.constants';
 
 @Component({
   selector: 'app-add-expense-dialog',
@@ -75,20 +76,24 @@ export class AddExpenseDialogComponent implements OnInit {
   }
 
   private loadCurrencies() {
-    this.currencyService.getCurrencies().subscribe({
-      next: (currencies) => {
-        this.currencies.set(currencies);
-      },
-      error: (err) => console.log(err), //TODO: ADD A LOADING SPINNER LATER TO REQUEST THIS
-    });
+    this.currencyService
+      .getCurrencies(APP_CONSTANTS.PAGE_SIZE_MAX, APP_CONSTANTS.PAGE_INDEX_MIN)
+      .subscribe({
+        next: (currencies) => {
+          this.currencies.set(currencies.content);
+        },
+        error: (err) => console.log(err), //TODO: ADD A LOADING SPINNER LATER TO REQUEST THIS
+      });
   }
 
   private loadCategories() {
-    this.categoryService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories.set(categories);
-      },
-      error: (err) => console.log(err), //TODO: ADD A LOADING SPINNER LATER TO REQUEST THIS
-    });
+    this.categoryService
+      .getCategories(APP_CONSTANTS.PAGE_SIZE_MAX, APP_CONSTANTS.PAGE_INDEX_MIN)
+      .subscribe({
+        next: (categories) => {
+          this.categories.set(categories.content);
+        },
+        error: (err) => console.log(err), //TODO: ADD A LOADING SPINNER LATER TO REQUEST THIS
+      });
   }
 }

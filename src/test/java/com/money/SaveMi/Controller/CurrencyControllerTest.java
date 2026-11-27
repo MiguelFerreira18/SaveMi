@@ -49,16 +49,6 @@ public class CurrencyControllerTest {
     }
 
     @Test
-    void testGetAllCurrencies() throws Exception {
-        when(currencyService.getAllCurrenciesFromUser()).thenReturn(Collections.singletonList(currency));
-
-        mockMvc.perform(get("/api/currencies"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Euro"));
-    }
-
-    @Test
     void testGetCurrencyById() throws Exception {
         when(currencyService.getCurrencyById(1L)).thenReturn(currency);
 

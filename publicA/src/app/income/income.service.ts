@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CreateIncomeDto, Income } from '../shared/models/income.model';
@@ -14,8 +14,20 @@ export class IncomeService {
 
   constructor() {}
 
-  getIncome(): Observable<Page<Income>> {
-    return this.http.get<Page<Income>>(`${this.apiUrl}`, { withCredentials: true });
+  getIncome(
+    pageSize: number = 5,
+    pageIndex: number = 0,
+    sort: string[] = ['id', 'asc'],
+    text: string = ''
+  ): Observable<Page<Income>> {
+    let params = new HttpParams()
+      .set('size', pageSize)
+      .set('page', pageIndex)
+      .set('sort', sort.join(','));
+    if (text.trim()) {
+      params = params.set('text', text);
+    }
+    return this.http.get<Page<Income>>(`${this.apiUrl}`, { withCredentials: true, params });
   }
 
   postIncome(income: CreateIncomeDto): Observable<Income> {

@@ -36,9 +36,12 @@
 
   <app-data-table
     [columns]="columns"
-    [data]="currencies()"
+    [page]="pageCurrencies()"
+    [pageSize]="selectedPageSize()"
+    [pageIndex]="currentPageIndex()"
     [selectedIds]="selectedIds()"
     [updateSelectedIds]="updateSelectedIds.bind(this)"
+    (onPageChange)="onPageChange($event)"
   >
   </app-data-table>
 }
